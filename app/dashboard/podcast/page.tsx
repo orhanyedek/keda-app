@@ -61,7 +61,13 @@ export default function PodcastPage() {
     setGenerating(true);
     try {
       const result = await generatePodcastDialogue(inputText);
-      setDialogue(result.dialogue || []);
+      // Gemini konusmaci/metin döndürüyor, biz speaker/text bekliyoruz - normalize et
+      const rawDialogue = result.dialogue || result.diyalog || [];
+      const normalized = rawDialogue.map((l: { speaker?: string; konusmaci?: string; text?: string; metin?: string }, i: number) => ({
+        speaker: l.speaker || (l.konusmaci === "Öğretmen" || l.konusmaci === "A" ? "A" : "B") || (i % 2 === 0 ? "A" : "B"),
+        text: l.text || l.metin || "",
+      }));
+      setDialogue(normalized);
       toast.success("Podcast diyaloğu oluşturuldu!");
 
       // Supabase'e kaydet

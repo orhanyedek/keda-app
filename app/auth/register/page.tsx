@@ -94,9 +94,15 @@ export default function RegisterPage() {
       }
       
       if (data.user) {
-        toast.success("Hesabiniz olusturuldu! Hosgeldiniz.");
-        router.push("/dashboard");
-        router.refresh();
+        // Email confirmation açıksa kullanıcı hemen giriş yapamaz
+        if (data.session) {
+          toast.success("Hesabınız oluşturuldu! Hoş geldiniz.");
+          router.push("/dashboard");
+          router.refresh();
+        } else {
+          toast.success("Hesabınız oluşturuldu! E-postanızı doğrulayın, ardından giriş yapın.", { duration: 6000 });
+          router.push("/auth/login");
+        }
       }
     } finally {
       setLoading(false);

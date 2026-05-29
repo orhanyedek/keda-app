@@ -66,13 +66,20 @@ export async function updateFlashcardResult(
   const nextDate = new Date();
   nextDate.setDate(nextDate.getDate() + intervalDays);
 
+  // Önce mevcut sayaçları oku
+  const { data: card } = await supabase
+    .from("flashcards")
+    .select("dogru_sayisi, yanlis_sayisi")
+    .eq("id", cardId)
+    .single();
+
   const { error } = await supabase
     .from("flashcards")
     .update({
       kutu_no: newBox,
       sonraki_gosterim: nextDate.toISOString(),
-      dogru_sayisi: correct ? supabase.rpc("increment", { x: 1 }) : undefined,
-      yanlis_sayisi: !correct ? supabase.rpc("increment", { x: 1 }) : undefined,
+      dogru_sayisi: correct ? (card?.dogru_sayisi || 0) + 1 : card?.dogru_sayisi || 0,
+      yanlis_sayisi: !correct ? (card?.yanlis_sayisi || 0) + 1 : card?.yanlis_sayisi || 0,
     })
     .eq("id", cardId);
   return { error };

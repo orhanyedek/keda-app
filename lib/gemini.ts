@@ -126,27 +126,23 @@ SADECE şu JSON formatında yanıt ver:
  * Bu metin daha sonra TTS ile seslendirilir.
  */
 export async function generatePodcastDialogue(text: string) {
-  const prompt = `Sen bir eğitim podcast senaryosu yazarısın. Aşağıdaki metni, 
-  "Öğretmen" ve "Öğrenci" adlı iki konuşmacının diyaloğuna çevir.
-  
+  const prompt = `Sen bir eğitim podcast senaryosu yazarısın. Aşağıdaki metni iki konuşmacının (A ve B) diyaloğuna çevir.
+A = Öğretmen (açıklayan), B = Öğrenci (soru soran).
+
 Metin:
-${text.substring(0, 3000)} // İlk 3000 karakter alınır
+${text.substring(0, 3000)}
 
-Diyalog doğal, akıcı ve öğretici olsun. Öğrenci soru sorsun, öğretmen açıklasın.
-Yaklaşık 10-15 alışveriş olsun.
+Kurallar:
+- Diyalog doğal, akıcı ve öğretici olsun
+- 10-15 konuşma satırı olsun
+- Türkçe olsun
 
-SADECE şu JSON formatında yanıt ver:
+SADECE şu JSON formatında yanıt ver, başka hiçbir şey yazma:
 {
   "baslik": "Podcast başlığı",
-  "diyalog": [
-    {
-      "konusmaci": "Öğretmen",
-      "metin": "Merhaba! Bugün..."
-    },
-    {
-      "konusmaci": "Öğrenci", 
-      "metin": "Hocam, şunu merak ediyorum..."
-    }
+  "dialogue": [
+    { "speaker": "A", "text": "Merhaba! Bugün..." },
+    { "speaker": "B", "text": "Hocam, şunu merak ediyorum..." }
   ]
 }`;
 
