@@ -6,54 +6,49 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { getDashboardStats } from "@/lib/db";
+import { CalendarDays, Mic, Layers, Clock, BookOpen, ArrowRight } from "lucide-react";
 
 const fadeUp = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } };
 const stagger = { visible: { transition: { staggerChildren: 0.08 } } };
 
-function getMotivation(): string {
-  const hour = new Date().getHours();
-  if (hour < 6) return "Gece çalışması, başarıya giden yolun en sessiz saatidir.";
-  if (hour < 12) return "Günaydın! Yeni bir gün, yeni bir başarı fırsatı.";
-  if (hour < 17) return "Odaklan, her konu seni hedefe yaklaştırıyor.";
-  if (hour < 21) return "Akşam tekrarları, bilgiyi kalıcı hale getirir.";
-  return "Günün son çalışmasıyla kendin için yatırım yapıyorsun.";
-}
-
-function StatCard({ icon, label, value, color, sub }: { icon: string; label: string; value: string | number; color: string; sub?: string }) {
+function StatCard({ icon: Icon, label, value, sub }: { icon: React.ElementType; label: string; value: string | number; sub?: string }) {
   return (
-    <motion.div variants={fadeUp} className={`keda-card p-5 border ${color}`}>
-      <div className="text-2xl mb-3">{icon}</div>
-      <div className="text-3xl font-bold text-white mb-1">{value}</div>
+    <motion.div variants={fadeUp} className="keda-card p-5">
+      <div className="w-9 h-9 rounded-xl bg-indigo-600/15 border border-indigo-500/20 flex items-center justify-center mb-4">
+        <Icon className="w-4 h-4 text-indigo-400" />
+      </div>
+      <div className="text-2xl font-bold text-white mb-1">{value}</div>
       <div className="text-sm text-slate-400">{label}</div>
-      {sub && <div className="text-xs text-slate-600 mt-1">{sub}</div>}
+      {sub && <div className="text-xs text-slate-600 mt-1 truncate">{sub}</div>}
     </motion.div>
   );
 }
 
-function ModuleCard({ href, icon, title, desc, color, borderColor, module }: {
-  href: string; icon: string; title: string; desc: string; color: string; borderColor: string; module: string;
+function ModuleCard({ href, icon: Icon, title, desc, module }: {
+  href: string; icon: React.ElementType; title: string; desc: string; module: string;
 }) {
   return (
     <motion.div variants={fadeUp}>
-      <Link href={href} className={`keda-card block p-6 border ${borderColor} bg-gradient-to-br ${color} hover:scale-[1.02] transition-transform duration-300`}>
-        <div className="text-3xl mb-3">{icon}</div>
-        <h3 className="text-lg font-semibold text-white mb-1">{title}</h3>
-        <p className="text-slate-400 text-sm leading-relaxed mb-3">{desc}</p>
+      <Link href={href} className="keda-card block p-6 hover:border-indigo-500/30 transition-colors group">
+        <div className="w-10 h-10 rounded-xl bg-indigo-600/15 border border-indigo-500/20 flex items-center justify-center mb-4">
+          <Icon className="w-5 h-5 text-indigo-400" />
+        </div>
+        <h3 className="text-base font-semibold text-white mb-1 group-hover:text-indigo-300 transition-colors">{title}</h3>
+        <p className="text-slate-400 text-sm leading-relaxed mb-4">{desc}</p>
         <div className="flex items-center justify-between">
           <span className="text-xs text-slate-600 font-mono">{module}</span>
-          <svg className="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
+          <ArrowRight className="w-4 h-4 text-slate-600 group-hover:text-indigo-400 transition-colors" />
         </div>
       </Link>
     </motion.div>
   );
 }
+
 
 interface DashboardStats {
   toplam_flashcard: number;
@@ -108,45 +103,39 @@ export default function DashboardPage() {
   return (
     <div className="p-6 lg:p-8 max-w-7xl mx-auto pb-24 lg:pb-8">
 
-      {/* Hoşgeldin kartı */}
-      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
-        className="keda-card p-6 mb-8 border border-indigo-500/15 bg-gradient-to-r from-indigo-600/10 via-purple-600/5 to-transparent relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600/5 rounded-full blur-3xl pointer-events-none" />
-        <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <p className="text-slate-400 text-sm mb-1">{today}</p>
-            <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
-              Merhaba, <span className="gradient-text">{userName}</span>
-            </h1>
-            <p className="text-slate-400 text-sm max-w-md">{getMotivation()}</p>
-          </div>
-          {stats?.bugun_tekrar_edilecek > 0 && (
-            <div className="flex items-center gap-2 glass px-4 py-2 rounded-xl border border-amber-500/20">
-              <span className="text-amber-400 text-xl">⏰</span>
-              <div>
-                <div className="text-white font-bold text-lg leading-none">{stats.bugun_tekrar_edilecek}</div>
-                <div className="text-slate-500 text-xs">Kart Bekliyor</div>
-              </div>
-            </div>
-          )}
+      {/* Hoşgeldin */}
+      <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
+        className="keda-card p-6 mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <p className="text-slate-500 text-xs mb-1">{today}</p>
+          <h1 className="text-xl font-bold text-white">{userName}</h1>
         </div>
+        {stats?.bugun_tekrar_edilecek > 0 && (
+          <Link href="/dashboard/flashcards" className="flex items-center gap-2 glass px-4 py-2 rounded-xl border border-amber-500/20 hover:border-amber-500/40 transition-colors">
+            <Clock className="w-4 h-4 text-amber-400" />
+            <div>
+              <div className="text-white font-semibold text-sm leading-none">{stats.bugun_tekrar_edilecek} kart</div>
+              <div className="text-slate-500 text-xs">tekrar zamanı</div>
+            </div>
+          </Link>
+        )}
       </motion.div>
 
       {/* İstatistik kartları */}
       <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <StatCard icon="🃏" label="Toplam Flashcard" value={loadingStats ? "..." : stats?.toplam_flashcard || 0} color="border-indigo-500/20" sub="Gemini ile üretildi" />
-        <StatCard icon="⏰" label="Bugün Tekrar" value={loadingStats ? "..." : stats?.bugun_tekrar_edilecek || 0} color="border-purple-500/20" sub="Kart bekliyor" />
-        <StatCard icon="📅" label="Aktif Plan" value={loadingStats ? "..." : stats?.aktif_plan ? getKalanGun() + " gün" : "—"} color="border-blue-500/20" sub={stats?.aktif_plan?.baslik || "Plan yok"} />
-        <StatCard icon="🎙" label="Son Podcast" value={loadingStats ? "..." : stats?.son_podcast ? "✓" : "—"} color="border-pink-500/20" sub={stats?.son_podcast?.baslik || "Henüz yok"} />
+        <StatCard icon={Layers} label="Toplam Flashcard" value={loadingStats ? "..." : stats?.toplam_flashcard || 0} sub="Gemini ile üretildi" />
+        <StatCard icon={Clock} label="Bugün Tekrar" value={loadingStats ? "..." : stats?.bugun_tekrar_edilecek || 0} sub="Kart bekliyor" />
+        <StatCard icon={CalendarDays} label="Aktif Plan" value={loadingStats ? "..." : stats?.aktif_plan ? getKalanGun() + " gün" : "—"} sub={stats?.aktif_plan?.baslik || "Plan yok"} />
+        <StatCard icon={Mic} label="Son Podcast" value={loadingStats ? "..." : stats?.son_podcast ? "✓" : "—"} sub={stats?.son_podcast?.baslik || "Henüz yok"} />
       </motion.div>
 
       {/* Modüller */}
       <div className="mb-8">
         <h2 className="text-lg font-semibold text-white mb-4">Modüller</h2>
         <motion.div variants={stagger} initial="hidden" animate="visible" className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <ModuleCard href="/dashboard/agenda" icon="📅" title="Ajanda & Plan" desc="Çalışma programın oluştur, notlarını gir, hedef tarihi belirle." color="from-blue-500/10 to-indigo-500/10" borderColor="border-blue-500/20" module="M-01 · Sezin Nisa Ataseven" />
-          <ModuleCard href="/dashboard/podcast" icon="🎙" title="PDF Podcast" desc="Ders notlarını iki sesli podcast'e dönüştür ve her yerde dinle." color="from-purple-500/10 to-pink-500/10" borderColor="border-purple-500/20" module="M-02 · Kerem Mert Duru" />
-          <ModuleCard href="/dashboard/flashcards" icon="🃏" title="Flashcard" desc="Spaced Repetition ile akıllı tekrar. Zayıf konulara odaklan." color="from-emerald-500/10 to-teal-500/10" borderColor="border-emerald-500/20" module="M-03 · Mustafa Çakmak" />
+          <ModuleCard href="/dashboard/agenda" icon={CalendarDays} title="Ajanda & Plan" desc="Çalışma programın oluştur, notlarını gir, hedef tarihi belirle." module="M-01 · Sezin Nisa Ataseven" />
+          <ModuleCard href="/dashboard/podcast" icon={Mic} title="PDF Podcast" desc="Ders notlarını iki sesli podcast'e dönüştür ve her yerde dinle." module="M-02 · Kerem Mert Duru" />
+          <ModuleCard href="/dashboard/flashcards" icon={Layers} title="Flashcard" desc="Spaced Repetition ile akıllı tekrar. Zayıf konulara odaklan." module="M-03 · Mustafa Çakmak" />
         </motion.div>
       </div>
 
@@ -185,26 +174,23 @@ export default function DashboardPage() {
 
         {/* Flashcard & Son Podcast */}
         <div className="space-y-4">
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.4 }} className="keda-card p-6 border border-emerald-500/15">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-base font-semibold text-white">Flashcard Durumu</h3>
-              <Link href="/dashboard/flashcards" className="text-xs text-emerald-400 hover:text-emerald-300">Başlat</Link>
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.4 }} className="keda-card p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-semibold text-white">Flashcard Durumu</h3>
+              <Link href="/dashboard/flashcards" className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors">Başlat</Link>
             </div>
             {loadingStats ? (
               <div className="text-center py-4 text-slate-600 text-sm">Yükleniyor...</div>
             ) : (
-              <div className="flex items-center gap-4">
-                <div className="text-center">
-                  <div className="text-4xl font-black text-amber-400">{stats?.toplam_flashcard || 0}</div>
-                  <div className="text-xs text-slate-500">Toplam Kart</div>
+              <div className="space-y-3">
+                <div className="flex items-end gap-2">
+                  <span className="text-3xl font-bold text-white">{stats?.toplam_flashcard || 0}</span>
+                  <span className="text-slate-500 text-sm mb-1">toplam kart</span>
                 </div>
-                <div className="flex-1">
-                  <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-center">
-                    {stats?.bugun_tekrar_edilecek > 0
-                      ? <span className="text-emerald-400 text-sm font-medium">{stats.bugun_tekrar_edilecek} kart bugün sizi bekliyor</span>
-                      : <span className="text-slate-500 text-sm">Bugün tekrar edilecek kart yok 🎉</span>
-                    }
-                  </div>
+                <div className={`p-3 rounded-xl text-sm ${stats?.bugun_tekrar_edilecek > 0 ? "bg-amber-500/10 border border-amber-500/20 text-amber-400" : "bg-slate-800/50 text-slate-500"}`}>
+                  {stats?.bugun_tekrar_edilecek > 0
+                    ? `${stats.bugun_tekrar_edilecek} kart bugün tekrar zamanı`
+                    : "Bugün tekrar edilecek kart yok"}
                 </div>
               </div>
             )}
@@ -212,15 +198,15 @@ export default function DashboardPage() {
 
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.5 }} className="keda-card p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-semibold text-white">Son Podcast</h3>
-              <Link href="/dashboard/podcast" className="text-xs text-purple-400 hover:text-purple-300">Tümü</Link>
+              <h3 className="text-sm font-semibold text-white">Son Podcast</h3>
+              <Link href="/dashboard/podcast" className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors">Tümü</Link>
             </div>
             {loadingStats ? (
               <div className="text-center py-4 text-slate-600 text-sm">Yükleniyor...</div>
             ) : stats?.son_podcast ? (
               <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5">
-                <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center text-purple-400">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                <div className="w-9 h-9 rounded-xl bg-indigo-600/15 border border-indigo-500/20 flex items-center justify-center shrink-0">
+                  <BookOpen className="w-4 h-4 text-indigo-400" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-white truncate">{stats.son_podcast.baslik}</p>
@@ -229,8 +215,8 @@ export default function DashboardPage() {
               </div>
             ) : (
               <div className="text-center py-4">
-                <p className="text-slate-600 text-sm mb-3">Henüz podcast yok</p>
-                <Link href="/dashboard/podcast" className="text-purple-400 text-sm hover:text-purple-300">Podcast oluştur →</Link>
+                <p className="text-slate-600 text-sm mb-2">Henüz podcast yok</p>
+                <Link href="/dashboard/podcast" className="text-indigo-400 text-xs hover:text-indigo-300 transition-colors">Oluştur →</Link>
               </div>
             )}
           </motion.div>
