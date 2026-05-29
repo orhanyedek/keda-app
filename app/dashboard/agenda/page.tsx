@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { generateStudyPlan, analyzeTopics } from "@/lib/gemini";
 import { saveStudyPlan, getStudyPlans, markTopicDone } from "@/lib/db";
 import { useAuth } from "@/hooks/useAuth";
+import PDFUploader from "@/components/PDFUploader";
 import toast from "react-hot-toast";
 
 const daysOfWeek = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
@@ -195,7 +196,17 @@ export default function AgendaPage() {
               <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
                 <div className="keda-card p-6">
                   <h2 className="text-lg font-semibold text-white mb-4">Ders İçeriğini Gir</h2>
-                  <label className="block text-sm text-slate-400 mb-2">Ders notu veya konu listesi</label>
+                  <div className="mb-4">
+                    <label className="block text-sm text-slate-400 mb-2">PDF Yükle (opsiyonel)</label>
+                    <PDFUploader
+                      label="PDF'ten konu listesi çıkar"
+                      onTextExtracted={(text) => {
+                        setInputText(text);
+                        toast.success("PDF metni yüklendi!");
+                      }}
+                    />
+                  </div>
+                  <label className="block text-sm text-slate-400 mb-2">Ya da metni manuel gir</label>
                   <textarea value={inputText} onChange={(e) => setInputText(e.target.value)}
                     placeholder="Örnek: Bu dönemde Matematik dersinden Türevler, İntegraller; Fizik'ten Newton Yasaları çalışacağım..."
                     rows={8} className="keda-input resize-none" />

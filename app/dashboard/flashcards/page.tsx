@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { generateFlashcards } from "@/lib/gemini";
 import { getFlashcardSets, createFlashcardSet, saveFlashcards, getDueFlashcards } from "@/lib/db";
+import PDFUploader from "@/components/PDFUploader";
 import toast from "react-hot-toast";
 
 const leitnerBoxes = [
@@ -245,9 +246,19 @@ export default function FlashcardsPage() {
                   <input value={setTitle} onChange={(e) => setSetTitle(e.target.value)} placeholder="Örn: Veri Yapıları Final" className="keda-input" />
                 </div>
                 <div className="mb-4">
+                  <label className="block text-sm text-slate-400 mb-2">PDF Yükle (opsiyonel)</label>
+                  <PDFUploader
+                    label="PDF'ten otomatik metin çıkar"
+                    onTextExtracted={(text) => {
+                      setInputText(text);
+                      toast.success("PDF metni yüklendi, flashcard oluşturabilirsiniz!");
+                    }}
+                  />
+                </div>
+                <div className="mb-4">
                   <label className="block text-sm text-slate-400 mb-2">Ders Metni</label>
                   <textarea value={inputText} onChange={(e) => setInputText(e.target.value)}
-                    placeholder="Flashcard oluşturmak istediğiniz metni buraya yapıştırın..." rows={8} className="keda-input resize-none font-mono text-sm" />
+                    placeholder="Flashcard oluşturmak istediğiniz metni buraya yapıştırın ya da yukarıdan PDF yükleyin..." rows={6} className="keda-input resize-none font-mono text-sm" />
                   <div className="text-xs text-slate-600 mt-1 text-right">{inputText.length} karakter</div>
                 </div>
                 <div className="flex items-center gap-4 mb-6">

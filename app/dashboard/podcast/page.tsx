@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { generatePodcastDialogue } from "@/lib/gemini";
 import { savePodcast, getPodcasts } from "@/lib/db";
 import { useAuth } from "@/hooks/useAuth";
+import PDFUploader from "@/components/PDFUploader";
 import toast from "react-hot-toast";
 
 interface DialogueLine {
@@ -89,7 +90,19 @@ export default function PodcastPage() {
     }
 
     setPlaying(true);
-    let index = 0;
+
+    // Mevcut sesleri al, Türkçe sesleri önceliklendir
+    const getVoice = (preferFemale: boolean) => {
+      const voices = window.speechSynthesis.getVoices();
+      const trVoices = voices.filter(v => v.lang.startsWith("tr"));
+      if (trVoices.length >= 2) {
+        const femaleVoice = trVoices.find(v => /female|kadın|woman/i.test(v.name)) || trVoices[0];
+        const maleVoice = trVoices.find(v => /male|erkek|man/i.test(v.name) && v !== femaleVoice) || trVoices[1] || trVoices[0];
+        return preferFemale ? femaleVoice : maleVoice;
+      }
+      // Türkçe ses yoksa genel sesleri kullan
+      return voices.find(v => v.lang.startsWith("tr")) || voices[0] || null;
+    };
 
     const speakLine = (i: number) => {
       if (i >= dialogue.length) {
@@ -100,15 +113,27 @@ export default function PodcastPage() {
       setCurrentLine(i);
       const utter = new SpeechSynthesisUtterance(dialogue[i].text);
       utter.lang = "tr-TR";
-      // Speaker A biraz farklı ses - tarayıcı destekliyorsa
-      utter.pitch = dialogue[i].speaker === "A" ? 1.1 : 0.9;
-      utter.rate = 0.95;
+
+      // A konuşmacı: dişi/yüksek ses, B konuşmacı: erkek/düşük ses
+      const isSpeakerA = dialogue[i].speaker === "A";
+      const voice = getVoice(isSpeakerA);
+      if (voice) utter.voice = voice;
+      utter.pitch = isSpeakerA ? 1.2 : 0.8;
+      utter.rate = isSpeakerA ? 1.0 : 0.95;
+      utter.volume = 1;
+
       utter.onend = () => speakLine(i + 1);
+      utter.onerror = () => speakLine(i + 1); // Hata olursa sonraki satıra geç
       utteranceRef.current = utter;
       window.speechSynthesis.speak(utter);
     };
 
-    speakLine(index);
+    // Sesler yüklenmemişse bekle
+    if (window.speechSynthesis.getVoices().length === 0) {
+      window.speechSynthesis.onvoiceschanged = () => speakLine(0);
+    } else {
+      speakLine(0);
+    }
   };
 
   const parseDialogue = (text: string): DialogueLine[] => {
@@ -146,10 +171,21 @@ export default function PodcastPage() {
                 <input value={podcastTitle} onChange={(e) => setPodcastTitle(e.target.value)} placeholder="Örn: Veri Yapıları - Ağaçlar" className="keda-input" />
               </div>
               <div className="mb-4">
-                <label className="block text-sm text-slate-400 mb-2">Ders Metni veya Konu</label>
+                <label className="block text-sm text-slate-400 mb-2">PDF Yükle (opsiyonel)</label>
+                <PDFUploader
+                  label="PDF'i podcast'e dönüştür"
+                  onTextExtracted={(text, name) => {
+                    setInputText(text);
+                    if (!podcastTitle) setPodcastTitle(name.replace(".pdf", ""));
+                    toast.success("PDF metni yüklendi!");
+                  }}
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm text-slate-400 mb-2">Ya da metni manuel gir</label>
                 <textarea value={inputText} onChange={(e) => setInputText(e.target.value)}
-                  placeholder="Podcast'e dönüştürmek istediğiniz ders metnini buraya yapıştırın. Gemini AI iki kişilik bir diyalog oluşturacak..."
-                  rows={8} className="keda-input resize-none" />
+                  placeholder="Podcast'e dönüştürmek istediğiniz ders metnini buraya yapıştırın..."
+                  rows={5} className="keda-input resize-none" />
               </div>
               <button onClick={handleGenerate} disabled={generating || !inputText.trim()} className="btn-primary w-full py-3 disabled:opacity-50 disabled:cursor-not-allowed">
                 {generating ? (<div className="flex items-center justify-center gap-2"><div className="loading-dots"><span /><span /><span /></div><span>Diyalog Oluşturuluyor...</span></div>)
