@@ -12,6 +12,7 @@ import { generatePodcastDialogue } from "@/lib/gemini";
 import { savePodcast, getPodcasts } from "@/lib/db";
 import { useAuth } from "@/hooks/useAuth";
 import PDFUploader from "@/components/PDFUploader";
+import { Mic, Play, Square, BookOpen } from "lucide-react";
 import toast from "react-hot-toast";
 
 interface DialogueLine {
@@ -195,7 +196,7 @@ export default function PodcastPage() {
               </div>
               <button onClick={handleGenerate} disabled={generating || !inputText.trim()} className="btn-primary w-full py-3 disabled:opacity-50 disabled:cursor-not-allowed">
                 {generating ? (<div className="flex items-center justify-center gap-2"><div className="loading-dots"><span /><span /><span /></div><span>Diyalog Oluşturuluyor...</span></div>)
-                  : saving ? "Kaydediliyor..." : "🎙️ Podcast Oluştur"}
+                  : saving ? "Kaydediliyor..." : "Podcast Oluştur"}
               </button>
             </div>
           )}
@@ -211,8 +212,8 @@ export default function PodcastPage() {
                     <p className="text-slate-500 text-xs">{dialogue.length} satır diyalog</p>
                   </div>
                   <button onClick={handlePlay}
-                    className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl transition-all ${playing ? "bg-red-500/20 border border-red-500/40" : "bg-indigo-600/20 border border-indigo-500/40 hover:bg-indigo-600/30"}`}>
-                    {playing ? "⏹" : "▶️"}
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${playing ? "bg-red-500/20 border border-red-500/30 hover:bg-red-500/30" : "bg-indigo-600/20 border border-indigo-500/30 hover:bg-indigo-600/30"}`}>
+                    {playing ? <Square className="w-4 h-4 text-red-400" /> : <Play className="w-4 h-4 text-indigo-400" />}
                   </button>
                 </div>
                 {playing && (
@@ -250,8 +251,10 @@ export default function PodcastPage() {
             <div className="text-center py-12 text-slate-500">Yükleniyor...</div>
           ) : savedPodcasts.length === 0 ? (
             <div className="keda-card p-8 text-center">
-              <div className="text-4xl mb-3">🎙️</div>
-              <p className="text-slate-400">Henüz podcast yok. Yeni Podcast sekmesinden başla!</p>
+              <div className="w-12 h-12 rounded-2xl bg-indigo-600/15 border border-indigo-500/20 flex items-center justify-center mx-auto mb-3">
+                <Mic className="w-5 h-5 text-indigo-400" />
+              </div>
+              <p className="text-slate-400 text-sm">Henüz podcast yok. Yeni Podcast sekmesinden başla.</p>
             </div>
           ) : savedPodcasts.map((podcast) => (
             <div key={podcast.id} className="keda-card p-5">

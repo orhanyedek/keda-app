@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { generateFlashcards } from "@/lib/gemini";
 import { getFlashcardSets, createFlashcardSet, saveFlashcards, getDueFlashcards } from "@/lib/db";
 import PDFUploader from "@/components/PDFUploader";
+import { CheckCircle2, XCircle, Clock, Layers } from "lucide-react";
 import toast from "react-hot-toast";
 
 const leitnerBoxes = [
@@ -75,9 +76,11 @@ function SessionSummary({ correct, wrong, total, onRestart }: { correct: number;
   return (
     <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="max-w-md mx-auto text-center">
       <div className="keda-card p-8 border border-indigo-500/20">
-        <div className="text-5xl mb-4">{rate >= 80 ? "🎉" : rate >= 50 ? "👍" : "💪"}</div>
-        <h3 className="text-2xl font-bold text-white mb-2">Oturum Tamamlandı</h3>
-        <p className="text-slate-400 text-sm mb-6">{rate >= 80 ? "Muhteşem! Harika bir performans." : rate >= 50 ? "İyi gidiyorsun! Devam et." : "Tekrar çalışarak gelişebilirsin."}</p>
+        <div className="flex items-center justify-center w-12 h-12 rounded-2xl mx-auto mb-4 bg-indigo-600/15 border border-indigo-500/20">
+          {rate >= 80 ? <CheckCircle2 className="w-6 h-6 text-emerald-400" /> : rate >= 50 ? <CheckCircle2 className="w-6 h-6 text-indigo-400" /> : <XCircle className="w-6 h-6 text-amber-400" />}
+        </div>
+        <h3 className="text-xl font-bold text-white mb-1 text-center">Oturum Tamamlandı</h3>
+        <p className="text-slate-400 text-sm mb-6 text-center">{rate >= 80 ? "Harika bir performans." : rate >= 50 ? "İyi gidiyorsun, devam et." : "Tekrar çalışarak gelişebilirsin."}</p>
         <div className="grid grid-cols-3 gap-4 mb-6">
           <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4"><div className="text-3xl font-bold text-emerald-400">{correct}</div><div className="text-xs text-slate-500 mt-1">Doğru</div></div>
           <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4"><div className="text-3xl font-bold text-red-400">{wrong}</div><div className="text-xs text-slate-500 mt-1">Yanlış</div></div>
@@ -129,7 +132,7 @@ export default function FlashcardsPage() {
       setCurrentIndex(0);
       toast.success(`${data.length} kart tekrar zamanı geldi!`);
     } else {
-      toast("Bugün tekrar edilecek kart yok 🎉");
+      toast("Bugün tekrar edilecek kart yok.");
     }
   };
 
@@ -284,16 +287,20 @@ export default function FlashcardsPage() {
                 <div className="text-center py-12 text-slate-500">Yükleniyor...</div>
               ) : sets.length === 0 ? (
                 <div className="keda-card p-8 text-center">
-                  <div className="text-4xl mb-3">📚</div>
-                  <p className="text-slate-400">Henüz kart seti yok. Yeni oluştur sekmesinden başla!</p>
+                <div className="w-12 h-12 rounded-2xl bg-indigo-600/15 border border-indigo-500/20 flex items-center justify-center mx-auto mb-3">
+                  <Layers className="w-5 h-5 text-indigo-400" />
                 </div>
+                <p className="text-slate-400 text-sm">Henüz kart seti yok. Yeni oluştur sekmesinden başla.</p>
+              </div>
               ) : sets.map((set) => (
                 <div key={set.id} className="keda-card p-5 flex items-center justify-between">
                   <div>
                     <h3 className="text-white font-medium">{set.baslik}</h3>
                     <p className="text-slate-500 text-sm mt-1">{set.flashcards?.[0]?.count || 0} kart · {new Date(set.created_at).toLocaleDateString("tr-TR")}</p>
                   </div>
-                  <div className="w-10 h-10 rounded-xl bg-indigo-600/20 flex items-center justify-center text-indigo-400 text-lg">🎴</div>
+                  <div className="w-10 h-10 rounded-xl bg-indigo-600/15 border border-indigo-500/20 flex items-center justify-center">
+                    <Layers className="w-4 h-4 text-indigo-400" />
+                  </div>
                 </div>
               ))}
             </motion.div>
@@ -301,10 +308,12 @@ export default function FlashcardsPage() {
 
           {tab === "due" && (
             <div className="keda-card p-8 text-center">
-              <div className="text-4xl mb-3">⏰</div>
-              <p className="text-white font-medium mb-2">Tekrar Zamanı Gelen Kartlar</p>
+              <div className="w-12 h-12 rounded-2xl bg-indigo-600/15 border border-indigo-500/20 flex items-center justify-center mx-auto mb-3">
+                <Clock className="w-5 h-5 text-indigo-400" />
+              </div>
+              <p className="text-white font-medium mb-1 text-sm">Tekrar Zamanı Gelen Kartlar</p>
               <p className="text-slate-400 text-sm mb-6">Leitner algoritmasına göre bugün tekrar etmen gereken kartlar yükleniyor.</p>
-              <button onClick={loadDueCards} className="btn-primary px-8 py-3">Kartları Yükle</button>
+              <button onClick={loadDueCards} className="btn-primary px-8 py-2.5 text-sm">Kartları Yükle</button>
             </div>
           )}
         </>

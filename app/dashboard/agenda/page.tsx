@@ -12,6 +12,7 @@ import { generateStudyPlan, analyzeTopics } from "@/lib/gemini";
 import { saveStudyPlan, getStudyPlans, markTopicDone } from "@/lib/db";
 import { useAuth } from "@/hooks/useAuth";
 import PDFUploader from "@/components/PDFUploader";
+import { CalendarDays, Check } from "lucide-react";
 import toast from "react-hot-toast";
 
 const daysOfWeek = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
@@ -313,8 +314,10 @@ export default function AgendaPage() {
             <div className="text-center py-12 text-slate-500">Yükleniyor...</div>
           ) : savedPlans.length === 0 ? (
             <div className="keda-card p-8 text-center">
-              <div className="text-4xl mb-3">📅</div>
-              <p className="text-slate-400">Henüz kayıtlı plan yok. Yeni Plan sekmesinden oluştur!</p>
+              <div className="w-12 h-12 rounded-2xl bg-indigo-600/15 border border-indigo-500/20 flex items-center justify-center mx-auto mb-3">
+                <CalendarDays className="w-5 h-5 text-indigo-400" />
+              </div>
+              <p className="text-slate-400 text-sm">Henüz kayıtlı plan yok. Yeni Plan sekmesinden oluştur.</p>
             </div>
           ) : savedPlans.map((plan) => {
             const done = plan.topics?.filter(t => t.tamamlandi_mi).length || 0;
