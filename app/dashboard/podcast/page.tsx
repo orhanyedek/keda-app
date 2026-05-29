@@ -1,234 +1,239 @@
 /**
- * KEDA - Podcast & Ses Uretimi Modulu (M-02)
- * 
- * PDF metninden iki konusmacili (Ogretmen-Ogrenci) podcast diyalogu uretir.
- * Gemini AI diyalog formatina ceviri yapar.
- * TTS entegrasyonu gelistirme asamasindadir (dokuman Sprint 4).
- * 
- * Dokumandaki gereksinimler:
- * - FR-P01: Gemini ile iki konusmacili diyalog
- * - FR-P03: Ses secenekleri
- * - FR-P04: Podcast gecmisi
- * - IK-P02: Onbellek - daha once islenmis metin tekrar islenmez
- * 
- * Sorumlu: Kerem Mert Duru (M-02 Podcast & Ses Uretimi)
- * Katki: Serdar Durgut
+ * KEDA - Podcast Modülü (M-02)
+ * Gemini AI diyalog üretimi + Supabase kayıt + Tarayıcı TTS
+ * Sorumlu: Kerem Mert Duru · Katkı: Serdar Durgut
  */
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { generatePodcastDialogue } from "@/lib/gemini";
+import { savePodcast, getPodcasts } from "@/lib/db";
+import { useAuth } from "@/hooks/useAuth";
 import toast from "react-hot-toast";
 
-// Diyalog satirı tipi
 interface DialogueLine {
-  konusmaci: "Ogretmen" | "Ogrenci";
-  metin: string;
+  speaker: string;
+  text: string;
 }
 
-interface PodcastResult {
-  baslik: string;
-  diyalog: DialogueLine[];
-}
-
-// Onceki podcast tipi (gecmis listesi icin)
-interface PodcastHistory {
+interface SavedPodcast {
   id: string;
   baslik: string;
-  sure: string;
-  tarih: string;
+  diyalog_metni: string;
+  created_at: string;
 }
 
-// Ornek gecmis podcasts (gercek veriler Supabase'den gelecek)
-const exampleHistory: PodcastHistory[] = [
-  { id: "1", baslik: "Matematik - Limit ve Sureklilik", sure: "12 dk", tarih: "3 gun once" },
-  { id: "2", baslik: "Fizik - Newton'un Hareket Yasalari", sure: "9 dk", tarih: "5 gun once" },
-  { id: "3", baslik: "Kimya - Periyodik Tablo", sure: "14 dk", tarih: "1 hafta once" },
-];
-
 export default function PodcastPage() {
+  const { user } = useAuth();
+  const [tab, setTab] = useState<"new" | "history">("new");
   const [inputText, setInputText] = useState("");
+  const [podcastTitle, setPodcastTitle] = useState("");
+  const [dialogue, setDialogue] = useState<DialogueLine[]>([]);
   const [generating, setGenerating] = useState(false);
-  const [podcast, setPodcast] = useState<PodcastResult | null>(null);
-  const [activeTab, setActiveTab] = useState<"create" | "history">("create");
-  // Oynatilmakta olan satir (simule edilmis oynatici)
-  const [playingIndex, setPlayingIndex] = useState<number | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [playing, setPlaying] = useState(false);
+  const [currentLine, setCurrentLine] = useState(-1);
+  const [savedPodcasts, setSavedPodcasts] = useState<SavedPodcast[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
-  // Gemini ile podcast diyalogu uret (FR-P01)
+  useEffect(() => {
+    if (user && tab === "history") loadHistory();
+  }, [user, tab]);
+
+  // Sayfa unmount olduğunda sesi durdur
+  useEffect(() => () => { window.speechSynthesis?.cancel(); }, []);
+
+  const loadHistory = async () => {
+    if (!user) return;
+    setLoadingHistory(true);
+    const { data } = await getPodcasts(user.id);
+    if (data) setSavedPodcasts(data as SavedPodcast[]);
+    setLoadingHistory(false);
+  };
+
   const handleGenerate = async () => {
-    if (!inputText.trim()) {
-      toast.error("Lutfen metin girin");
-      return;
-    }
+    if (!inputText.trim()) { toast.error("Lütfen metin girin"); return; }
     setGenerating(true);
     try {
       const result = await generatePodcastDialogue(inputText);
-      setPodcast(result);
-      toast.success("Podcast diyalogu olusturuldu!");
+      setDialogue(result.dialogue || []);
+      toast.success("Podcast diyaloğu oluşturuldu!");
+
+      // Supabase'e kaydet
+      if (user) {
+        setSaving(true);
+        const title = podcastTitle.trim() || `Podcast ${new Date().toLocaleDateString("tr-TR")}`;
+        const diyalogMetni = (result.dialogue || []).map((l: DialogueLine) => `${l.speaker}: ${l.text}`).join("\n");
+        const { error } = await savePodcast(user.id, { baslik: title, diyalog_metni: diyalogMetni });
+        if (!error) toast.success("Podcast kaydedildi ✓");
+        setSaving(false);
+      }
     } catch {
-      toast.error("Podcast uretimi basarisiz. API anahtarini kontrol edin.");
+      toast.error("Podcast oluşturma başarısız");
     } finally {
       setGenerating(false);
     }
   };
 
-  // Diyalog satirini oynat (simule edilmis TTS - gercek ses Sprint 4)
-  const handlePlayLine = (index: number) => {
-    setPlayingIndex(playingIndex === index ? null : index);
-    // Gercek TTS entegrasyonu burada yapilacak (Sprint 4 - gTTS / Google TTS)
-    if ("speechSynthesis" in window && playingIndex !== index) {
-      const line = podcast?.diyalog[index];
-      if (line) {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(line.metin);
-        utterance.lang = "tr-TR";
-        utterance.onend = () => setPlayingIndex(null);
-        window.speechSynthesis.speak(utterance);
-      }
-    } else {
-      window.speechSynthesis?.cancel();
+  const handlePlay = () => {
+    if (!dialogue.length) return;
+    if (playing) {
+      window.speechSynthesis.cancel();
+      setPlaying(false);
+      setCurrentLine(-1);
+      return;
     }
+
+    setPlaying(true);
+    let index = 0;
+
+    const speakLine = (i: number) => {
+      if (i >= dialogue.length) {
+        setPlaying(false);
+        setCurrentLine(-1);
+        return;
+      }
+      setCurrentLine(i);
+      const utter = new SpeechSynthesisUtterance(dialogue[i].text);
+      utter.lang = "tr-TR";
+      // Speaker A biraz farklı ses - tarayıcı destekliyorsa
+      utter.pitch = dialogue[i].speaker === "A" ? 1.1 : 0.9;
+      utter.rate = 0.95;
+      utter.onend = () => speakLine(i + 1);
+      utteranceRef.current = utter;
+      window.speechSynthesis.speak(utter);
+    };
+
+    speakLine(index);
+  };
+
+  const parseDialogue = (text: string): DialogueLine[] => {
+    return text.split("\n").filter(l => l.trim()).map(l => {
+      const match = l.match(/^([^:]+):\s*(.+)$/);
+      return match ? { speaker: match[1].trim(), text: match[2].trim() } : { speaker: "?", text: l };
+    });
   };
 
   return (
     <div className="p-6 lg:p-8 max-w-4xl mx-auto pb-24 lg:pb-8">
-      {/* Baslik */}
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-        <h1 className="text-2xl font-bold text-white mb-1">PDF'ten Podcast</h1>
-        <p className="text-slate-400 text-sm">M-02 · Sorumlu: Kerem Mert Duru · Gemini AI ile iki sesli diyalog uretimi</p>
+        <h1 className="text-2xl font-bold text-white mb-1">Podcast Stüdyosu</h1>
+        <p className="text-slate-400 text-sm">M-02 · Sorumlu: Kerem Mert Duru · Gemini AI ile ders podcasti</p>
       </motion.div>
 
-      {/* Tab secimi */}
-      <div className="flex gap-2 mb-6 glass p-1 rounded-2xl w-fit">
-        {[
-          { key: "create", label: "Yeni Podcast" },
-          { key: "history", label: "Gecmis" },
-        ].map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key as "create" | "history")}
-            className={`px-6 py-2 rounded-xl text-sm font-medium transition-all ${
-              activeTab === tab.key ? "bg-indigo-600/20 text-indigo-300 border border-indigo-500/30" : "text-slate-400 hover:text-white"
-            }`}
-          >
-            {tab.label}
+      {/* Sekmeler */}
+      <div className="flex gap-2 mb-6">
+        {[{ key: "new", label: "Yeni Podcast" }, { key: "history", label: "Geçmiş" }].map((t) => (
+          <button key={t.key} onClick={() => setTab(t.key as "new" | "history")}
+            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${tab === t.key ? "bg-indigo-600/30 border border-indigo-500/40 text-indigo-300" : "glass text-slate-400 hover:text-white"}`}>
+            {t.label}
           </button>
         ))}
       </div>
 
-      <AnimatePresence mode="wait">
-        {/* OLUSTUR SEKMESI */}
-        {activeTab === "create" && (
-          <motion.div key="create" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-6">
-            
-            {/* Metin girisi */}
+      {tab === "new" && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+          {/* Giriş formu */}
+          {!dialogue.length && (
             <div className="keda-card p-6">
               <h2 className="text-lg font-semibold text-white mb-4">Ders Metnini Gir</h2>
-              <p className="text-slate-500 text-xs mb-3">Gemini AI bu metni Ogretmen-Ogrenci diyaloguna cevire.</p>
-              <textarea
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                placeholder="PDF'ten kopyaladiginiz ders notunu buraya yapistirin... Gemini AI iki sesli, interaktif bir podcast diyalogu olusturacak."
-                rows={7}
-                className="keda-input resize-none"
-              />
-              
-              <button
-                onClick={handleGenerate}
-                disabled={generating || !inputText.trim()}
-                className="btn-primary w-full mt-4 py-3 text-base disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {generating ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <div className="loading-dots"><span /><span /><span /></div>
-                    <span>Diyalog Hazirlaniyor...</span>
-                  </div>
-                ) : "Podcast Olustur"}
+              <div className="mb-4">
+                <label className="block text-sm text-slate-400 mb-2">Podcast Başlığı (isteğe bağlı)</label>
+                <input value={podcastTitle} onChange={(e) => setPodcastTitle(e.target.value)} placeholder="Örn: Veri Yapıları - Ağaçlar" className="keda-input" />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm text-slate-400 mb-2">Ders Metni veya Konu</label>
+                <textarea value={inputText} onChange={(e) => setInputText(e.target.value)}
+                  placeholder="Podcast'e dönüştürmek istediğiniz ders metnini buraya yapıştırın. Gemini AI iki kişilik bir diyalog oluşturacak..."
+                  rows={8} className="keda-input resize-none" />
+              </div>
+              <button onClick={handleGenerate} disabled={generating || !inputText.trim()} className="btn-primary w-full py-3 disabled:opacity-50 disabled:cursor-not-allowed">
+                {generating ? (<div className="flex items-center justify-center gap-2"><div className="loading-dots"><span /><span /><span /></div><span>Diyalog Oluşturuluyor...</span></div>)
+                  : saving ? "Kaydediliyor..." : "🎙️ Podcast Oluştur"}
               </button>
             </div>
+          )}
 
-            {/* Diyalog sonucu */}
-            {podcast && (
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="keda-card p-6">
+          {/* Diyalog gösterimi */}
+          {dialogue.length > 0 && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+              {/* Player */}
+              <div className="keda-card p-6 border border-indigo-500/20">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-white">{podcast.baslik}</h3>
-                  <span className="text-xs text-slate-600 font-mono">{podcast.diyalog.length} satir</span>
+                  <div>
+                    <h3 className="text-white font-semibold">{podcastTitle || "Podcast"}</h3>
+                    <p className="text-slate-500 text-xs">{dialogue.length} satır diyalog</p>
+                  </div>
+                  <button onClick={handlePlay}
+                    className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl transition-all ${playing ? "bg-red-500/20 border border-red-500/40" : "bg-indigo-600/20 border border-indigo-500/40 hover:bg-indigo-600/30"}`}>
+                    {playing ? "⏹" : "▶️"}
+                  </button>
                 </div>
-                
-                {/* Not: Gercek ses ozelligi Sprint 4 te TTS entegrasyonu ile eklenecek */}
-                <div className="glass p-3 rounded-xl border border-amber-500/20 mb-4 text-xs text-amber-400">
-                  TTS ses dosyasi uretimi Sprint 4 kapsamindadir. Su an tarayici seslendirme kullaniliyor.
-                </div>
+                {playing && (
+                  <div className="progress-bar"><div className="progress-bar-fill animate-pulse" style={{ width: `${((currentLine + 1) / dialogue.length) * 100}%` }} /></div>
+                )}
+              </div>
 
-                {/* Diyalog listesi */}
-                <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
-                  {podcast.diyalog.map((line, i) => (
-                    <motion.div
-                      key={i}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.05 }}
-                      className={`flex gap-3 ${line.konusmaci === "Ogrenci" ? "flex-row-reverse" : ""}`}
-                    >
-                      {/* Avatar */}
-                      <div className={`w-9 h-9 rounded-xl flex-shrink-0 flex items-center justify-center text-sm font-bold ${
-                        line.konusmaci === "Ogretmen" ? "bg-indigo-600/30 text-indigo-300" : "bg-purple-600/30 text-purple-300"
-                      }`}>
-                        {line.konusmaci === "Ogretmen" ? "O" : "S"}
+              {/* Diyalog listesi */}
+              <div className="space-y-3">
+                <AnimatePresence>
+                  {dialogue.map((line, i) => (
+                    <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
+                      className={`flex gap-4 p-4 rounded-2xl transition-all ${currentLine === i ? "bg-indigo-600/20 border border-indigo-500/40" : "keda-card"}`}>
+                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold shrink-0 ${line.speaker === "A" ? "bg-indigo-600/30 text-indigo-300" : "bg-purple-600/30 text-purple-300"}`}>
+                        {line.speaker}
                       </div>
-                      
-                      {/* Metin baloncugu */}
-                      <div className={`flex-1 max-w-xs ${line.konusmaci === "Ogrenci" ? "text-right" : ""}`}>
-                        <span className={`text-xs font-medium ${line.konusmaci === "Ogretmen" ? "text-indigo-400" : "text-purple-400"}`}>
-                          {line.konusmaci}
-                        </span>
-                        <div className={`mt-1 p-3 rounded-2xl text-sm text-slate-300 inline-block text-left ${
-                          line.konusmaci === "Ogretmen" ? "bg-indigo-600/10 border border-indigo-500/20" : "bg-purple-600/10 border border-purple-500/20"
-                        }`}>
-                          {line.metin}
-                        </div>
-                        
-                        {/* Seslendirme butonu */}
-                        <button
-                          onClick={() => handlePlayLine(i)}
-                          className={`mt-1 text-xs transition-colors ${playingIndex === i ? "text-indigo-400" : "text-slate-600 hover:text-slate-400"}`}
-                        >
-                          {playingIndex === i ? "Duraksati" : "Seslendir"}
-                        </button>
-                      </div>
+                      <p className="text-slate-300 text-sm leading-relaxed pt-1">{line.text}</p>
                     </motion.div>
                   ))}
-                </div>
-              </motion.div>
-            )}
-          </motion.div>
-        )}
-
-        {/* GECMiS SEKMESi */}
-        {activeTab === "history" && (
-          <motion.div key="history" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-3">
-            {exampleHistory.map((item) => (
-              <div key={item.id} className="keda-card p-5 flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center text-purple-400 flex-shrink-0">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                  </svg>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-white font-medium text-sm truncate">{item.baslik}</p>
-                  <p className="text-slate-500 text-xs">{item.tarih} · {item.sure}</p>
-                </div>
-                <button className="text-slate-600 hover:text-indigo-400 transition-colors">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
-                </button>
+                </AnimatePresence>
               </div>
-            ))}
-            <p className="text-center text-slate-600 text-xs mt-4">Gercek podcast gecmisi Supabase entegrasyonu tamamlandiginda gosterilecek.</p>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
+              <button onClick={() => { setDialogue([]); setInputText(""); setPodcastTitle(""); setPlaying(false); window.speechSynthesis?.cancel(); }}
+                className="w-full glass py-3 rounded-2xl text-slate-400 hover:text-white transition-colors">
+                Yeni Podcast Oluştur
+              </button>
+            </motion.div>
+          )}
+        </motion.div>
+      )}
+
+      {tab === "history" && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
+          {loadingHistory ? (
+            <div className="text-center py-12 text-slate-500">Yükleniyor...</div>
+          ) : savedPodcasts.length === 0 ? (
+            <div className="keda-card p-8 text-center">
+              <div className="text-4xl mb-3">🎙️</div>
+              <p className="text-slate-400">Henüz podcast yok. Yeni Podcast sekmesinden başla!</p>
+            </div>
+          ) : savedPodcasts.map((podcast) => (
+            <div key={podcast.id} className="keda-card p-5">
+              <div className="flex items-center justify-between cursor-pointer" onClick={() => setExpandedId(expandedId === podcast.id ? null : podcast.id)}>
+                <div>
+                  <h3 className="text-white font-medium">{podcast.baslik}</h3>
+                  <p className="text-slate-500 text-xs mt-1">{new Date(podcast.created_at).toLocaleDateString("tr-TR")}</p>
+                </div>
+                <span className="text-slate-500 text-sm">{expandedId === podcast.id ? "▲" : "▼"}</span>
+              </div>
+              {expandedId === podcast.id && podcast.diyalog_metni && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mt-4 space-y-2">
+                  {parseDialogue(podcast.diyalog_metni).map((line, i) => (
+                    <div key={i} className="flex gap-3 p-3 bg-white/5 rounded-xl">
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${line.speaker === "A" ? "bg-indigo-600/30 text-indigo-300" : "bg-purple-600/30 text-purple-300"}`}>{line.speaker}</div>
+                      <p className="text-slate-400 text-sm pt-1">{line.text}</p>
+                    </div>
+                  ))}
+                </motion.div>
+              )}
+            </div>
+          ))}
+        </motion.div>
+      )}
     </div>
   );
 }
