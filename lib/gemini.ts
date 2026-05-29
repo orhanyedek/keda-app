@@ -15,7 +15,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY!);
 
 // Gemini 2.0 Flash modeli - hızlı ve verimli
-export const geminiModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+export const geminiModel = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
 
 // ==================== FLASHCARD ÜRETİMİ (M-03) ====================
 
