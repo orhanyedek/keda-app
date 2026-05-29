@@ -166,8 +166,10 @@ export default function FlashcardsPage() {
         }
         setSaving(false);
       }
-    } catch {
-      toast.error("Flashcard üretimi başarısız. API anahtarını kontrol edin.");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error("Flashcard hatası:", msg);
+      toast.error("Flashcard üretimi başarısız: " + msg.slice(0, 80));
     } finally {
       setGenerating(false);
     }
