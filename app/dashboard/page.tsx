@@ -14,6 +14,7 @@ import { getDashboardStats } from "@/lib/db";
 import { CalendarDays, Mic, Layers, Clock, BookOpen, ArrowRight } from "lucide-react";
 import { DashboardSkeleton } from "@/components/Skeleton";
 import Onboarding from "@/components/Onboarding";
+import Weather from "@/components/Weather";
 
 const fadeUp = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } };
 const stagger = { visible: { transition: { staggerChildren: 0.08 } } };
@@ -115,7 +116,9 @@ export default function DashboardPage() {
           <p className="text-slate-500 text-xs mb-1">{today}</p>
           <h1 className="text-xl font-bold text-white">{userName}</h1>
         </div>
-        {stats?.bugun_tekrar_edilecek > 0 && (
+        <div className="flex items-center gap-3">
+          <Weather />
+          {stats?.bugun_tekrar_edilecek > 0 && (
           <Link href="/dashboard/flashcards" className="flex items-center gap-2 glass px-4 py-2 rounded-xl border border-amber-500/20 hover:border-amber-500/40 transition-colors">
             <Clock className="w-4 h-4 text-amber-400" />
             <div>
@@ -124,6 +127,7 @@ export default function DashboardPage() {
             </div>
           </Link>
         )}
+        </div>
       </motion.div>
 
       {/* İstatistik kartları */}
