@@ -50,8 +50,8 @@ function SettingsMenu({ userName, onSignOut }: { userName: string; onSignOut: ()
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
-            className="absolute bottom-full left-0 right-0 mb-2 rounded-2xl border border-[hsl(var(--border))] overflow-hidden shadow-xl"
-            style={{ background: "var(--bg-card)" }}
+            className="absolute bottom-full left-0 right-0 mb-2 rounded-xl border border-[hsl(var(--border))] overflow-hidden shadow-2xl z-50"
+            style={{ background: "hsl(var(--card))" }}
           >
             <div className="p-2 space-y-0.5">
               {settingsItems.map(item => (
