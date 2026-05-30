@@ -244,8 +244,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="p-6 border-b border-[hsl(var(--border))]">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-[hsl(var(--foreground))] font-bold text-lg">K</div>
-              <span className="text-xl font-bold gradient-text">KEDA</span>
+              <svg width="32" height="32" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="kg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#a855f7"/><stop offset="55%" stopColor="#7c3aed"/><stop offset="100%" stopColor="#60a5fa"/></linearGradient></defs><rect x="4" y="4" width="12" height="52" rx="6" fill="url(#kg)"/><path d="M16 30 L44 8 Q51 3 54 10 L26 30Z" fill="url(#kg)" opacity="0.95"/><path d="M16 30 L44 52 Q51 57 54 50 L26 30Z" fill="url(#kg)" opacity="0.82"/></svg>
+              <span className="text-base font-semibold" style={{ color: "hsl(var(--foreground))" }}>KEDA</span>
             </Link>
             {user && <Notifications userId={user.id} />}
           </div>
@@ -297,8 +297,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* ====== MOBİL HEADER ====== */}
       <header className="lg:hidden fixed top-0 left-0 right-0 z-50 border-b border-[hsl(var(--border))] px-4 py-3 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-[hsl(var(--foreground))] font-bold">K</div>
-          <span className="text-lg font-bold gradient-text">KEDA</span>
+          <svg width="28" height="28" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="kg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#a855f7"/><stop offset="55%" stopColor="#7c3aed"/><stop offset="100%" stopColor="#60a5fa"/></linearGradient></defs><rect x="4" y="4" width="12" height="52" rx="6" fill="url(#kg2)"/><path d="M16 30 L44 8 Q51 3 54 10 L26 30Z" fill="url(#kg2)" opacity="0.95"/><path d="M16 30 L44 52 Q51 57 54 50 L26 30Z" fill="url(#kg2)" opacity="0.82"/></svg>
+          <span className="text-base font-semibold" style={{ color: "hsl(var(--foreground))" }}>KEDA</span>
         </Link>
         <div className="flex items-center gap-2">
           <Search />
@@ -326,7 +326,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               className="fixed left-0 top-0 bottom-0 w-64 bg-dark-800 border-r border-[hsl(var(--border))] z-50 lg:hidden flex flex-col"
             >
               <div className="p-4 flex items-center justify-between border-b border-[hsl(var(--border))]">
-                <span className="text-lg font-bold gradient-text">KEDA</span>
+                <div className="flex items-center gap-2">
+                  <svg width="26" height="26" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="kgd" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#a855f7"/><stop offset="55%" stopColor="#7c3aed"/><stop offset="100%" stopColor="#60a5fa"/></linearGradient></defs><rect x="4" y="4" width="12" height="52" rx="6" fill="url(#kgd)"/><path d="M16 30 L44 8 Q51 3 54 10 L26 30Z" fill="url(#kgd)" opacity="0.95"/><path d="M16 30 L44 52 Q51 57 54 50 L26 30Z" fill="url(#kgd)" opacity="0.82"/></svg>
+                  <span className="text-base font-semibold" style={{ color: "hsl(var(--foreground))" }}>KEDA</span>
+                </div>
                 <button onClick={() => setSidebarOpen(false)} className="text-[hsl(var(--muted-foreground))]">
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
