@@ -309,3 +309,50 @@ export async function deletePodcast(id: string) {
   const { error } = await supabase.from("podcasts").delete().eq("id", id);
   return { error };
 }
+
+// ==================== PDF DEPO ====================
+export async function getPdfDocuments(userId: string) {
+  const { data, error } = await supabase
+    .from("pdf_documents")
+    .select("*")
+    .eq("kullanici_id", userId)
+    .order("created_at", { ascending: false });
+  return { data, error };
+}
+
+export async function renamePdfDocument(id: string, newName: string) {
+  const { error } = await supabase
+    .from("pdf_documents")
+    .update({ dosya_adi: newName })
+    .eq("id", id);
+  return { error };
+}
+
+export async function deletePdfDocument(id: string) {
+  const { error } = await supabase
+    .from("pdf_documents")
+    .delete()
+    .eq("id", id);
+  return { error };
+}
+
+export async function savePdfDocument(
+  userId: string,
+  dosyaAdi: string,
+  cikarilanMetin: string,
+  sayfaSayisi?: number
+) {
+  const { data, error } = await supabase
+    .from("pdf_documents")
+    .insert({
+      kullanici_id: userId,
+      dosya_adi: dosyaAdi,
+      dosya_yolu: "",
+      cikarilan_metin: cikarilanMetin,
+      durum: "tamamlandi",
+      sayfa_sayisi: sayfaSayisi || null,
+    })
+    .select()
+    .single();
+  return { data, error };
+}

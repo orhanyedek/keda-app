@@ -2,6 +2,8 @@
 
 import { useState, useRef } from "react";
 import { extractTextFromPDF } from "@/lib/pdf-extract";
+import { supabase } from "@/lib/supabase";
+import { savePdfDocument } from "@/lib/db";
 import { FileText, Upload, CheckCircle2 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -40,6 +42,12 @@ export default function PDFUploader({ onTextExtracted, label = "PDF Yükle" }: P
       setPreview(text.slice(0, 200).trim());
       toast.success(`${file.name} okundu · ${text.length} karakter`, { id: "pdf-extract" });
       onTextExtracted(text, file.name);
+
+      // Depoya kaydet
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await savePdfDocument(user.id, file.name, text);
+      }
     } catch (err) {
       console.error(err);
       toast.error("PDF okunamadı", { id: "pdf-extract" });
@@ -63,9 +71,9 @@ export default function PDFUploader({ onTextExtracted, label = "PDF Yükle" }: P
         onDrop={handleDrop}
         onClick={() => !loading && inputRef.current?.click()}
         className={`relative border-2 border-dashed rounded-2xl p-5 text-center cursor-pointer transition-all ${
-          dragging ? "border-indigo-400 bg-indigo-500/10"
-          : fileName ? "border-emerald-500/40 bg-emerald-500/5"
-          : "border-slate-700 hover:border-indigo-500/50 hover:bg-indigo-500/5"
+          dragging ? "border-[hsl(var(--primary))] bg-[hsl(var(--primary)/0.05)]"
+          : fileName ? "border-[hsl(142_72%_29%/0.5)] bg-[hsl(142_72%_29%/0.05)]"
+          : "border-[hsl(var(--border))] hover:border-[hsl(var(--primary)/0.4)] hover:bg-[hsl(var(--primary)/0.03)]"
         } ${loading ? "pointer-events-none opacity-70" : ""}`}
       >
         <input ref={inputRef} type="file" accept="application/pdf" className="hidden"
@@ -74,39 +82,44 @@ export default function PDFUploader({ onTextExtracted, label = "PDF Yükle" }: P
         {loading ? (
           <div className="flex flex-col items-center gap-2">
             <div className="loading-dots"><span /><span /><span /></div>
-            <p className="text-[hsl(var(--muted-foreground))] text-sm">PDF okunuyor...</p>
+            <p className="text-sm" style={{ color: "hsl(var(--muted-foreground))" }}>PDF okunuyor...</p>
           </div>
         ) : fileName ? (
           <div className="flex items-center gap-3">
-            <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+            <CheckCircle2 className="w-5 h-5 flex-shrink-0" style={{ color: "hsl(142 72% 55%)" }} />
             <div className="text-left flex-1 min-w-0">
-              <p className="text-emerald-400 text-sm font-medium truncate">{fileName}</p>
-              <p className="text-[hsl(var(--muted-foreground)/0.6)] text-xs">Değiştirmek için tıkla</p>
+              <p className="text-sm font-medium truncate" style={{ color: "hsl(142 72% 55%)" }}>{fileName}</p>
+              <p className="text-xs mt-0.5" style={{ color: "hsl(var(--muted-foreground))" }}>Değiştirmek için tıkla</p>
             </div>
           </div>
         ) : (
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[hsl(var(--primary)/0.08)] border border-[hsl(var(--primary)/0.2)] flex items-center justify-center flex-shrink-0">
-              <Upload className="w-4 h-4 text-[hsl(var(--primary))]" />
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ background: "hsl(var(--primary)/0.1)", border: "1px solid hsl(var(--primary)/0.2)" }}>
+              <Upload className="w-4 h-4" style={{ color: "hsl(var(--primary))" }} />
             </div>
             <div className="text-left">
-              <p className="text-[hsl(var(--foreground)/0.85)] text-sm font-medium">{label}</p>
-              <p className="text-[hsl(var(--muted-foreground)/0.6)] text-xs">Sürükle bırak veya tıkla · Maks 20MB</p>
+              <p className="text-sm font-medium" style={{ color: "hsl(var(--foreground))" }}>{label}</p>
+              <p className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>Sürükle bırak veya tıkla · Maks 20MB</p>
             </div>
           </div>
         )}
       </div>
 
-      {/* Metin önizleme */}
       {preview && (
-        <div className="p-3 rounded-xl bg-[hsl(var(--muted))] border border-[hsl(var(--border))]">
+        <div className="p-3 rounded-xl border border-[hsl(var(--border))]" style={{ background: "hsl(var(--muted))" }}>
           <div className="flex items-center gap-2 mb-1.5">
-            <FileText className="w-3.5 h-3.5 text-[hsl(var(--muted-foreground))]" />
-            <span className="text-xs text-[hsl(var(--muted-foreground))]">Çıkarılan metin önizlemesi</span>
+            <FileText className="w-3.5 h-3.5" style={{ color: "hsl(var(--muted-foreground))" }} />
+            <span className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>Önizleme · Depoya kaydedildi</span>
           </div>
-          <p className="text-[hsl(var(--muted-foreground))] text-xs leading-relaxed font-mono line-clamp-3">{preview}...</p>
+          <p className="text-xs leading-relaxed font-mono line-clamp-3" style={{ color: "hsl(var(--muted-foreground))" }}>{preview}...</p>
         </div>
       )}
     </div>
   );
+}
+
+interface PDFUploaderProps {
+  onTextExtracted: (text: string, fileName: string) => void;
+  label?: string;
 }

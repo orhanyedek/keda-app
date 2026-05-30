@@ -236,11 +236,11 @@ function HowItWorks() {
 function LeitnerSection() {
   const { ref, inView } = useSection();
   const boxes = [
-    { n:1, label:"Her oturum", color:"#ef4444", w:"100%" },
-    { n:2, label:"1 gün",      color:"#f97316", w:"80%" },
-    { n:3, label:"3 gün",      color:"#eab308", w:"60%" },
-    { n:4, label:"7 gün",      color:"#22c55e", w:"40%" },
-    { n:5, label:"14 gün",     color:"#10b981", w:"20%" },
+    { n:1, label:"Her oturum", color:"hsl(var(--foreground))", bar:"hsl(var(--primary)/0.6)" },
+    { n:2, label:"1 gün",      color:"hsl(var(--foreground))", bar:"hsl(var(--primary)/0.7)" },
+    { n:3, label:"3 gün",      color:"hsl(var(--foreground))", bar:"hsl(var(--primary)/0.8)" },
+    { n:4, label:"7 gün",      color:"hsl(var(--foreground))", bar:"hsl(var(--primary)/0.9)" },
+    { n:5, label:"14 gün",     color:"hsl(var(--foreground))", bar:"hsl(var(--primary))" },
   ];
   return (
     <section className="py-24 px-6">
@@ -257,17 +257,15 @@ function LeitnerSection() {
             <div className="space-y-3">
               {boxes.map((box, i) => (
                 <div key={box.n} className="flex items-center gap-4">
-                  {/* Kutu numarası */}
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={inView ? { scale: 1 } : {}}
                     transition={{ duration: 0.35, delay: 0.1 + i * 0.08, type: "spring", stiffness: 200 }}
-                    className="w-9 h-9 rounded-lg flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
-                    style={{ background: box.color }}
+                    className="w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0"
+                    style={{ background: "hsl(var(--secondary))", border: "1px solid hsl(var(--border))", color: "hsl(var(--foreground))" }}
                   >
                     {box.n}
                   </motion.div>
-                  {/* Progress bar */}
                   <div className="flex-1">
                     <div className="flex justify-between text-xs mb-1.5">
                       <span style={{ color:"hsl(var(--foreground))" }}>Kutu {box.n}</span>
@@ -276,10 +274,10 @@ function LeitnerSection() {
                     <div className="h-2 rounded-full overflow-hidden" style={{ background:"hsl(var(--border))" }}>
                       <motion.div
                         initial={{ width: 0 }}
-                        animate={inView ? { width: box.w } : { width: 0 }}
+                        animate={inView ? { width: `${100 - i * 20}%` } : { width: 0 }}
                         transition={{ duration: 0.7, delay: 0.3 + i * 0.1, ease: [0.25,0.1,0.25,1] }}
                         className="h-full rounded-full"
-                        style={{ background: box.color }}
+                        style={{ background: box.bar }}
                       />
                     </div>
                   </div>
