@@ -75,24 +75,32 @@ SADECE aşağıdaki JSON formatında yanıt ver:
 }
 
 // ==================== PODCAST DIYALOGU ====================
-export async function generatePodcastDialogue(text: string) {
-  const prompt = `Aşağıdaki metni iki konuşmacının (A ve B) eğitim podcast diyaloğuna çevir.
-A = Öğretmen (açıklayan), B = Öğrenci (soru soran).
+export async function generatePodcastDialogue(text: string, tone: string = "academic", lineCount: number = 14) {
+  const toneDesc: Record<string, string> = {
+    academic: "teknik ve detaylı, akademik bir dil kullan",
+    simple: "sade ve anlaşılır, günlük konuşma dili kullan",
+    qa: "öğrenci çok soru sorsun, öğretmen sabırla açıklasın",
+    story: "konuyu bir hikaye ya da senaryo üzerinden anlat",
+  };
+
+  const prompt = `Aşağıdaki metni iki kişilik eğitim podcast diyaloğuna çevir.
+A = Öğretmen (açıklayan), B = Öğrenci (soru soran/öğrenen).
 
 Metin:
 ${text.substring(0, 3000)}
 
 Kurallar:
-- 10-15 konuşma satırı
-- Doğal ve öğretici olsun
+- Tam olarak ${lineCount} konuşma satırı olsun
+- Ton: ${toneDesc[tone] || toneDesc.academic}
+- Doğal, akıcı ve öğretici olsun
 - Türkçe
 
-SADECE aşağıdaki JSON formatında yanıt ver:
+SADECE şu JSON formatında yanıt ver:
 {
   "baslik": "Podcast başlığı",
   "dialogue": [
-    { "speaker": "A", "text": "Merhaba, bugün..." },
-    { "speaker": "B", "text": "Hocam, şunu merak ediyorum..." }
+    { "speaker": "A", "text": "..." },
+    { "speaker": "B", "text": "..." }
   ]
 }`;
 
