@@ -62,48 +62,95 @@ function Nav() {
 /* ─── HERO ─── */
 function Hero() {
   return (
-    <section className="pt-32 pb-24 px-6 text-center relative overflow-hidden">
+    <section className="min-h-screen flex items-center px-6 pt-20 pb-12 relative overflow-hidden">
       {/* Subtle grid */}
       <div className="absolute inset-0 pointer-events-none" style={{
         backgroundImage: "linear-gradient(hsl(var(--border)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--border)) 1px, transparent 1px)",
         backgroundSize: "48px 48px",
-        maskImage: "radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%)",
-        opacity: 0.4,
+        maskImage: "radial-gradient(ellipse 80% 80% at 30% 50%, black 30%, transparent 100%)",
+        opacity: 0.3,
       }} />
       {/* Glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full blur-[120px] pointer-events-none" style={{ background: "hsl(var(--primary)/0.08)" }} />
+      <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[140px] pointer-events-none" style={{ background: "hsl(var(--primary)/0.07)" }} />
 
-      <motion.div variants={stagger} initial="hidden" animate="show" className="relative max-w-3xl mx-auto">
-        <motion.div variants={fade} className="inline-flex items-center gap-2 mb-6 px-3 py-1.5 rounded-full border border-[hsl(var(--border))] text-xs text-[hsl(var(--muted-foreground))]">
-          <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-          Yapay Zeka Destekli Akademik Asistan
+      <div className="max-w-6xl mx-auto w-full grid lg:grid-cols-2 gap-12 items-center relative">
+        {/* Sol: Metin */}
+        <motion.div variants={stagger} initial="hidden" animate="show">
+          <motion.div variants={fade} className="inline-flex items-center gap-2 mb-6 px-3 py-1.5 rounded-full border border-[hsl(var(--border))] text-xs text-[hsl(var(--muted-foreground))]">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+            Yapay Zeka Destekli Akademik Asistan
+          </motion.div>
+
+          <motion.h1 variants={fade} className="text-4xl md:text-5xl font-bold leading-tight mb-5" style={{ color: "hsl(var(--foreground))", letterSpacing: "-0.02em" }}>
+            Akıllı çalışmanın<br />
+            <span className="gradient-text">tek adresi.</span>
+          </motion.h1>
+
+          <motion.p variants={fade} className="text-base md:text-lg mb-8 leading-relaxed max-w-md" style={{ color: "hsl(var(--muted-foreground))" }}>
+            PDF yükle — AI konuları analiz etsin, flashcard üretsin, podcast oluştursun, kişisel çalışma planı hazırlasın.
+          </motion.p>
+
+          <motion.div variants={fade} className="flex flex-col sm:flex-row gap-3 mb-10">
+            <Link href="/auth/register" className="btn-primary px-6 py-2.5 flex items-center gap-2">
+              Ücretsiz Başla <ArrowRight className="w-4 h-4" />
+            </Link>
+            <a href="#ozellikler" className="btn-secondary px-6 py-2.5">Özelliklere Bak</a>
+          </motion.div>
+
+          <motion.div variants={fade} className="flex items-center gap-6 pt-6 border-t border-[hsl(var(--border))]">
+            {[["PDF → Flashcard", "Saniyeler içinde"], ["PDF → Podcast", "2 sesli diyalog"], ["Leitner SR", "Akıllı tekrar"]].map(([title, sub]) => (
+              <div key={title}>
+                <div className="text-sm font-medium" style={{ color: "hsl(var(--foreground))" }}>{title}</div>
+                <div className="text-xs mt-0.5" style={{ color: "hsl(var(--muted-foreground))" }}>{sub}</div>
+              </div>
+            ))}
+          </motion.div>
         </motion.div>
 
-        <motion.h1 variants={fade} className="text-4xl md:text-6xl font-bold leading-tight mb-5" style={{ color: "hsl(var(--foreground))", letterSpacing: "-0.02em" }}>
-          Ders notların,<br />
-          <span className="gradient-text">senin için çalışsın.</span>
-        </motion.h1>
+        {/* Sağ: Mockup görseli */}
+        <motion.div
+          initial={{ opacity: 0, x: 40, scale: 0.97 }}
+          animate={{ opacity: 1, x: 0, scale: 1 }}
+          transition={{ duration: 0.7, delay: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+          className="relative hidden lg:block"
+        >
+          {/* Glow arkası */}
+          <div className="absolute inset-0 rounded-2xl blur-3xl opacity-20 pointer-events-none" style={{ background: "hsl(var(--primary))", transform: "scale(0.85) translateY(20px)" }} />
 
-        <motion.p variants={fade} className="text-base md:text-lg max-w-lg mx-auto mb-8 leading-relaxed" style={{ color: "hsl(var(--muted-foreground))" }}>
-          PDF yükle, Groq AI konuları analiz etsin. Flashcard, podcast ve kişisel çalışma planı otomatik oluşturulsun.
-        </motion.p>
-
-        <motion.div variants={fade} className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Link href="/auth/register" className="btn-primary px-6 py-2.5">
-            Ücretsiz Başla <ArrowRight className="w-4 h-4" />
-          </Link>
-          <a href="#ozellikler" className="btn-secondary px-6 py-2.5">Nasıl çalışır?</a>
-        </motion.div>
-
-        <motion.div variants={fade} className="mt-16 pt-8 border-t border-[hsl(var(--border))] grid grid-cols-3 gap-8 max-w-xs mx-auto">
-          {[["4","Modül"],["Groq","AI Motoru"],["Ücretsiz","Erişim"]].map(([v,l])=>(
-            <div key={l} className="text-center">
-              <div className="text-base font-semibold" style={{ color: "hsl(var(--foreground))" }}>{v}</div>
-              <div className="text-xs mt-0.5" style={{ color: "hsl(var(--muted-foreground))" }}>{l}</div>
+          {/* Görsel çerçeve */}
+          <div className="relative rounded-2xl overflow-hidden border border-[hsl(var(--border))]" style={{ boxShadow: "0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px hsl(var(--border))" }}>
+            {/* Üst bar */}
+            <div className="flex items-center gap-1.5 px-4 py-3 border-b border-[hsl(var(--border))]" style={{ background: "hsl(var(--card))" }}>
+              <div className="w-2.5 h-2.5 rounded-full bg-red-500/70" />
+              <div className="w-2.5 h-2.5 rounded-full bg-amber-500/70" />
+              <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/70" />
+              <div className="flex-1 mx-3 h-5 rounded-md text-xs flex items-center justify-center" style={{ background: "hsl(var(--muted))", color: "hsl(var(--muted-foreground))" }}>
+                keda-app-five.vercel.app
+              </div>
             </div>
-          ))}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/hero-mockup.png"
+              alt="KEDA Dashboard"
+              className="w-full block"
+              style={{ display: "block" }}
+            />
+          </div>
         </motion.div>
-      </motion.div>
+
+        {/* Mobil görsel (küçük ekran) */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="lg:hidden"
+        >
+          <div className="rounded-xl overflow-hidden border border-[hsl(var(--border))]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/hero-mockup.png" alt="KEDA Dashboard" className="w-full block" />
+          </div>
+        </motion.div>
+      </div>
     </section>
   );
 }
