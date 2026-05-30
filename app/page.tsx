@@ -20,7 +20,12 @@ function Nav() {
     <header className="fixed top-0 inset-x-0 z-50 border-b border-[hsl(var(--border))]" style={{ background: "hsl(var(--background)/0.85)", backdropFilter: "blur(12px)" }}>
       <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center text-white font-bold text-sm">K</div>
+          <svg width="28" height="28" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="kg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#a855f7"/><stop offset="55%" stopColor="#7c3aed"/><stop offset="100%" stopColor="#60a5fa"/></linearGradient></defs>
+              <rect x="4" y="4" width="12" height="52" rx="6" fill="url(#kg)"/>
+              <path d="M16 30 L44 8 Q51 3 54 10 L26 30Z" fill="url(#kg)" opacity="0.95"/>
+              <path d="M16 30 L44 52 Q51 57 54 50 L26 30Z" fill="url(#kg)" opacity="0.82"/>
+            </svg>
           <span className="font-semibold text-[hsl(var(--foreground))] text-sm">KEDA</span>
         </Link>
         <nav className="hidden md:flex items-center gap-6">
@@ -267,7 +272,12 @@ function Footer() {
     <footer className="border-t border-[hsl(var(--border))] py-8 px-6">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-md bg-primary flex items-center justify-center text-white font-bold text-xs">K</div>
+          <svg width="22" height="22" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs><linearGradient id="kg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#a855f7"/><stop offset="55%" stopColor="#7c3aed"/><stop offset="100%" stopColor="#60a5fa"/></linearGradient></defs>
+              <rect x="4" y="4" width="12" height="52" rx="6" fill="url(#kg)"/>
+              <path d="M16 30 L44 8 Q51 3 54 10 L26 30Z" fill="url(#kg)" opacity="0.95"/>
+              <path d="M16 30 L44 52 Q51 57 54 50 L26 30Z" fill="url(#kg)" opacity="0.82"/>
+            </svg>
           <span className="text-sm" style={{ color: "hsl(var(--muted-foreground))" }}>KEDA 2026</span>
         </div>
         <p className="text-xs text-center" style={{ color: "hsl(var(--muted-foreground)/0.5)" }}>
