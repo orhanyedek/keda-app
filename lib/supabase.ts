@@ -80,3 +80,14 @@ export async function getCurrentUser() {
   const { data: { user }, error } = await supabase.auth.getUser();
   return { user, error };
 }
+
+// OAuth ile giriş (Google, GitHub)
+export async function signInWithOAuth(provider: "google" | "github") {
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider,
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback`,
+    },
+  });
+  return { data, error };
+}
