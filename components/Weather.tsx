@@ -35,22 +35,29 @@ export default function Weather() {
       return;
     }
 
-    const fetchWeather = async () => {
+    const fetchWeather = async (lat: number, lon: number) => {
       try {
-        // 1. IP'den konum al
-        const geoRes = await fetch("https://ipapi.co/json/");
+        // Koordinattan şehir adı al (reverse geocoding - ücretsiz)
+        const geoRes = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=tr`
+        );
         const geo = await geoRes.json();
-        const { city, latitude, longitude } = geo;
+        const city =
+          geo.address?.city ||
+          geo.address?.town ||
+          geo.address?.village ||
+          geo.address?.county ||
+          "Konum";
 
-        // 2. Open-Meteo ile hava durumu (ücretsiz, key gerektirmez)
+        // Hava durumu
         const weatherRes = await fetch(
-          `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,relative_humidity_2m&timezone=auto`
+          `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,relative_humidity_2m&timezone=auto`
         );
         const wData = await weatherRes.json();
         const cur = wData.current;
 
         const result: WeatherData = {
-          city: city || "Konum",
+          city,
           temp: Math.round(cur.temperature_2m),
           feels_like: Math.round(cur.apparent_temperature),
           desc: getDesc(cur.weather_code),
@@ -62,13 +69,31 @@ export default function Weather() {
         sessionStorage.setItem("keda_weather", JSON.stringify(result));
         setWeather(result);
       } catch {
-        // Sessizce başarısız ol
+        // sessizce başarısız ol
       } finally {
         setLoading(false);
       }
     };
 
-    fetchWeather();
+    // Tarayıcı Geolocation API - en doğru konum
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => fetchWeather(pos.coords.latitude, pos.coords.longitude),
+        async () => {
+          // İzin reddedilirse IP fallback
+          try {
+            const geoRes = await fetch("https://ipapi.co/json/");
+            const geo = await geoRes.json();
+            await fetchWeather(geo.latitude, geo.longitude);
+          } catch {
+            setLoading(false);
+          }
+        },
+        { timeout: 5000 }
+      );
+    } else {
+      setLoading(false);
+    }
   }, []);
 
   if (loading) return (
