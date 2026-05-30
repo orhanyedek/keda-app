@@ -323,8 +323,30 @@ export default function AgendaPage() {
             const done = plan.topics?.filter(t => t.tamamlandi_mi).length || 0;
             const total = plan.topics?.length || 0;
             const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+
+            // Takvim: başlangıç tarihinden itibaren günleri oluştur
+            const startDate = new Date(plan.created_at);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const dayNames = ["Paz", "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt"];
+
+            // Her konuyu gününe göre grupla
+            const topicsByDay: { [day: number]: typeof plan.topics } = {};
+            plan.topics?.forEach(t => {
+              const d = t.hedef_gun || 1;
+              if (!topicsByDay[d]) topicsByDay[d] = [];
+              topicsByDay[d].push(t);
+            });
+
+            // Gösterilecek günler: bugün dahil 14 günlük pencere
+            const todayDayNum = Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+            const windowStart = Math.max(1, todayDayNum - 2);
+            const windowEnd = Math.min(plan.hedef_gun_sayisi, windowStart + 13);
+            const calendarDays = Array.from({ length: windowEnd - windowStart + 1 }, (_, i) => windowStart + i);
+
             return (
               <div key={plan.id} className="keda-card p-6">
+                {/* Plan başlığı ve progress */}
                 <div className="flex items-start justify-between mb-3">
                   <div>
                     <h3 className="text-white font-semibold">{plan.baslik}</h3>
@@ -332,14 +354,80 @@ export default function AgendaPage() {
                   </div>
                   <span className="text-indigo-400 font-bold text-sm">{pct}%</span>
                 </div>
-                <div className="progress-bar mb-4"><div className="progress-bar-fill" style={{ width: `${pct}%` }} /></div>
-                <div className="space-y-2">
-                  {plan.topics?.map((topic) => (
-                    <div key={topic.id} className="flex items-center gap-3 cursor-pointer" onClick={() => handleToggleTopic(topic.id, topic.tamamlandi_mi)}>
-                      <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all ${topic.tamamlandi_mi ? "bg-emerald-500 border-emerald-500" : "border-slate-600"}`}>
-                        {topic.tamamlandi_mi && <span className="text-white text-xs">✓</span>}
+                <div className="progress-bar mb-5"><div className="progress-bar-fill" style={{ width: `${pct}%` }} /></div>
+
+                {/* Takvim görünümü */}
+                <div className="mb-4">
+                  <p className="text-xs text-slate-500 mb-3 font-mono uppercase tracking-wider">Takvim</p>
+                  <div className="grid grid-cols-7 gap-1.5">
+                    {calendarDays.map(dayNum => {
+                      const dayDate = new Date(startDate);
+                      dayDate.setDate(startDate.getDate() + dayNum - 1);
+                      const isToday = dayDate.toDateString() === today.toDateString();
+                      const isPast = dayDate < today;
+                      const dayTopics = topicsByDay[dayNum] || [];
+                      const allDone = dayTopics.length > 0 && dayTopics.every(t => t.tamamlandi_mi);
+                      const someDone = dayTopics.some(t => t.tamamlandi_mi);
+
+                      return (
+                        <div key={dayNum} className="text-center group relative">
+                          <div className="text-xs text-slate-600 mb-1">{dayNames[dayDate.getDay()]}</div>
+                          <div className={`w-full aspect-square rounded-xl flex flex-col items-center justify-center text-xs font-medium transition-all cursor-default
+                            ${isToday ? "bg-indigo-600/30 border border-indigo-500/50 text-indigo-300" :
+                              allDone ? "bg-emerald-500/20 border border-emerald-500/30 text-emerald-400" :
+                              someDone ? "bg-amber-500/15 border border-amber-500/25 text-amber-400" :
+                              dayTopics.length > 0 ? (isPast ? "bg-red-500/10 border border-red-500/20 text-red-400" : "bg-white/5 border border-white/10 text-slate-400") :
+                              "bg-white/3 border border-white/5 text-slate-700"
+                            }`}>
+                            <span>{dayDate.getDate()}</span>
+                            {dayTopics.length > 0 && (
+                              <span className="text-[10px] mt-0.5 opacity-70">{dayTopics.length} konu</span>
+                            )}
+                          </div>
+
+                          {/* Hover tooltip */}
+                          {dayTopics.length > 0 && (
+                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-40 bg-slate-800 border border-white/10 rounded-xl p-2 text-left z-10 hidden group-hover:block shadow-xl">
+                              <p className="text-xs text-slate-400 mb-1">Gün {dayNum}</p>
+                              {dayTopics.slice(0, 3).map(t => (
+                                <p key={t.id} className={`text-xs truncate ${t.tamamlandi_mi ? "text-emerald-400 line-through" : "text-slate-300"}`}>
+                                  {t.baslik}
+                                </p>
+                              ))}
+                              {dayTopics.length > 3 && <p className="text-xs text-slate-600">+{dayTopics.length - 3} daha</p>}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Renk açıklaması */}
+                  <div className="flex items-center gap-4 mt-3 flex-wrap">
+                    {[
+                      { color: "bg-indigo-600/30 border-indigo-500/50", label: "Bugün" },
+                      { color: "bg-emerald-500/20 border-emerald-500/30", label: "Tamamlandı" },
+                      { color: "bg-amber-500/15 border-amber-500/25", label: "Kısmen" },
+                      { color: "bg-red-500/10 border-red-500/20", label: "Geçti" },
+                    ].map(({ color, label }) => (
+                      <div key={label} className="flex items-center gap-1.5">
+                        <div className={`w-3 h-3 rounded border ${color}`} />
+                        <span className="text-xs text-slate-600">{label}</span>
                       </div>
-                      <span className={`text-sm transition-all ${topic.tamamlandi_mi ? "text-slate-600 line-through" : "text-slate-300"}`}>{topic.baslik}</span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Konu listesi */}
+                <div className="border-t border-white/5 pt-4 space-y-2">
+                  <p className="text-xs text-slate-500 font-mono uppercase tracking-wider mb-3">Tüm Konular</p>
+                  {plan.topics?.map((topic) => (
+                    <div key={topic.id} className="flex items-center gap-3 cursor-pointer group/topic" onClick={() => handleToggleTopic(topic.id, topic.tamamlandi_mi)}>
+                      <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all flex-shrink-0 ${topic.tamamlandi_mi ? "bg-emerald-500 border-emerald-500" : "border-slate-600 group-hover/topic:border-indigo-500"}`}>
+                        {topic.tamamlandi_mi && <Check className="w-3 h-3 text-white" />}
+                      </div>
+                      <span className={`text-sm transition-all flex-1 ${topic.tamamlandi_mi ? "text-slate-600 line-through" : "text-slate-300"}`}>{topic.baslik}</span>
+                      <span className="text-xs text-slate-700">Gün {topic.hedef_gun}</span>
                     </div>
                   ))}
                 </div>
