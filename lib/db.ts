@@ -158,7 +158,7 @@ export async function savePodcast(
   userId: string,
   podcast: {
     baslik: string;
-    diyalog_metni: string;
+    diyalog_metni: string; // paragraf metni olarak saklanıyor
   }
 ) {
   const { data, error } = await supabase

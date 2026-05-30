@@ -1,6 +1,5 @@
 /**
  * KEDA - AI Entegrasyonu (Groq)
- * Groq API ile llama-3.3-70b-versatile modeli kullanılıyor
  */
 
 import Groq from "groq-sdk";
@@ -59,7 +58,7 @@ Müsait olmayan günler (0=Pazar, 6=Cumartesi): ${params.unavailableDays.join(",
 Konular ve mevcut notlar:
 ${topicList}
 
-Düşük notlu konulara daha fazla zaman ayır. Zorluk 4-5 olan konuları haftanın başına koy.
+Düşük notlu konulara daha fazla zaman ayır.
 
 SADECE aşağıdaki JSON formatında yanıt ver:
 {
@@ -74,33 +73,41 @@ SADECE aşağıdaki JSON formatında yanıt ver:
   return JSON.parse(clean);
 }
 
-// ==================== PODCAST DIYALOGU ====================
-export async function generatePodcastDialogue(text: string, tone: string = "academic", lineCount: number = 14) {
-  const toneDesc: Record<string, string> = {
-    academic: "teknik ve detaylı, akademik bir dil kullan",
-    simple: "sade ve anlaşılır, günlük konuşma dili kullan",
-    qa: "öğrenci çok soru sorsun, öğretmen sabırla açıklasın",
-    story: "konuyu bir hikaye ya da senaryo üzerinden anlat",
+// ==================== PODCAST ÖZETİ ====================
+export async function generatePodcastSummary(
+  text: string,
+  style: string = "standard",
+  length: string = "medium"
+) {
+  const lengthMap: Record<string, number> = { short: 4, medium: 7, long: 12 };
+  const paraCount = lengthMap[length] || 7;
+
+  const styleDesc: Record<string, string> = {
+    standard: "açık, akıcı ve öğretici bir dilde",
+    simple: "çok sade, günlük konuşma dilinde, teknik terimlerden kaçınarak",
+    detailed: "detaylı, örneklerle zenginleştirilmiş, akademik bir dilde",
+    story: "bir hikaye anlatır gibi, ilgi çekici bir anlatımla",
   };
 
-  const prompt = `Aşağıdaki metni iki kişilik eğitim podcast diyaloğuna çevir.
-A = Öğretmen (açıklayan), B = Öğrenci (soru soran/öğrenen).
+  const prompt = `Aşağıdaki metni ${styleDesc[style] || styleDesc.standard} özetle.
 
 Metin:
-${text.substring(0, 3000)}
+${text.substring(0, 5000)}
 
 Kurallar:
-- Tam olarak ${lineCount} konuşma satırı olsun
-- Ton: ${toneDesc[tone] || toneDesc.academic}
-- Doğal, akıcı ve öğretici olsun
-- Türkçe
+- Tam olarak ${paraCount} paragraf yaz
+- Her paragraf 2-4 cümle olsun
+- Sesli okunmaya uygun, akıcı Türkçe kullan
+- Her paragraf tek bir ana fikri işlesin
+- Paragraflar birbirini mantıksal olarak takip etsin
 
 SADECE şu JSON formatında yanıt ver:
 {
-  "baslik": "Podcast başlığı",
-  "dialogue": [
-    { "speaker": "A", "text": "..." },
-    { "speaker": "B", "text": "..." }
+  "baslik": "Özet başlığı",
+  "paragraflar": [
+    "Birinci paragraf metni...",
+    "İkinci paragraf metni...",
+    "Üçüncü paragraf metni..."
   ]
 }`;
 

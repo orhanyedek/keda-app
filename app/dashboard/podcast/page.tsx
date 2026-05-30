@@ -1,51 +1,64 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { generatePodcastDialogue } from "@/lib/gemini";
+import { generatePodcastSummary } from "@/lib/gemini";
 import { savePodcast, getPodcasts, deletePodcast } from "@/lib/db";
 import { useAuth } from "@/hooks/useAuth";
 import PDFUploader from "@/components/PDFUploader";
-import { Mic, Play, Square, Trash2, Download, Search, ChevronDown } from "lucide-react";
+import { Mic, Play, Pause, SkipBack, SkipForward, Trash2, Download, Search, ChevronDown } from "lucide-react";
 import toast from "react-hot-toast";
 
-interface DialogueLine { speaker: string; text: string; }
-interface SavedPodcast { id: string; baslik: string; diyalog_metni: string; created_at: string; }
+interface Podcast {
+  id: string;
+  baslik: string;
+  diyalog_metni: string; // paragraflar \n\n ile ayrılmış
+  created_at: string;
+}
 
-const TONES = [
-  { key: "academic", label: "Akademik", desc: "Teknik, detaylı, öğretici" },
-  { key: "simple", label: "Sade", desc: "Anlaşılır, günlük dil" },
-  { key: "qa", label: "Soru-Cevap", desc: "Öğrenci sorar, öğretmen açıklar" },
-  { key: "story", label: "Hikaye", desc: "Anlatı formatında" },
+const STYLES = [
+  { key: "standard", label: "Standart", desc: "Akıcı ve öğretici" },
+  { key: "simple",   label: "Sade",     desc: "Günlük dil" },
+  { key: "detailed", label: "Detaylı",  desc: "Örneklerle zengin" },
+  { key: "story",    label: "Hikaye",   desc: "Anlatı formatı" },
 ];
 
 const LENGTHS = [
-  { key: "short", label: "Kısa", lines: 8, desc: "~2 dk" },
-  { key: "medium", label: "Orta", lines: 14, desc: "~4 dk" },
-  { key: "long", label: "Uzun", lines: 22, desc: "~6 dk" },
+  { key: "short",  label: "Kısa",  desc: "4 paragraf" },
+  { key: "medium", label: "Orta",  desc: "7 paragraf" },
+  { key: "long",   label: "Uzun",  desc: "12 paragraf" },
 ];
 
 export default function PodcastPage() {
   const { user } = useAuth();
   const [tab, setTab] = useState<"new" | "history">("new");
+
+  // Oluşturma
   const [inputText, setInputText] = useState("");
   const [podcastTitle, setPodcastTitle] = useState("");
-  const [tone, setTone] = useState("academic");
+  const [style, setStyle] = useState("standard");
   const [length, setLength] = useState("medium");
-  const [dialogue, setDialogue] = useState<DialogueLine[]>([]);
   const [generating, setGenerating] = useState(false);
-  const [saving, setSaving] = useState(false);
+
+  // Aktif podcast
+  const [paragraphs, setParagraphs] = useState<string[]>([]);
+  const [activeTitle, setActiveTitle] = useState("");
+
+  // Player
   const [playing, setPlaying] = useState(false);
-  const [currentLine, setCurrentLine] = useState(-1);
-  const [savedPodcasts, setSavedPodcasts] = useState<SavedPodcast[]>([]);
+  const [currentPara, setCurrentPara] = useState(-1);
+  const [currentWord, setCurrentWord] = useState(-1); // kelime bazlı highlight için
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const paraRefs = useRef<(HTMLParagraphElement | null)[]>([]);
+
+  // Geçmiş
+  const [history, setHistory] = useState<Podcast[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const [search, setSearch] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [playingHistoryId, setPlayingHistoryId] = useState<string | null>(null);
-  const [historyCurrentLine, setHistoryCurrentLine] = useState(-1);
-  const [search, setSearch] = useState("");
-  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
-  const dialogueRef = useRef<HTMLDivElement>(null);
-  const lineRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [historyCurrentPara, setHistoryCurrentPara] = useState(-1);
+  const historyParaRefs = useRef<(HTMLParagraphElement | null)[]>([]);
 
   useEffect(() => {
     if (user && tab === "history") loadHistory();
@@ -53,76 +66,44 @@ export default function PodcastPage() {
 
   useEffect(() => () => { window.speechSynthesis?.cancel(); }, []);
 
-  // Aktif satıra scroll
+  // Aktif paragrafa scroll
   useEffect(() => {
-    if (currentLine >= 0 && lineRefs.current[currentLine]) {
-      lineRefs.current[currentLine]?.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (currentPara >= 0 && paraRefs.current[currentPara]) {
+      paraRefs.current[currentPara]?.scrollIntoView({ behavior: "smooth", block: "center" });
     }
-  }, [currentLine]);
+  }, [currentPara]);
+
+  useEffect(() => {
+    if (historyCurrentPara >= 0 && historyParaRefs.current[historyCurrentPara]) {
+      historyParaRefs.current[historyCurrentPara]?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [historyCurrentPara]);
 
   const loadHistory = async () => {
     if (!user) return;
     setLoadingHistory(true);
     const { data } = await getPodcasts(user.id);
-    if (data) setSavedPodcasts(data as SavedPodcast[]);
+    if (data) setHistory(data as Podcast[]);
     setLoadingHistory(false);
   };
 
-  const handleGenerate = async () => {
-    if (!inputText.trim()) { toast.error("Lütfen metin girin"); return; }
-    setGenerating(true);
-    try {
-      const lineCount = LENGTHS.find(l => l.key === length)?.lines || 14;
-      const result = await generatePodcastDialogue(inputText, tone, lineCount);
-      const rawDialogue = result.dialogue || result.diyalog || [];
-      const normalized: DialogueLine[] = rawDialogue.map((l: { speaker?: string; konusmaci?: string; text?: string; metin?: string }, i: number) => ({
-        speaker: l.speaker || (l.konusmaci === "Öğretmen" || l.konusmaci === "A" ? "A" : "B") || (i % 2 === 0 ? "A" : "B"),
-        text: l.text || l.metin || "",
-      }));
-      setDialogue(normalized);
-
-      // Podcast oluştuktan sonra scroll
-      setTimeout(() => dialogueRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
-      toast.success("Podcast oluşturuldu!");
-
-      if (user) {
-        setSaving(true);
-        const title = podcastTitle.trim() || `Podcast ${new Date().toLocaleDateString("tr-TR")}`;
-        const diyalogMetni = normalized.map(l => `${l.speaker}: ${l.text}`).join("\n");
-        await savePodcast(user.id, { baslik: title, diyalog_metni: diyalogMetni });
-        setSaving(false);
-        toast.success("Kaydedildi ✓");
-      }
-    } catch {
-      toast.error("Podcast oluşturma başarısız");
-    } finally {
-      setGenerating(false);
-    }
-  };
-
-  const getVoice = (preferFemale: boolean) => {
+  const getVoice = () => {
     const voices = window.speechSynthesis.getVoices();
-    const trVoices = voices.filter(v => v.lang.startsWith("tr"));
-    if (trVoices.length >= 2) {
-      const femaleVoice = trVoices.find(v => /female|kadın|woman/i.test(v.name)) || trVoices[0];
-      const maleVoice = trVoices.find(v => v !== femaleVoice) || trVoices[0];
-      return preferFemale ? femaleVoice : maleVoice;
-    }
     return voices.find(v => v.lang.startsWith("tr")) || voices[0] || null;
   };
 
-  const speakLines = (lines: DialogueLine[], onLine: (i: number) => void, onEnd: () => void) => {
+  // Paragrafları sırayla seslendir
+  const speakParagraphs = useCallback((paras: string[], onPara: (i: number) => void, onEnd: () => void) => {
     let i = 0;
     const next = () => {
-      if (i >= lines.length) { onEnd(); return; }
-      onLine(i);
-      const utter = new SpeechSynthesisUtterance(lines[i].text);
+      if (i >= paras.length) { onEnd(); return; }
+      onPara(i);
+      const utter = new SpeechSynthesisUtterance(paras[i]);
       utter.lang = "tr-TR";
-      const isSpeakerA = lines[i].speaker === "A";
-      const voice = getVoice(isSpeakerA);
+      const voice = getVoice();
       if (voice) utter.voice = voice;
-      utter.pitch = isSpeakerA ? 1.2 : 0.8;
       utter.rate = 0.95;
+      utter.pitch = 1.0;
       utter.onend = () => { i++; next(); };
       utter.onerror = () => { i++; next(); };
       utteranceRef.current = utter;
@@ -131,80 +112,111 @@ export default function PodcastPage() {
     if (window.speechSynthesis.getVoices().length === 0) {
       window.speechSynthesis.onvoiceschanged = next;
     } else { next(); }
+  }, []);
+
+  const handleGenerate = async () => {
+    if (!inputText.trim()) { toast.error("Lütfen metin girin"); return; }
+    setGenerating(true);
+    try {
+      const result = await generatePodcastSummary(inputText, style, length);
+      const paras: string[] = result.paragraflar || [];
+      const title = podcastTitle.trim() || result.baslik || `Podcast ${new Date().toLocaleDateString("tr-TR")}`;
+
+      setParagraphs(paras);
+      setActiveTitle(title);
+      setCurrentPara(-1);
+      setPlaying(false);
+      window.speechSynthesis.cancel();
+
+      // Oluşturulunca scroll
+      setTimeout(() => document.getElementById("player-section")?.scrollIntoView({ behavior: "smooth", block: "start" }), 150);
+      toast.success("Podcast hazır!");
+
+      // Kaydet
+      if (user) {
+        await savePodcast(user.id, {
+          baslik: title,
+          diyalog_metni: paras.join("\n\n"),
+        });
+      }
+    } catch {
+      toast.error("Podcast oluşturulamadı");
+    } finally {
+      setGenerating(false);
+    }
   };
 
-  // Aktif podcast oynat/durdur
   const handlePlay = () => {
-    if (!dialogue.length) return;
+    if (!paragraphs.length) return;
     if (playing) {
       window.speechSynthesis.cancel();
       setPlaying(false);
-      setCurrentLine(-1);
       return;
     }
     setPlaying(true);
-    speakLines(dialogue, i => setCurrentLine(i), () => { setPlaying(false); setCurrentLine(-1); });
+    const startFrom = currentPara >= 0 ? currentPara : 0;
+    const remaining = paragraphs.slice(startFrom);
+    speakParagraphs(remaining, i => setCurrentPara(startFrom + i), () => {
+      setPlaying(false);
+      setCurrentPara(-1);
+    });
   };
 
-  // Geçmişten oynat/durdur
-  const handlePlayHistory = (podcast: SavedPodcast) => {
+  const handlePrev = () => {
+    window.speechSynthesis.cancel();
+    setPlaying(false);
+    setCurrentPara(p => Math.max(0, p - 1));
+  };
+
+  const handleNext = () => {
+    window.speechSynthesis.cancel();
+    setPlaying(false);
+    setCurrentPara(p => Math.min(paragraphs.length - 1, p + 1));
+  };
+
+  const handlePlayHistory = (podcast: Podcast) => {
     if (playingHistoryId === podcast.id) {
       window.speechSynthesis.cancel();
       setPlayingHistoryId(null);
-      setHistoryCurrentLine(-1);
+      setHistoryCurrentPara(-1);
       return;
     }
     window.speechSynthesis.cancel();
-    const lines = parseDialogue(podcast.diyalog_metni);
+    const paras = podcast.diyalog_metni.split("\n\n").filter(p => p.trim());
     setPlayingHistoryId(podcast.id);
     setExpandedId(podcast.id);
-    speakLines(lines, i => setHistoryCurrentLine(i), () => { setPlayingHistoryId(null); setHistoryCurrentLine(-1); });
+    speakParagraphs(paras, i => setHistoryCurrentPara(i), () => {
+      setPlayingHistoryId(null);
+      setHistoryCurrentPara(-1);
+    });
   };
 
-  const parseDialogue = (text: string): DialogueLine[] =>
-    text.split("\n").filter(l => l.trim()).map(l => {
-      const m = l.match(/^([^:]+):\s*(.+)$/);
-      return m ? { speaker: m[1].trim(), text: m[2].trim() } : { speaker: "?", text: l };
-    });
-
-  const download = (lines: DialogueLine[], title: string) => {
-    const text = lines.map(l => `${l.speaker === "A" ? "Öğretmen" : "Öğrenci"}: ${l.text}`).join("\n");
+  const download = (text: string, title: string) => {
     const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = `${title || "podcast"}.txt`; a.click();
+    const a = document.createElement("a"); a.href = url;
+    a.download = `${title}.txt`; a.click();
     URL.revokeObjectURL(url);
   };
 
-  const copy = (lines: DialogueLine[]) => {
-    const text = lines.map(l => `${l.speaker === "A" ? "Öğretmen" : "Öğrenci"}: ${l.text}`).join("\n");
-    navigator.clipboard.writeText(text);
-    toast.success("Kopyalandı!");
-  };
-
-  const filteredPodcasts = savedPodcasts.filter(p =>
+  const filteredHistory = history.filter(p =>
     p.baslik.toLowerCase().includes(search.toLowerCase())
   );
 
-  const SpeakerBadge = ({ speaker }: { speaker: string }) => (
-    <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${
-      speaker === "A"
-        ? "bg-[hsl(var(--primary)/0.15)] text-[hsl(var(--primary))]"
-        : "bg-[hsl(280_60%_50%/0.15)] text-[hsl(280_60%_70%)]"
-    }`}>
-      {speaker === "A" ? "Ö" : "S"}
-    </div>
-  );
+  const progress = paragraphs.length > 0 && currentPara >= 0
+    ? ((currentPara + 1) / paragraphs.length) * 100
+    : 0;
 
   return (
-    <div className="p-6 lg:p-8 max-w-4xl mx-auto pb-24 lg:pb-8">
+    <div className="p-6 lg:p-8 max-w-3xl mx-auto pb-24 lg:pb-8">
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
         <h1 className="text-2xl font-bold mb-1" style={{ color: "hsl(var(--foreground))" }}>Podcast Stüdyosu</h1>
-        <p className="text-sm" style={{ color: "hsl(var(--muted-foreground))" }}>M-02 · Sorumlu: Kerem Mert Duru · PDF'ten sesli çalışma içeriği</p>
+        <p className="text-sm" style={{ color: "hsl(var(--muted-foreground))" }}>M-02 · PDF'ten sesli özet — dinle ve takip et</p>
       </motion.div>
 
       {/* Sekmeler */}
       <div className="flex gap-2 mb-6">
-        {[{ key: "new", label: "Yeni Podcast" }, { key: "history", label: "Geçmiş" }].map(t => (
+        {[{ key: "new", label: "Yeni Podcast" }, { key: "history", label: `Geçmiş${history.length > 0 ? ` (${history.length})` : ""}` }].map(t => (
           <button key={t.key} onClick={() => setTab(t.key as "new" | "history")}
             className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${tab === t.key
               ? "bg-[hsl(var(--primary)/0.15)] border border-[hsl(var(--primary)/0.3)] text-[hsl(var(--primary))]"
@@ -217,22 +229,21 @@ export default function PodcastPage() {
       {/* ── YENİ PODCAST ── */}
       {tab === "new" && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-5">
-          {!dialogue.length && (
+
+          {/* Form */}
+          {!paragraphs.length && (
             <div className="keda-card p-6 space-y-5">
-              {/* Başlık */}
               <div>
-                <label className="block text-sm mb-1.5" style={{ color: "hsl(var(--muted-foreground))" }}>Podcast Başlığı</label>
+                <label className="block text-sm mb-1.5" style={{ color: "hsl(var(--muted-foreground))" }}>Başlık (opsiyonel)</label>
                 <input value={podcastTitle} onChange={e => setPodcastTitle(e.target.value)}
-                  placeholder="Örn: Veri Yapıları - Ağaçlar" className="keda-input" />
+                  placeholder="Örn: Veri Yapıları Özeti" className="keda-input" />
               </div>
 
-              {/* PDF veya metin */}
               <div>
                 <label className="block text-sm mb-2" style={{ color: "hsl(var(--muted-foreground))" }}>İçerik</label>
                 <PDFUploader label="PDF yükle" onTextExtracted={(text, name) => {
                   setInputText(text);
                   if (!podcastTitle) setPodcastTitle(name.replace(".pdf", ""));
-                  toast.success("PDF yüklendi!");
                 }} />
                 <div className="flex items-center gap-3 my-3">
                   <div className="flex-1 h-px" style={{ background: "hsl(var(--border))" }} />
@@ -243,17 +254,17 @@ export default function PodcastPage() {
                   placeholder="Ders metnini buraya yapıştır..." rows={4} className="keda-input resize-none" />
               </div>
 
-              {/* Ses tonu */}
+              {/* Anlatım tarzı */}
               <div>
-                <label className="block text-sm mb-2" style={{ color: "hsl(var(--muted-foreground))" }}>Ses Tonu</label>
+                <label className="block text-sm mb-2" style={{ color: "hsl(var(--muted-foreground))" }}>Anlatım Tarzı</label>
                 <div className="grid grid-cols-2 gap-2">
-                  {TONES.map(t => (
-                    <button key={t.key} onClick={() => setTone(t.key)}
-                      className={`p-3 rounded-xl text-left transition-all ${tone === t.key
-                        ? "bg-[hsl(var(--primary)/0.12)] border border-[hsl(var(--primary)/0.3)] text-[hsl(var(--primary))]"
-                        : "keda-card text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"}`}>
-                      <div className="text-sm font-medium">{t.label}</div>
-                      <div className="text-xs mt-0.5 opacity-70">{t.desc}</div>
+                  {STYLES.map(s => (
+                    <button key={s.key} onClick={() => setStyle(s.key)}
+                      className={`p-3 rounded-xl text-left transition-all ${style === s.key
+                        ? "bg-[hsl(var(--primary)/0.12)] border border-[hsl(var(--primary)/0.3)]"
+                        : "keda-card"}`}>
+                      <div className="text-sm font-medium" style={{ color: style === s.key ? "hsl(var(--primary))" : "hsl(var(--foreground))" }}>{s.label}</div>
+                      <div className="text-xs mt-0.5" style={{ color: "hsl(var(--muted-foreground))" }}>{s.desc}</div>
                     </button>
                   ))}
                 </div>
@@ -265,11 +276,11 @@ export default function PodcastPage() {
                 <div className="flex gap-2">
                   {LENGTHS.map(l => (
                     <button key={l.key} onClick={() => setLength(l.key)}
-                      className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${length === l.key
+                      className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all text-center ${length === l.key
                         ? "bg-[hsl(var(--primary)/0.12)] border border-[hsl(var(--primary)/0.3)] text-[hsl(var(--primary))]"
                         : "keda-card text-[hsl(var(--muted-foreground))]"}`}>
                       <div>{l.label}</div>
-                      <div className="text-xs opacity-60">{l.desc}</div>
+                      <div className="text-xs opacity-60 mt-0.5">{l.desc}</div>
                     </button>
                   ))}
                 </div>
@@ -278,79 +289,115 @@ export default function PodcastPage() {
               <button onClick={handleGenerate} disabled={generating || !inputText.trim()}
                 className="btn-primary w-full py-3 disabled:opacity-50">
                 {generating
-                  ? <div className="flex items-center justify-center gap-2"><div className="loading-dots"><span/><span/><span/></div>Oluşturuluyor...</div>
-                  : saving ? "Kaydediliyor..." : "Podcast Oluştur"}
+                  ? <div className="flex items-center justify-center gap-2"><div className="loading-dots"><span/><span/><span/></div>Özet Hazırlanıyor...</div>
+                  : "Podcast Oluştur"}
               </button>
             </div>
           )}
 
-          {/* Diyalog */}
-          {dialogue.length > 0 && (
-            <motion.div ref={dialogueRef} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-              {/* Player */}
-              <div className="keda-card p-5" style={{ borderColor: "hsl(var(--primary)/0.2)" }}>
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <h3 className="font-semibold text-sm" style={{ color: "hsl(var(--foreground))" }}>{podcastTitle || "Podcast"}</h3>
+          {/* ── PLAYER ── */}
+          {paragraphs.length > 0 && (
+            <motion.div id="player-section" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+
+              {/* Sticky player bar */}
+              <div className="keda-card p-5 sticky top-2 z-20" style={{ borderColor: "hsl(var(--primary)/0.25)", backdropFilter: "blur(12px)" }}>
+                <div className="flex items-center gap-4 mb-3">
+                  {/* Albüm kapağı */}
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+                    style={{ background: "hsl(var(--primary)/0.15)", border: "1px solid hsl(var(--primary)/0.3)" }}>
+                    <Mic className="w-6 h-6" style={{ color: "hsl(var(--primary))" }} />
+                  </div>
+                  {/* Başlık */}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold truncate" style={{ color: "hsl(var(--foreground))" }}>{activeTitle}</p>
                     <p className="text-xs mt-0.5" style={{ color: "hsl(var(--muted-foreground))" }}>
-                      {dialogue.length} satır · {TONES.find(t => t.key === tone)?.label} · {LENGTHS.find(l => l.key === length)?.desc}
+                      {currentPara >= 0 ? `${currentPara + 1} / ${paragraphs.length}` : `${paragraphs.length} paragraf`}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <button onClick={() => copy(dialogue)} className="w-8 h-8 rounded-lg glass flex items-center justify-center transition-all" style={{ color: "hsl(var(--muted-foreground))" }} title="Kopyala">
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                    </button>
-                    <button onClick={() => download(dialogue, podcastTitle)} className="w-8 h-8 rounded-lg glass flex items-center justify-center transition-all" style={{ color: "hsl(var(--muted-foreground))" }} title="İndir">
-                      <Download className="w-4 h-4" />
-                    </button>
-                    <button onClick={handlePlay}
-                      className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${playing
-                        ? "bg-red-500/15 border border-red-500/25"
-                        : "bg-[hsl(var(--primary)/0.12)] border border-[hsl(var(--primary)/0.25)]"}`}>
-                      {playing ? <Square className="w-4 h-4 text-red-400" /> : <Play className="w-4 h-4" style={{ color: "hsl(var(--primary))" }} />}
-                    </button>
-                  </div>
+                  {/* Download */}
+                  <button onClick={() => download(paragraphs.join("\n\n"), activeTitle)}
+                    className="p-2 rounded-lg hover:bg-[hsl(var(--accent))] transition-colors"
+                    style={{ color: "hsl(var(--muted-foreground))" }}>
+                    <Download className="w-4 h-4" />
+                  </button>
                 </div>
-                {playing && (
-                  <div className="progress-bar">
-                    <div className="progress-bar-fill" style={{ width: `${((currentLine + 1) / dialogue.length) * 100}%` }} />
-                  </div>
-                )}
+
+                {/* Progress bar */}
+                <div className="progress-bar mb-3 cursor-pointer" onClick={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const pct = (e.clientX - rect.left) / rect.width;
+                  const idx = Math.floor(pct * paragraphs.length);
+                  window.speechSynthesis.cancel();
+                  setPlaying(false);
+                  setCurrentPara(Math.max(0, Math.min(paragraphs.length - 1, idx)));
+                }}>
+                  <motion.div className="progress-bar-fill" animate={{ width: `${progress}%` }} transition={{ duration: 0.3 }} />
+                </div>
+
+                {/* Kontroller */}
+                <div className="flex items-center justify-center gap-4">
+                  <button onClick={handlePrev} disabled={currentPara <= 0}
+                    className="w-9 h-9 rounded-xl flex items-center justify-center transition-all disabled:opacity-30"
+                    style={{ background: "hsl(var(--secondary))", color: "hsl(var(--muted-foreground))" }}>
+                    <SkipBack className="w-4 h-4" />
+                  </button>
+                  <button onClick={handlePlay}
+                    className="w-14 h-14 rounded-2xl flex items-center justify-center transition-all shadow-lg"
+                    style={{ background: "hsl(var(--primary))" }}>
+                    {playing ? <Pause className="w-6 h-6 text-white" /> : <Play className="w-6 h-6 text-white ml-0.5" />}
+                  </button>
+                  <button onClick={handleNext} disabled={currentPara >= paragraphs.length - 1}
+                    className="w-9 h-9 rounded-xl flex items-center justify-center transition-all disabled:opacity-30"
+                    style={{ background: "hsl(var(--secondary))", color: "hsl(var(--muted-foreground))" }}>
+                    <SkipForward className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
 
-              {/* Konuşmacı etiketleri */}
-              <div className="flex items-center gap-4 px-1">
-                <div className="flex items-center gap-2 text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>
-                  <div className="w-5 h-5 rounded bg-[hsl(var(--primary)/0.15)] flex items-center justify-center text-[10px] font-bold" style={{ color: "hsl(var(--primary))" }}>Ö</div>
-                  Öğretmen
-                </div>
-                <div className="flex items-center gap-2 text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>
-                  <div className="w-5 h-5 rounded bg-[hsl(280_60%_50%/0.15)] flex items-center justify-center text-[10px] font-bold text-[hsl(280_60%_70%)]">S</div>
-                  Öğrenci
-                </div>
+              {/* ── LYRİCS / PARAGRAFLAR ── Spotify tarzı */}
+              <div className="space-y-2 px-1">
+                {paragraphs.map((para, i) => {
+                  const isActive = currentPara === i;
+                  const isPast = currentPara > i;
+                  return (
+                    <motion.p
+                      key={i}
+                      ref={el => { paraRefs.current[i] = el; }}
+                      onClick={() => {
+                        window.speechSynthesis.cancel();
+                        setPlaying(false);
+                        setCurrentPara(i);
+                      }}
+                      className="px-4 py-3 rounded-2xl cursor-pointer transition-all leading-relaxed"
+                      animate={{
+                        scale: isActive ? 1.01 : 1,
+                        opacity: isPast ? 0.35 : isActive ? 1 : 0.65,
+                      }}
+                      transition={{ duration: 0.3 }}
+                      style={{
+                        fontSize: isActive ? "1.05rem" : "0.9rem",
+                        fontWeight: isActive ? 600 : 400,
+                        color: isActive ? "hsl(var(--foreground))" : "hsl(var(--muted-foreground))",
+                        background: isActive ? "hsl(var(--primary)/0.08)" : "transparent",
+                        border: isActive ? "1px solid hsl(var(--primary)/0.2)" : "1px solid transparent",
+                        lineHeight: "1.8",
+                      }}
+                    >
+                      {para}
+                    </motion.p>
+                  );
+                })}
               </div>
 
-              {/* Satırlar */}
-              <div className="space-y-2">
-                {dialogue.map((line, i) => (
-                  <motion.div
-                    key={i}
-                    ref={el => { lineRefs.current[i] = el; }}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.02 }}
-                    className={`flex gap-3 p-4 rounded-xl transition-all ${currentLine === i
-                      ? "bg-[hsl(var(--primary)/0.08)] border border-[hsl(var(--primary)/0.25)]"
-                      : "keda-card"}`}
-                  >
-                    <SpeakerBadge speaker={line.speaker} />
-                    <p className="text-sm leading-relaxed pt-1" style={{ color: "hsl(var(--foreground)/0.9)" }}>{line.text}</p>
-                  </motion.div>
-                ))}
-              </div>
-
-              <button onClick={() => { setDialogue([]); setInputText(""); setPodcastTitle(""); setPlaying(false); window.speechSynthesis?.cancel(); lineRefs.current = []; }}
-                className="w-full btn-secondary py-2.5 text-sm">
+              <button onClick={() => {
+                window.speechSynthesis.cancel();
+                setPlaying(false);
+                setParagraphs([]);
+                setCurrentPara(-1);
+                setInputText("");
+                setPodcastTitle("");
+                paraRefs.current = [];
+              }} className="w-full btn-secondary py-2.5 text-sm mt-4">
                 Yeni Podcast Oluştur
               </button>
             </motion.div>
@@ -361,16 +408,14 @@ export default function PodcastPage() {
       {/* ── GEÇMİŞ ── */}
       {tab === "history" && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
-          {/* Arama */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "hsl(var(--muted-foreground))" }} />
-            <input value={search} onChange={e => setSearch(e.target.value)}
-              placeholder="Podcast ara..." className="keda-input pl-9" />
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Podcast ara..." className="keda-input pl-9" />
           </div>
 
           {loadingHistory ? (
             <div className="text-center py-12" style={{ color: "hsl(var(--muted-foreground))" }}>Yükleniyor...</div>
-          ) : filteredPodcasts.length === 0 ? (
+          ) : filteredHistory.length === 0 ? (
             <div className="keda-card p-8 text-center">
               <div className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3"
                 style={{ background: "hsl(var(--primary)/0.08)", border: "1px solid hsl(var(--primary)/0.2)" }}>
@@ -380,44 +425,43 @@ export default function PodcastPage() {
                 {search ? "Sonuç bulunamadı" : "Henüz podcast yok"}
               </p>
             </div>
-          ) : filteredPodcasts.map(podcast => {
-            const lines = parseDialogue(podcast.diyalog_metni);
+          ) : filteredHistory.map(podcast => {
+            const paras = podcast.diyalog_metni.split("\n\n").filter(p => p.trim());
             const isPlaying = playingHistoryId === podcast.id;
             const isExpanded = expandedId === podcast.id;
+            const histProg = isPlaying && paras.length > 0 && historyCurrentPara >= 0
+              ? ((historyCurrentPara + 1) / paras.length) * 100 : 0;
 
             return (
               <div key={podcast.id} className="keda-card overflow-hidden">
-                {/* Başlık satırı */}
                 <div className="flex items-center p-4 gap-3">
-                  {/* Oynat butonu */}
+                  {/* Play */}
                   <button onClick={() => handlePlayHistory(podcast)}
-                    className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all ${isPlaying
+                    className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-all ${isPlaying
                       ? "bg-red-500/15 border border-red-500/25"
                       : "bg-[hsl(var(--primary)/0.1)] border border-[hsl(var(--primary)/0.2)]"}`}>
-                    {isPlaying ? <Square className="w-3.5 h-3.5 text-red-400" /> : <Play className="w-3.5 h-3.5" style={{ color: "hsl(var(--primary))" }} />}
+                    {isPlaying ? <Pause className="w-4 h-4 text-red-400" /> : <Play className="w-4 h-4 ml-0.5" style={{ color: "hsl(var(--primary))" }} />}
                   </button>
 
-                  {/* Bilgi */}
+                  {/* Info */}
                   <div className="flex-1 min-w-0 cursor-pointer" onClick={() => setExpandedId(isExpanded ? null : podcast.id)}>
                     <p className="text-sm font-medium truncate" style={{ color: "hsl(var(--foreground))" }}>{podcast.baslik}</p>
                     <p className="text-xs mt-0.5" style={{ color: "hsl(var(--muted-foreground))" }}>
-                      {new Date(podcast.created_at).toLocaleDateString("tr-TR")} · {lines.length} satır
+                      {new Date(podcast.created_at).toLocaleDateString("tr-TR")} · {paras.length} paragraf
                     </p>
                   </div>
 
-                  {/* Aksiyon butonları */}
+                  {/* Butonlar */}
                   <div className="flex items-center gap-1">
-                    <button onClick={() => copy(lines)} className="p-1.5 rounded-lg hover:bg-[hsl(var(--accent))] transition-colors" style={{ color: "hsl(var(--muted-foreground))" }} title="Kopyala">
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                    </button>
-                    <button onClick={() => download(lines, podcast.baslik)} className="p-1.5 rounded-lg hover:bg-[hsl(var(--accent))] transition-colors" style={{ color: "hsl(var(--muted-foreground))" }} title="İndir">
+                    <button onClick={() => download(podcast.diyalog_metni, podcast.baslik)}
+                      className="p-1.5 rounded-lg hover:bg-[hsl(var(--accent))] transition-colors" style={{ color: "hsl(var(--muted-foreground))" }}>
                       <Download className="w-3.5 h-3.5" />
                     </button>
                     <button onClick={async () => {
                       await deletePodcast(podcast.id);
-                      setSavedPodcasts(prev => prev.filter(p => p.id !== podcast.id));
+                      setHistory(prev => prev.filter(p => p.id !== podcast.id));
                       if (playingHistoryId === podcast.id) { window.speechSynthesis.cancel(); setPlayingHistoryId(null); }
-                      toast.success("Podcast silindi");
+                      toast.success("Silindi");
                     }} className="p-1.5 rounded-lg hover:bg-red-500/10 text-red-400 transition-colors">
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -430,31 +474,43 @@ export default function PodcastPage() {
                   </div>
                 </div>
 
-                {/* Progress bar (oynarken) */}
+                {/* Progress */}
                 {isPlaying && (
                   <div className="px-4 pb-2">
                     <div className="progress-bar">
-                      <div className="progress-bar-fill animate-pulse"
-                        style={{ width: `${lines.length > 0 ? ((historyCurrentLine + 1) / lines.length) * 100 : 0}%` }} />
+                      <motion.div className="progress-bar-fill" animate={{ width: `${histProg}%` }} transition={{ duration: 0.3 }} />
                     </div>
                   </div>
                 )}
 
-                {/* Diyalog içeriği */}
+                {/* Paragraflar — Spotify tarzı */}
                 <AnimatePresence>
                   {isExpanded && (
-                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.25 }} className="overflow-hidden">
-                      <div className="px-4 pb-4 space-y-2 border-t border-[hsl(var(--border))] pt-3">
-                        {lines.map((line, i) => (
-                          <div key={i}
-                            className={`flex gap-3 p-3 rounded-xl transition-all ${isPlaying && historyCurrentLine === i
-                              ? "bg-[hsl(var(--primary)/0.08)] border border-[hsl(var(--primary)/0.25)]"
-                              : "bg-[hsl(var(--muted))]"}`}>
-                            <SpeakerBadge speaker={line.speaker} />
-                            <p className="text-sm leading-relaxed pt-1" style={{ color: "hsl(var(--muted-foreground))" }}>{line.text}</p>
-                          </div>
-                        ))}
+                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.25 }} className="overflow-hidden">
+                      <div className="border-t border-[hsl(var(--border))] px-4 py-4 space-y-2">
+                        {paras.map((para, i) => {
+                          const isActive = isPlaying && historyCurrentPara === i;
+                          const isPast = isPlaying && historyCurrentPara > i;
+                          return (
+                            <motion.p
+                              key={i}
+                              ref={el => { historyParaRefs.current[i] = el; }}
+                              animate={{ opacity: isPast ? 0.3 : isActive ? 1 : 0.6, scale: isActive ? 1.01 : 1 }}
+                              transition={{ duration: 0.3 }}
+                              className="px-3 py-2 rounded-xl leading-relaxed transition-all"
+                              style={{
+                                fontSize: isActive ? "0.95rem" : "0.875rem",
+                                fontWeight: isActive ? 600 : 400,
+                                color: isActive ? "hsl(var(--foreground))" : "hsl(var(--muted-foreground))",
+                                background: isActive ? "hsl(var(--primary)/0.08)" : "transparent",
+                                lineHeight: "1.8",
+                              }}
+                            >
+                              {para}
+                            </motion.p>
+                          );
+                        })}
                       </div>
                     </motion.div>
                   )}
