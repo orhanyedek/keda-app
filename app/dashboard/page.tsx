@@ -12,6 +12,8 @@ import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { getDashboardStats } from "@/lib/db";
 import { CalendarDays, Mic, Layers, Clock, BookOpen, ArrowRight } from "lucide-react";
+import { DashboardSkeleton } from "@/components/Skeleton";
+import Onboarding from "@/components/Onboarding";
 
 const fadeUp = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5 } } };
 const stagger = { visible: { transition: { staggerChildren: 0.08 } } };
@@ -100,8 +102,11 @@ export default function DashboardPage() {
     ?.filter(t => !t.tamamlandi_mi)
     ?.slice(0, 3) || [];
 
+  if (loadingStats) return <DashboardSkeleton />;
+
   return (
     <div className="p-6 lg:p-8 max-w-7xl mx-auto pb-24 lg:pb-8">
+      <Onboarding />
 
       {/* Hoşgeldin */}
       <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}

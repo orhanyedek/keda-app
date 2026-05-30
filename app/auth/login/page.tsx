@@ -102,7 +102,10 @@ export default function LoginPage() {
 
             {/* Şifre alanı */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Sifre</label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-slate-300">Sifre</label>
+                <Link href="/auth/reset-password" className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors">Şifremi unuttum</Link>
+              </div>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}

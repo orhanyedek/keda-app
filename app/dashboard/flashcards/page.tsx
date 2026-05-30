@@ -10,7 +10,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { generateFlashcards } from "@/lib/gemini";
-import { getFlashcardSets, createFlashcardSet, saveFlashcards, getDueFlashcards } from "@/lib/db";
+import { getFlashcardSets, createFlashcardSet, saveFlashcards, getDueFlashcards, getFlashcardsBySet } from "@/lib/db";
 import PDFUploader from "@/components/PDFUploader";
 import { CheckCircle2, XCircle, Clock, Layers } from "lucide-react";
 import toast from "react-hot-toast";
@@ -109,6 +109,9 @@ export default function FlashcardsPage() {
   const [boxStats, setBoxStats] = useState([0, 0, 0, 0, 0]);
   const [sets, setSets] = useState<SetData[]>([]);
   const [loadingSets, setLoadingSets] = useState(false);
+  const [selectedSet, setSelectedSet] = useState<{ id: string; baslik: string } | null>(null);
+  const [detailCards, setDetailCards] = useState<FlashcardData[]>([]);
+  const [loadingSetCards, setLoadingSetCards] = useState(false);
 
   useEffect(() => {
     if (user && tab === "sets") loadSets();
@@ -121,6 +124,14 @@ export default function FlashcardsPage() {
     const { data } = await getFlashcardSets(user.id);
     if (data) setSets(data as SetData[]);
     setLoadingSets(false);
+  };
+
+  const openSet = async (set: { id: string; baslik: string }) => {
+    setSelectedSet(set);
+    setLoadingSetCards(true);
+    const { data } = await getFlashcardsBySet(set.id);
+    if (data) setDetailCards(data as FlashcardData[]);
+    setLoadingSetCards(false);
   };
 
   const loadDueCards = async () => {
@@ -295,7 +306,7 @@ export default function FlashcardsPage() {
                 <p className="text-slate-400 text-sm">Henüz kart seti yok. Yeni oluştur sekmesinden başla.</p>
               </div>
               ) : sets.map((set) => (
-                <div key={set.id} className="keda-card p-5 flex items-center justify-between">
+                <div key={set.id} onClick={() => openSet(set)} className="keda-card p-5 flex items-center justify-between cursor-pointer hover:border-indigo-500/30 transition-colors">
                   <div>
                     <h3 className="text-white font-medium">{set.baslik}</h3>
                     <p className="text-slate-500 text-sm mt-1">{set.flashcards?.[0]?.count || 0} kart · {new Date(set.created_at).toLocaleDateString("tr-TR")}</p>
@@ -305,6 +316,47 @@ export default function FlashcardsPage() {
                   </div>
                 </div>
               ))}
+
+              {/* Set Detay Modalı */}
+              <AnimatePresence>
+                {selectedSet && (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                    className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                    onClick={() => setSelectedSet(null)}>
+                    <motion.div initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95 }}
+                      onClick={e => e.stopPropagation()}
+                      className="keda-card w-full max-w-lg max-h-[80vh] flex flex-col">
+                      <div className="flex items-center justify-between p-5 border-b border-white/5">
+                        <div>
+                          <h3 className="text-white font-semibold">{selectedSet.baslik}</h3>
+                          <p className="text-slate-500 text-xs mt-0.5">{detailCards.length} kart</p>
+                        </div>
+                        <button onClick={() => setSelectedSet(null)} className="text-slate-500 hover:text-white transition-colors p-1">
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                      </div>
+                      <div className="overflow-y-auto p-5 space-y-3">
+                        {loadingSetCards ? (
+                          <div className="text-center py-8 text-slate-500 text-sm">Yükleniyor...</div>
+                        ) : setCards.map((card, i) => (
+                          <div key={card.id} className="p-4 rounded-xl bg-white/5 border border-white/5">
+                            <div className="flex items-start justify-between gap-3 mb-2">
+                              <span className="text-xs text-slate-600 font-mono">#{i + 1}</span>
+                              <div className="flex gap-1">
+                                {[1,2,3,4,5].map(n => (
+                                  <div key={n} className={`w-1.5 h-1.5 rounded-full ${n <= card.zorluk ? "bg-indigo-400" : "bg-slate-700"}`} />
+                                ))}
+                              </div>
+                            </div>
+                            <p className="text-slate-200 text-sm font-medium mb-2">{card.soru}</p>
+                            <p className="text-slate-400 text-sm border-t border-white/5 pt-2">{card.cevap}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
           )}
 

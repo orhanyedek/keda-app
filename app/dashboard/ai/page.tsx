@@ -10,15 +10,16 @@ import { useAuth } from "@/hooks/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
 import Groq from "groq-sdk";
 import { Send, Plus, Trash2, Sparkles } from "lucide-react";
+import { getDashboardStats } from "@/lib/db";
 
 const groq = new Groq({
   apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY!,
   dangerouslyAllowBrowser: true,
 });
 
-const SYSTEM_PROMPT = `Sen KEDA'nın AI asistanısın. KEDA, öğrencilere yardımcı olan akıllı bir çalışma platformudur.
+const BASE_SYSTEM_PROMPT = `Sen KEDA'nın AI asistanısın. KEDA, öğrencilere yardımcı olan akıllı bir çalışma platformudur.
 Kullanıcılara ders çalışma, konu anlama, sınav hazırlığı ve akademik sorularda yardım ediyorsun.
-Türkçe konuş. Açık, anlaşılır ve öğretici ol. Gerektiğinde örnekler ver.`;
+Türkçe konuş. Açık, anlaşılır ve öğretici ol. Gerektiğinde örnekler ver. Markdown formatını kullan.`;
 
 const STARTER_PROMPTS = [
   { icon: "📚", text: "Türev konusunu basitçe anlat" },
@@ -65,8 +66,22 @@ export default function AIPage() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [userContext, setUserContext] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  // Kullanıcının gerçek verilerini yükle (bağlam için)
+  useEffect(() => {
+    if (!user) return;
+    getDashboardStats(user.id).then(stats => {
+      const parts = [];
+      if (stats.toplam_flashcard > 0) parts.push(`${stats.toplam_flashcard} flashcard'ı var`);
+      if (stats.bugun_tekrar_edilecek > 0) parts.push(`bugün ${stats.bugun_tekrar_edilecek} kart tekrar zamanı`);
+      if (stats.aktif_plan) parts.push(`aktif çalışma planı: "${stats.aktif_plan.baslik}"`);
+      if (stats.son_podcast) parts.push(`son podcast: "${stats.son_podcast.baslik}"`);
+      if (parts.length > 0) setUserContext(`\n\nKullanıcı bilgileri: ${parts.join(", ")}.`);
+    });
+  }, [user]);
 
   const activeSession = sessions.find(s => s.id === activeId);
 
@@ -157,7 +172,7 @@ export default function AIPage() {
       const completion = await groq.chat.completions.create({
         model: "llama-3.3-70b-versatile",
         messages: [
-          { role: "system", content: SYSTEM_PROMPT },
+          { role: "system", content: BASE_SYSTEM_PROMPT + userContext },
           ...history,
           { role: "user", content },
         ],

@@ -209,3 +209,13 @@ export async function getDashboardStats(userId: string) {
     son_podcast: podcastsRes.data?.[0] || null,
   };
 }
+
+// ==================== FLASHCARD SET DETAY ====================
+export async function getFlashcardsBySet(setId: string) {
+  const { data, error } = await supabase
+    .from("flashcards")
+    .select("*")
+    .eq("set_id", setId)
+    .order("created_at", { ascending: true });
+  return { data, error };
+}
