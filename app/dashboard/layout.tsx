@@ -19,6 +19,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { signOut } from "@/lib/supabase";
 import ThemeToggle from "@/components/ThemeToggle";
+import Notifications from "@/components/Notifications";
+import Search from "@/components/Search";
 import toast from "react-hot-toast";
 
 // Navigasyon menusu - her modul bir menü öğesi
@@ -81,6 +83,15 @@ const navItems = [
       </svg>
     ),
   },
+  {
+    href: "/dashboard/stats",
+    label: "İstatistik",
+    icon: (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+      </svg>
+    ),
+  },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -128,15 +139,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <aside className="hidden lg:flex flex-col w-64 border-r border-white/5 bg-dark-900/50 backdrop-blur-xl fixed h-full z-40">
         {/* Logo */}
         <div className="p-6 border-b border-white/5">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">K</div>
-            <span className="text-xl font-bold gradient-text">KEDA</span>
-          </Link>
+          <div className="flex items-center justify-between">
+            <Link href="/" className="flex items-center gap-2">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">K</div>
+              <span className="text-xl font-bold gradient-text">KEDA</span>
+            </Link>
+            {user && <Notifications userId={user.id} />}
+          </div>
         </div>
 
         {/* Kullanici bilgisi */}
         <div className="p-4 border-b border-white/5">
-          <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5">
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 mb-3">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500/30 to-purple-600/30 flex items-center justify-center text-indigo-300 font-semibold">
               {userName.charAt(0).toUpperCase()}
             </div>
@@ -145,6 +159,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <p className="text-xs text-slate-500 truncate">{user.email}</p>
             </div>
           </div>
+          <Search />
         </div>
 
         {/* Navigasyon linkleri */}
@@ -193,11 +208,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold">K</div>
           <span className="text-lg font-bold gradient-text">KEDA</span>
         </Link>
-        <button onClick={() => setSidebarOpen(true)} className="p-2 text-slate-400 hover:text-white">
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
+        <div className="flex items-center gap-2">
+          <Search />
+          {user && <Notifications userId={user.id} />}
+          <button onClick={() => setSidebarOpen(true)} className="p-2 text-slate-400 hover:text-white">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
       </header>
 
       {/* Mobil Sidebar Overlay */}
@@ -255,15 +274,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </main>
 
       {/* ====== MOBİL ALT NAVİGASYON (< 768px) ====== */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 glass border-t border-white/5 px-4 py-2 flex justify-around z-40">
-        {navItems.slice(0, 4).map((item) => (
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 glass border-t border-white/5 px-2 py-2 flex justify-around z-40">
+        {navItems.filter(item => ["/dashboard", "/dashboard/agenda", "/dashboard/flashcards", "/dashboard/ai", "/dashboard/profile"].includes(item.href)).map((item) => (
           <Link key={item.href} href={item.href}
             className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${
               isActive(item.href, item.exact) ? "text-indigo-400" : "text-slate-500"
             }`}
           >
             {item.icon}
-            <span className="text-xs">{item.label}</span>
+            <span className="text-[10px]">{item.label}</span>
           </Link>
         ))}
       </nav>

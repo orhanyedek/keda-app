@@ -95,7 +95,7 @@ function SessionSummary({ correct, wrong, total, onRestart }: { correct: number;
 
 export default function FlashcardsPage() {
   const { user } = useAuth();
-  const [tab, setTab] = useState<"new" | "sets" | "due">("new");
+  const [tab, setTab] = useState<"new" | "sets" | "due" | "history">("new");
   const [inputText, setInputText] = useState("");
   const [setTitle, setSetTitle] = useState("");
   const [cardCount, setCardCount] = useState(10);
@@ -112,6 +112,28 @@ export default function FlashcardsPage() {
   const [selectedSet, setSelectedSet] = useState<{ id: string; baslik: string } | null>(null);
   const [detailCards, setDetailCards] = useState<FlashcardData[]>([]);
   const [loadingSetCards, setLoadingSetCards] = useState(false);
+
+  // Oturum geçmişi - localStorage'da sakla
+  interface SessionRecord { date: string; total: number; correct: number; wrong: number; rate: number; }
+  const [sessionHistory, setSessionHistory] = useState<SessionRecord[]>([]);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("keda_session_history");
+      if (saved) setSessionHistory(JSON.parse(saved));
+    } catch { /* ignore */ }
+  }, []);
+
+  const saveSessionRecord = (c: number, w: number, t: number) => {
+    const record: SessionRecord = {
+      date: new Date().toLocaleString("tr-TR"),
+      total: t, correct: c, wrong: w,
+      rate: t > 0 ? Math.round((c / t) * 100) : 0,
+    };
+    const updated = [record, ...sessionHistory].slice(0, 20); // max 20 kayıt
+    setSessionHistory(updated);
+    try { localStorage.setItem("keda_session_history", JSON.stringify(updated)); } catch { /* ignore */ }
+  };
 
   useEffect(() => {
     if (user && tab === "sets") loadSets();
@@ -193,7 +215,7 @@ export default function FlashcardsPage() {
     newBoxStats[newBoxNo - 1]++;
     setBoxStats(newBoxStats);
     setCorrect(prev => prev + 1);
-    nextCard();
+    nextCard(true);
   };
 
   const handleDontKnow = () => {
@@ -201,11 +223,16 @@ export default function FlashcardsPage() {
     newBoxStats[0]++;
     setBoxStats(newBoxStats);
     setWrong(prev => prev + 1);
-    nextCard();
+    nextCard(false);
   };
 
-  const nextCard = () => {
-    if (currentIndex >= cards.length - 1) setSessionState("finished");
+  const nextCard = (isCorrect?: boolean) => {
+    if (currentIndex >= cards.length - 1) {
+      const finalCorrect = correct + (isCorrect ? 1 : 0);
+      const finalWrong = wrong + (!isCorrect ? 1 : 0);
+      saveSessionRecord(finalCorrect, finalWrong, cards.length);
+      setSessionState("finished");
+    }
     else setCurrentIndex(prev => prev + 1);
   };
 
@@ -245,7 +272,7 @@ export default function FlashcardsPage() {
       {sessionState === "idle" && (
         <>
           <div className="flex gap-2 mb-6">
-            {[{ key: "new", label: "Yeni Oluştur" }, { key: "sets", label: "Setlerim" }, { key: "due", label: "Tekrar Zamanı" }].map((t) => (
+            {[{ key: "new", label: "Yeni Oluştur" }, { key: "sets", label: "Setlerim" }, { key: "due", label: "Tekrar Zamanı" }, { key: "history", label: "Geçmiş" }].map((t) => (
               <button key={t.key} onClick={() => setTab(t.key as "new" | "sets" | "due")}
                 className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${tab === t.key ? "bg-indigo-600/30 border border-indigo-500/40 text-indigo-300" : "glass text-slate-400 hover:text-white"}`}>
                 {t.label}
@@ -369,6 +396,34 @@ export default function FlashcardsPage() {
               <p className="text-slate-400 text-sm mb-6">Leitner algoritmasına göre bugün tekrar etmen gereken kartlar yükleniyor.</p>
               <button onClick={loadDueCards} className="btn-primary px-8 py-2.5 text-sm">Kartları Yükle</button>
             </div>
+          )}
+
+          {tab === "history" && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
+              {sessionHistory.length === 0 ? (
+                <div className="keda-card p-8 text-center">
+                  <div className="w-12 h-12 rounded-2xl bg-indigo-600/15 border border-indigo-500/20 flex items-center justify-center mx-auto mb-3">
+                    <Clock className="w-5 h-5 text-indigo-400" />
+                  </div>
+                  <p className="text-slate-400 text-sm">Henüz tamamlanmış oturum yok.</p>
+                </div>
+              ) : sessionHistory.map((s, i) => (
+                <div key={i} className="keda-card p-5 flex items-center gap-4">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold flex-shrink-0 ${s.rate >= 80 ? "bg-emerald-500/20 text-emerald-400" : s.rate >= 50 ? "bg-amber-500/20 text-amber-400" : "bg-red-500/20 text-red-400"}`}>
+                    {s.rate}%
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white text-sm font-medium">{s.total} kart çalışıldı</p>
+                    <p className="text-slate-500 text-xs mt-0.5">{s.correct} doğru · {s.wrong} yanlış · {s.date}</p>
+                  </div>
+                  <div className="w-16">
+                    <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full ${s.rate >= 80 ? "bg-emerald-500" : s.rate >= 50 ? "bg-amber-500" : "bg-red-500"}`} style={{ width: `${s.rate}%` }} />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </motion.div>
           )}
         </>
       )}

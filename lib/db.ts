@@ -219,3 +219,63 @@ export async function getFlashcardsBySet(setId: string) {
     .order("created_at", { ascending: true });
   return { data, error };
 }
+
+// ==================== İSTATİSTİKLER ====================
+export async function getDetailedStats(userId: string) {
+  const [flashcardsRes, setsRes, plansRes, podcastsRes] = await Promise.all([
+    supabase.from("flashcards").select("id, kutu_no, dogru_sayisi, yanlis_sayisi, created_at").eq("kullanici_id", userId),
+    supabase.from("flashcard_sets").select("id, created_at").eq("kullanici_id", userId),
+    supabase.from("study_plans").select("id, durum, created_at, topics(id, tamamlandi_mi)").eq("kullanici_id", userId),
+    supabase.from("podcasts").select("id, created_at").eq("kullanici_id", userId),
+  ]);
+
+  const flashcards = flashcardsRes.data || [];
+  const sets = setsRes.data || [];
+  const plans = plansRes.data || [];
+  const podcasts = podcastsRes.data || [];
+
+  const totalCorrect = flashcards.reduce((s, c) => s + (c.dogru_sayisi || 0), 0);
+  const totalWrong = flashcards.reduce((s, c) => s + (c.yanlis_sayisi || 0), 0);
+  const totalAnswered = totalCorrect + totalWrong;
+  const successRate = totalAnswered > 0 ? Math.round((totalCorrect / totalAnswered) * 100) : 0;
+
+  // Kutu dağılımı
+  const boxDist = [1, 2, 3, 4, 5].map(box => ({
+    box,
+    count: flashcards.filter(c => c.kutu_no === box).length,
+  }));
+
+  // Son 7 günlük aktivite
+  const last7 = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i));
+    d.setHours(0, 0, 0, 0);
+    const next = new Date(d);
+    next.setDate(next.getDate() + 1);
+    return {
+      label: d.toLocaleDateString("tr-TR", { weekday: "short" }),
+      flashcards: flashcards.filter(c => {
+        const cd = new Date(c.created_at);
+        return cd >= d && cd < next;
+      }).length,
+    };
+  });
+
+  // Tamamlanan konular
+  const allTopics = plans.flatMap((p: { topics: { tamamlandi_mi: boolean }[] }) => p.topics || []);
+  const completedTopics = allTopics.filter((t: { tamamlandi_mi: boolean }) => t.tamamlandi_mi).length;
+
+  return {
+    toplam_flashcard: flashcards.length,
+    toplam_set: sets.length,
+    toplam_plan: plans.length,
+    toplam_podcast: podcasts.length,
+    dogru_sayisi: totalCorrect,
+    yanlis_sayisi: totalWrong,
+    basari_orani: successRate,
+    kutu_dagilimi: boxDist,
+    haftalik_aktivite: last7,
+    tamamlanan_konu: completedTopics,
+    toplam_konu: allTopics.length,
+  };
+}
