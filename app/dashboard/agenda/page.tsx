@@ -9,10 +9,10 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { generateStudyPlan, analyzeTopics } from "@/lib/gemini";
-import { saveStudyPlan, getStudyPlans, markTopicDone } from "@/lib/db";
+import { saveStudyPlan, getStudyPlans, markTopicDone, deleteStudyPlan } from "@/lib/db";
 import { useAuth } from "@/hooks/useAuth";
 import PDFUploader from "@/components/PDFUploader";
-import { CalendarDays, Check } from "lucide-react";
+import { CalendarDays, Check, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 
 const daysOfWeek = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
@@ -352,7 +352,17 @@ export default function AgendaPage() {
                     <h3 className="text-[hsl(var(--foreground))] font-semibold">{plan.baslik}</h3>
                     <p className="text-[hsl(var(--muted-foreground))] text-xs mt-1">{new Date(plan.created_at).toLocaleDateString("tr-TR")} · {plan.hedef_gun_sayisi} gün</p>
                   </div>
-                  <span className="text-[hsl(var(--primary))] font-bold text-sm">{pct}%</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[hsl(var(--primary))] font-bold text-sm">{pct}%</span>
+                    <button onClick={async () => {
+                      if (!confirm("Bu planı silmek istediğinize emin misiniz?")) return;
+                      await deleteStudyPlan(plan.id);
+                      setSavedPlans(prev => prev.filter(p => p.id !== plan.id));
+                      toast.success("Plan silindi");
+                    }} className="p-1.5 rounded-lg hover:bg-red-500/10 text-red-400 transition-colors">
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
                 <div className="progress-bar mb-5"><div className="progress-bar-fill" style={{ width: `${pct}%` }} /></div>
 

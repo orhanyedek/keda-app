@@ -10,9 +10,9 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { generateFlashcards } from "@/lib/gemini";
-import { getFlashcardSets, createFlashcardSet, saveFlashcards, getDueFlashcards, getFlashcardsBySet } from "@/lib/db";
+import { getFlashcardSets, createFlashcardSet, saveFlashcards, getDueFlashcards, getFlashcardsBySet, updateFlashcard, deleteFlashcard, deleteFlashcardSet } from "@/lib/db";
 import PDFUploader from "@/components/PDFUploader";
-import { CheckCircle2, XCircle, Clock, Layers } from "lucide-react";
+import { CheckCircle2, XCircle, Clock, Layers, Trash2, Pencil } from "lucide-react";
 import toast from "react-hot-toast";
 
 const leitnerBoxes = [
@@ -112,6 +112,7 @@ export default function FlashcardsPage() {
   const [selectedSet, setSelectedSet] = useState<{ id: string; baslik: string } | null>(null);
   const [detailCards, setDetailCards] = useState<FlashcardData[]>([]);
   const [loadingSetCards, setLoadingSetCards] = useState(false);
+  const [editingCard, setEditingCard] = useState<{ id: string; soru: string; cevap: string } | null>(null);
 
   // Oturum geçmişi - localStorage'da sakla
   interface SessionRecord { date: string; total: number; correct: number; wrong: number; rate: number; }
@@ -358,25 +359,71 @@ export default function FlashcardsPage() {
                           <h3 className="text-[hsl(var(--foreground))] font-semibold">{selectedSet.baslik}</h3>
                           <p className="text-[hsl(var(--muted-foreground))] text-xs mt-0.5">{detailCards.length} kart</p>
                         </div>
-                        <button onClick={() => setSelectedSet(null)} className="text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] transition-colors p-1">
-                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button onClick={async () => {
+                            if (!confirm("Bu seti ve tüm kartları silmek istediğinize emin misiniz?")) return;
+                            await deleteFlashcardSet(selectedSet.id, user!.id);
+                            setSets(prev => prev.filter(s => s.id !== selectedSet.id));
+                            setSelectedSet(null);
+                            toast.success("Set silindi");
+                          }} className="p-1.5 rounded-lg hover:bg-red-500/10 transition-colors text-red-400">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                          <button onClick={() => setSelectedSet(null)} className="p-1.5 rounded-lg hover:bg-[hsl(var(--accent))] transition-colors" style={{color:"hsl(var(--muted-foreground))"}}>
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                          </button>
+                        </div>
                       </div>
                       <div className="overflow-y-auto p-5 space-y-3">
                         {loadingSetCards ? (
                           <div className="text-center py-8 text-[hsl(var(--muted-foreground))] text-sm">Yükleniyor...</div>
-                        ) : setCards.map((card, i) => (
+                        ) : detailCards.map((card, i) => (
                           <div key={card.id} className="p-4 rounded-xl bg-[hsl(var(--muted))] border border-[hsl(var(--border))]">
-                            <div className="flex items-start justify-between gap-3 mb-2">
-                              <span className="text-xs text-[hsl(var(--muted-foreground)/0.6)] font-mono">#{i + 1}</span>
-                              <div className="flex gap-1">
-                                {[1,2,3,4,5].map(n => (
-                                  <div key={n} className={`w-1.5 h-1.5 rounded-full ${n <= card.zorluk ? "bg-indigo-400" : "bg-[hsl(var(--secondary))]"}`} />
-                                ))}
+                            {editingCard?.id === card.id ? (
+                              // Düzenleme modu
+                              <div className="space-y-2">
+                                <textarea value={editingCard.soru} onChange={e => setEditingCard({ ...editingCard, soru: e.target.value })}
+                                  className="keda-input text-sm resize-none" rows={2} />
+                                <textarea value={editingCard.cevap} onChange={e => setEditingCard({ ...editingCard, cevap: e.target.value })}
+                                  className="keda-input text-sm resize-none" rows={2} />
+                                <div className="flex gap-2">
+                                  <button onClick={async () => {
+                                    await updateFlashcard(card.id, editingCard.soru, editingCard.cevap);
+                                    setDetailCards(prev => prev.map(c => c.id === card.id ? { ...c, soru: editingCard.soru, cevap: editingCard.cevap } : c));
+                                    setEditingCard(null);
+                                    toast.success("Kart güncellendi");
+                                  }} className="btn-primary text-xs px-3 py-1.5">Kaydet</button>
+                                  <button onClick={() => setEditingCard(null)} className="btn-secondary text-xs px-3 py-1.5">İptal</button>
+                                </div>
                               </div>
-                            </div>
-                            <p className="text-[hsl(var(--foreground))] text-sm font-medium mb-2">{card.soru}</p>
-                            <p className="text-[hsl(var(--muted-foreground))] text-sm border-t border-[hsl(var(--border))] pt-2">{card.cevap}</p>
+                            ) : (
+                              // Normal görünüm
+                              <>
+                                <div className="flex items-start justify-between gap-3 mb-2">
+                                  <span className="text-xs font-mono" style={{ color: "hsl(var(--muted-foreground)/0.6)" }}>#{i + 1}</span>
+                                  <div className="flex items-center gap-2">
+                                    <div className="flex gap-1">
+                                      {[1,2,3,4,5].map(n => (
+                                        <div key={n} className={`w-1.5 h-1.5 rounded-full ${n <= card.zorluk ? "bg-[hsl(var(--primary))]" : "bg-[hsl(var(--secondary))]"}`} />
+                                      ))}
+                                    </div>
+                                    <button onClick={() => setEditingCard({ id: card.id, soru: card.soru, cevap: card.cevap })}
+                                      className="p-1 rounded hover:bg-[hsl(var(--accent))] transition-colors" style={{ color: "hsl(var(--muted-foreground))" }}>
+                                      <Pencil className="w-3 h-3" />
+                                    </button>
+                                    <button onClick={async () => {
+                                      await deleteFlashcard(card.id);
+                                      setDetailCards(prev => prev.filter(c => c.id !== card.id));
+                                      toast.success("Kart silindi");
+                                    }} className="p-1 rounded hover:bg-red-500/10 transition-colors text-red-400">
+                                      <Trash2 className="w-3 h-3" />
+                                    </button>
+                                  </div>
+                                </div>
+                                <p className="text-sm font-medium mb-2" style={{ color: "hsl(var(--foreground))" }}>{card.soru}</p>
+                                <p className="text-sm border-t border-[hsl(var(--border))] pt-2" style={{ color: "hsl(var(--muted-foreground))" }}>{card.cevap}</p>
+                              </>
+                            )}
                           </div>
                         ))}
                       </div>

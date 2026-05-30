@@ -279,3 +279,33 @@ export async function getDetailedStats(userId: string) {
     toplam_konu: allTopics.length,
   };
 }
+
+// ==================== FLASHCARD DÜZENLE/SİL ====================
+export async function updateFlashcard(id: string, soru: string, cevap: string) {
+  const { error } = await supabase.from("flashcards").update({ soru, cevap }).eq("id", id);
+  return { error };
+}
+
+export async function deleteFlashcard(id: string) {
+  const { error } = await supabase.from("flashcards").delete().eq("id", id);
+  return { error };
+}
+
+export async function deleteFlashcardSet(id: string, userId: string) {
+  await supabase.from("flashcards").delete().eq("set_id", id).eq("kullanici_id", userId);
+  const { error } = await supabase.from("flashcard_sets").delete().eq("id", id);
+  return { error };
+}
+
+// ==================== PLAN DÜZENLE ====================
+export async function deleteStudyPlan(id: string) {
+  await supabase.from("topics").delete().eq("plan_id", id);
+  const { error } = await supabase.from("study_plans").delete().eq("id", id);
+  return { error };
+}
+
+// ==================== PODCAST DÜZENLE/SİL ====================
+export async function deletePodcast(id: string) {
+  const { error } = await supabase.from("podcasts").delete().eq("id", id);
+  return { error };
+}

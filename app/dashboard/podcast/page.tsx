@@ -9,10 +9,10 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { generatePodcastDialogue } from "@/lib/gemini";
-import { savePodcast, getPodcasts } from "@/lib/db";
+import { savePodcast, getPodcasts, deletePodcast } from "@/lib/db";
 import { useAuth } from "@/hooks/useAuth";
 import PDFUploader from "@/components/PDFUploader";
-import { Mic, Play, Square, BookOpen } from "lucide-react";
+import { Mic, Play, Square, BookOpen, Trash2, Download } from "lucide-react";
 import toast from "react-hot-toast";
 
 interface DialogueLine {
@@ -211,10 +211,22 @@ export default function PodcastPage() {
                     <h3 className="text-[hsl(var(--foreground))] font-semibold">{podcastTitle || "Podcast"}</h3>
                     <p className="text-[hsl(var(--muted-foreground))] text-xs">{dialogue.length} satır diyalog</p>
                   </div>
-                  <button onClick={handlePlay}
-                    className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${playing ? "bg-red-500/20 border border-red-500/30 hover:bg-red-500/30" : "bg-[hsl(var(--primary)/0.1)] border border-[hsl(var(--primary)/0.25)] hover:bg-indigo-600/30"}`}>
-                    {playing ? <Square className="w-4 h-4 text-red-400" /> : <Play className="w-4 h-4 text-[hsl(var(--primary))]" />}
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => {
+                      const text = dialogue.map((l: {speaker: string; text: string}) => `${l.speaker}: ${l.text}`).join("\n");
+                      const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement("a"); a.href = url;
+                      a.download = `${podcastTitle || "podcast"}.txt`; a.click();
+                      URL.revokeObjectURL(url);
+                    }} className="w-9 h-9 rounded-xl glass flex items-center justify-center transition-all" style={{color:"hsl(var(--muted-foreground))"}} title="İndir">
+                      <Download className="w-4 h-4" />
+                    </button>
+                    <button onClick={handlePlay}
+                      className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${playing ? "bg-red-500/20 border border-red-500/30 hover:bg-red-500/30" : "bg-[hsl(var(--primary)/0.1)] border border-[hsl(var(--primary)/0.25)] hover:bg-indigo-600/30"}`}>
+                      {playing ? <Square className="w-4 h-4 text-red-400" /> : <Play className="w-4 h-4 text-[hsl(var(--primary))]" />}
+                    </button>
+                  </div>
                 </div>
                 {playing && (
                   <div className="progress-bar"><div className="progress-bar-fill animate-pulse" style={{ width: `${((currentLine + 1) / dialogue.length) * 100}%` }} /></div>
@@ -258,12 +270,21 @@ export default function PodcastPage() {
             </div>
           ) : savedPodcasts.map((podcast) => (
             <div key={podcast.id} className="keda-card p-5">
-              <div className="flex items-center justify-between cursor-pointer" onClick={() => setExpandedId(expandedId === podcast.id ? null : podcast.id)}>
-                <div>
+              <div className="flex items-center justify-between">
+                <div className="flex-1 cursor-pointer" onClick={() => setExpandedId(expandedId === podcast.id ? null : podcast.id)}>
                   <h3 className="text-[hsl(var(--foreground))] font-medium">{podcast.baslik}</h3>
                   <p className="text-[hsl(var(--muted-foreground))] text-xs mt-1">{new Date(podcast.created_at).toLocaleDateString("tr-TR")}</p>
                 </div>
-                <span className="text-[hsl(var(--muted-foreground))] text-sm">{expandedId === podcast.id ? "▲" : "▼"}</span>
+                <div className="flex items-center gap-2">
+                  <button onClick={async () => {
+                    await deletePodcast(podcast.id);
+                    setSavedPodcasts(prev => prev.filter(p => p.id !== podcast.id));
+                    toast.success("Podcast silindi");
+                  }} className="p-1.5 rounded-lg hover:bg-red-500/10 text-red-400 transition-colors">
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                  <span className="text-[hsl(var(--muted-foreground))] text-sm cursor-pointer" onClick={() => setExpandedId(expandedId === podcast.id ? null : podcast.id)}>{expandedId === podcast.id ? "▲" : "▼"}</span>
+                </div>
               </div>
               {expandedId === podcast.id && podcast.diyalog_metni && (
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mt-4 space-y-2">
