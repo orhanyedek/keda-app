@@ -106,7 +106,7 @@ export default function Notifications({ userId }: { userId: string }) {
         {open && (
           <motion.div initial={{ opacity: 0, y: 8, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 8, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 top-10 w-80 keda-card border border-white/10 shadow-2xl z-50 overflow-hidden">
+            className="absolute left-0 top-10 w-80 keda-card border border-white/10 shadow-2xl z-50 overflow-hidden">
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
               <span className="text-white text-sm font-semibold">Bildirimler</span>
               <div className="flex items-center gap-2">

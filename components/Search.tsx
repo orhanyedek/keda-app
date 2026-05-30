@@ -86,7 +86,7 @@ export default function Search() {
         {open && (
           <motion.div initial={{ opacity: 0, y: 8, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 8, scale: 0.97 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 top-10 w-80 keda-card border border-white/10 shadow-2xl z-50 overflow-hidden">
+            className="absolute left-0 top-10 w-80 keda-card border border-white/10 shadow-2xl z-50 overflow-hidden">
             <div className="flex items-center gap-2 px-4 py-3 border-b border-white/5">
               <SearchIcon className="w-4 h-4 text-slate-500 flex-shrink-0" />
               <input ref={inputRef} value={query} onChange={e => setQuery(e.target.value)}
