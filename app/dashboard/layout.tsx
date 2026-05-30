@@ -208,7 +208,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
 
         {/* Navigasyon linkleri */}
-        <nav className="flex-1 p-4 space-y-1">
+        <nav className="flex-1 overflow-y-auto p-4 space-y-1">
           {navItems.map((item) => (
             <Link
               key={item.href}
@@ -286,7 +286,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   </svg>
                 </button>
               </div>
-              <nav className="flex-1 p-4 space-y-1">
+              <nav className="flex-1 overflow-y-auto p-4 space-y-1">
                 {navItems.map((item) => (
                   <Link key={item.href} href={item.href} onClick={() => setSidebarOpen(false)}
                     className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
