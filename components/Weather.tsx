@@ -97,19 +97,19 @@ export default function Weather() {
   }, []);
 
   if (loading) return (
-    <div className="flex items-center gap-2 px-3 py-2 glass rounded-xl border border-white/5 animate-pulse">
-      <div className="w-4 h-4 bg-slate-700 rounded" />
-      <div className="w-16 h-3 bg-slate-700 rounded" />
+    <div className="flex items-center gap-2 px-3 py-2 glass rounded-xl border border-[hsl(var(--border))] animate-pulse">
+      <div className="w-4 h-4 bg-[hsl(var(--secondary))] rounded" />
+      <div className="w-16 h-3 bg-[hsl(var(--secondary))] rounded" />
     </div>
   );
 
   if (!weather) return null;
 
   return (
-    <div className="flex items-center gap-2 px-3 py-2 glass rounded-xl border border-white/5 text-slate-400 text-xs" title={`${weather.desc} · Hissedilen ${weather.feels_like}°C · Nem %${weather.humidity} · Rüzgar ${weather.wind} km/s`}>
+    <div className="flex items-center gap-2 px-3 py-2 glass rounded-xl border border-[hsl(var(--border))] text-[hsl(var(--muted-foreground))] text-xs" title={`${weather.desc} · Hissedilen ${weather.feels_like}°C · Nem %${weather.humidity} · Rüzgar ${weather.wind} km/s`}>
       <WeatherIcon code={weather.code} size={4} />
-      <span className="text-white font-medium">{weather.temp}°</span>
-      <span className="text-slate-500 hidden sm:inline">{weather.city}</span>
+      <span className="text-[hsl(var(--foreground))] font-medium">{weather.temp}°</span>
+      <span className="text-[hsl(var(--muted-foreground))] hidden sm:inline">{weather.city}</span>
     </div>
   );
 }

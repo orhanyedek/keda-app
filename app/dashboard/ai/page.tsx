@@ -245,20 +245,20 @@ export default function AIPage() {
     <div className="flex h-screen overflow-hidden" style={{ background: "var(--bg-primary)" }}>
 
       {/* Sidebar */}
-      <div className="w-64 flex-shrink-0 flex flex-col border-r border-white/5 p-4" style={{ background: "var(--bg-secondary)" }}>
+      <div className="w-64 flex-shrink-0 flex flex-col border-r border-[hsl(var(--border))] p-4" style={{ background: "var(--bg-secondary)" }}>
         <button onClick={newSession}
-          className="flex items-center gap-2 w-full px-4 py-2.5 rounded-xl border border-white/10 text-slate-300 hover:text-white hover:bg-white/5 transition-all text-sm font-medium mb-4">
+          className="flex items-center gap-2 w-full px-4 py-2.5 rounded-xl border border-[hsl(var(--border))] text-[hsl(var(--foreground)/0.85)] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))] transition-all text-sm font-medium mb-4">
           <Plus className="w-4 h-4" />
           Yeni Sohbet
         </button>
 
         <div className="flex-1 overflow-y-auto space-y-1">
           {sessions.length === 0 && (
-            <p className="text-slate-600 text-xs text-center py-6">Henüz sohbet yok</p>
+            <p className="text-[hsl(var(--muted-foreground)/0.6)] text-xs text-center py-6">Henüz sohbet yok</p>
           )}
           {sessions.map(s => (
             <div key={s.id} onClick={() => setActiveId(s.id)}
-              className={`group flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer transition-all text-sm ${activeId === s.id ? "bg-indigo-600/20 text-indigo-300" : "text-slate-400 hover:text-white hover:bg-white/5"}`}>
+              className={`group flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer transition-all text-sm ${activeId === s.id ? "bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary)/0.85)]" : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]"}`}>
               <span className="truncate flex-1">{s.title}</span>
               <button onClick={(e) => deleteSession(s.id, e)}
                 className="opacity-0 group-hover:opacity-100 p-1 rounded-lg hover:text-red-400 transition-all ml-1 flex-shrink-0">
@@ -273,14 +273,14 @@ export default function AIPage() {
       <div className="flex-1 flex flex-col min-w-0">
 
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[hsl(var(--border))]">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-indigo-400" />
+            <div className="w-7 h-7 rounded-lg bg-[hsl(var(--primary)/0.1)] border border-[hsl(var(--primary)/0.25)] flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-[hsl(var(--primary))]" />
             </div>
-            <span className="text-white font-semibold text-sm">KEDA AI</span>
+            <span className="text-[hsl(var(--foreground))] font-semibold text-sm">KEDA AI</span>
           </div>
-          <span className="text-xs text-slate-600 bg-white/5 px-3 py-1 rounded-full">Llama 3.3 · Groq</span>
+          <span className="text-xs text-[hsl(var(--muted-foreground)/0.6)] bg-[hsl(var(--muted))] px-3 py-1 rounded-full">Llama 3.3 · Groq</span>
         </div>
 
         {/* Mesajlar */}
@@ -290,17 +290,17 @@ export default function AIPage() {
             {/* Boş ekran */}
             {!activeSession || activeSession.messages.length === 0 ? (
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center pt-12">
-                <div className="w-14 h-14 rounded-2xl bg-indigo-600/15 border border-indigo-500/20 flex items-center justify-center mx-auto mb-4">
-                  <Sparkles className="w-7 h-7 text-indigo-400" />
+                <div className="w-14 h-14 rounded-2xl bg-[hsl(var(--primary)/0.08)] border border-[hsl(var(--primary)/0.2)] flex items-center justify-center mx-auto mb-4">
+                  <Sparkles className="w-7 h-7 text-[hsl(var(--primary))]" />
                 </div>
-                <h2 className="text-xl font-semibold text-white mb-2">Merhaba, {userName}</h2>
-                <p className="text-slate-500 text-sm mb-10">Sana nasıl yardımcı olabilirim?</p>
+                <h2 className="text-xl font-semibold text-[hsl(var(--foreground))] mb-2">Merhaba, {userName}</h2>
+                <p className="text-[hsl(var(--muted-foreground))] text-sm mb-10">Sana nasıl yardımcı olabilirim?</p>
                 <div className="grid grid-cols-2 gap-3 max-w-lg mx-auto">
                   {STARTER_PROMPTS.map((p) => (
                     <button key={p.text} onClick={() => sendMessage(p.text)}
-                      className="keda-card p-4 text-left hover:border-indigo-500/30 transition-colors group">
+                      className="keda-card p-4 text-left hover:border-[hsl(var(--primary)/0.25)] transition-colors group">
                       <span className="text-lg mb-2 block">{p.icon}</span>
-                      <span className="text-slate-300 text-sm group-hover:text-white transition-colors">{p.text}</span>
+                      <span className="text-[hsl(var(--foreground)/0.85)] text-sm group-hover:text-[hsl(var(--foreground))] transition-colors">{p.text}</span>
                     </button>
                   ))}
                 </div>
@@ -313,16 +313,16 @@ export default function AIPage() {
 
                     {/* AI avatar */}
                     {msg.role === "assistant" && (
-                      <div className="w-8 h-8 rounded-xl bg-indigo-600/20 border border-indigo-500/20 flex items-center justify-center flex-shrink-0 mt-1">
-                        <Sparkles className="w-4 h-4 text-indigo-400" />
+                      <div className="w-8 h-8 rounded-xl bg-[hsl(var(--primary)/0.1)] border border-[hsl(var(--primary)/0.2)] flex items-center justify-center flex-shrink-0 mt-1">
+                        <Sparkles className="w-4 h-4 text-[hsl(var(--primary))]" />
                       </div>
                     )}
 
                     <div className={`max-w-[80%] ${msg.role === "user" ? "items-end" : "items-start"} flex flex-col gap-1`}>
                       <div className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${
                         msg.role === "user"
-                          ? "bg-indigo-600/20 border border-indigo-500/20 text-slate-200 rounded-br-sm"
-                          : "text-slate-300 rounded-bl-sm"
+                          ? "bg-[hsl(var(--primary)/0.1)] border border-[hsl(var(--primary)/0.2)] text-[hsl(var(--foreground))] rounded-br-sm"
+                          : "text-[hsl(var(--foreground)/0.85)] rounded-bl-sm"
                       }`}>
                         {msg.role === "assistant" ? (
                           <div dangerouslySetInnerHTML={{ __html: renderMarkdown(msg.content) }} />
@@ -330,12 +330,12 @@ export default function AIPage() {
                           msg.content
                         )}
                       </div>
-                      <span className="text-xs text-slate-600 px-1">{msg.time}</span>
+                      <span className="text-xs text-[hsl(var(--muted-foreground)/0.6)] px-1">{msg.time}</span>
                     </div>
 
                     {/* User avatar */}
                     {msg.role === "user" && (
-                      <div className="w-8 h-8 rounded-xl bg-slate-700 flex items-center justify-center flex-shrink-0 mt-1 text-xs font-bold text-slate-300">
+                      <div className="w-8 h-8 rounded-xl bg-[hsl(var(--secondary))] flex items-center justify-center flex-shrink-0 mt-1 text-xs font-bold text-[hsl(var(--foreground)/0.85)]">
                         {userName.charAt(0).toUpperCase()}
                       </div>
                     )}
@@ -347,8 +347,8 @@ export default function AIPage() {
             {/* Yükleniyor */}
             {loading && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-3 justify-start">
-                <div className="w-8 h-8 rounded-xl bg-indigo-600/20 border border-indigo-500/20 flex items-center justify-center flex-shrink-0">
-                  <Sparkles className="w-4 h-4 text-indigo-400" />
+                <div className="w-8 h-8 rounded-xl bg-[hsl(var(--primary)/0.1)] border border-[hsl(var(--primary)/0.2)] flex items-center justify-center flex-shrink-0">
+                  <Sparkles className="w-4 h-4 text-[hsl(var(--primary))]" />
                 </div>
                 <div className="px-4 py-3 rounded-2xl rounded-bl-sm">
                   <div className="loading-dots"><span /><span /><span /></div>
@@ -363,7 +363,7 @@ export default function AIPage() {
         {/* Input */}
         <div className="px-6 pb-6 pt-2">
           <div className="max-w-3xl mx-auto">
-            <div className="flex items-end gap-3 bg-slate-800/60 border border-white/10 rounded-2xl px-4 py-3 focus-within:border-indigo-500/40 transition-colors">
+            <div className="flex items-end gap-3 bg-[hsl(var(--secondary))]/60 border border-[hsl(var(--border))] rounded-2xl px-4 py-3 focus-within:border-[hsl(var(--primary)/0.3)] transition-colors">
               <textarea
                 ref={inputRef}
                 value={input}
@@ -371,19 +371,19 @@ export default function AIPage() {
                 onKeyDown={handleKeyDown}
                 placeholder="Bir soru sor veya konu anlat... (Enter ile gönder)"
                 rows={1}
-                className="flex-1 bg-transparent text-slate-200 text-sm outline-none resize-none placeholder-slate-600 leading-relaxed"
+                className="flex-1 bg-transparent text-[hsl(var(--foreground))] text-sm outline-none resize-none placeholder-slate-600 leading-relaxed"
                 style={{ maxHeight: "120px" }}
               />
               <button onClick={listening ? stopListening : startListening}
-                className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all ${listening ? "bg-red-500/20 border border-red-500/30 animate-pulse" : "glass text-slate-500 hover:text-indigo-400"}`}>
+                className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all ${listening ? "bg-red-500/20 border border-red-500/30 animate-pulse" : "glass text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))]"}`}>
                 {listening ? <MicOff className="w-4 h-4 text-red-400" /> : <Mic className="w-4 h-4" />}
               </button>
               <button onClick={() => sendMessage()} disabled={!input.trim() || loading}
                 className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center flex-shrink-0 hover:bg-indigo-500 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
-                <Send className="w-4 h-4 text-white" />
+                <Send className="w-4 h-4 text-[hsl(var(--foreground))]" />
               </button>
             </div>
-            <p className="text-center text-xs text-slate-700 mt-2">Shift+Enter ile satır atla · Enter ile gönder</p>
+            <p className="text-center text-xs text-[hsl(var(--muted-foreground)/0.4)] mt-2">Shift+Enter ile satır atla · Enter ile gönder</p>
           </div>
         </div>
       </div>

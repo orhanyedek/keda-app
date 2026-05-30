@@ -74,24 +74,24 @@ export default function PDFUploader({ onTextExtracted, label = "PDF Yükle" }: P
         {loading ? (
           <div className="flex flex-col items-center gap-2">
             <div className="loading-dots"><span /><span /><span /></div>
-            <p className="text-slate-400 text-sm">PDF okunuyor...</p>
+            <p className="text-[hsl(var(--muted-foreground))] text-sm">PDF okunuyor...</p>
           </div>
         ) : fileName ? (
           <div className="flex items-center gap-3">
             <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
             <div className="text-left flex-1 min-w-0">
               <p className="text-emerald-400 text-sm font-medium truncate">{fileName}</p>
-              <p className="text-slate-600 text-xs">Değiştirmek için tıkla</p>
+              <p className="text-[hsl(var(--muted-foreground)/0.6)] text-xs">Değiştirmek için tıkla</p>
             </div>
           </div>
         ) : (
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-indigo-600/15 border border-indigo-500/20 flex items-center justify-center flex-shrink-0">
-              <Upload className="w-4 h-4 text-indigo-400" />
+            <div className="w-9 h-9 rounded-xl bg-[hsl(var(--primary)/0.08)] border border-[hsl(var(--primary)/0.2)] flex items-center justify-center flex-shrink-0">
+              <Upload className="w-4 h-4 text-[hsl(var(--primary))]" />
             </div>
             <div className="text-left">
-              <p className="text-slate-300 text-sm font-medium">{label}</p>
-              <p className="text-slate-600 text-xs">Sürükle bırak veya tıkla · Maks 20MB</p>
+              <p className="text-[hsl(var(--foreground)/0.85)] text-sm font-medium">{label}</p>
+              <p className="text-[hsl(var(--muted-foreground)/0.6)] text-xs">Sürükle bırak veya tıkla · Maks 20MB</p>
             </div>
           </div>
         )}
@@ -99,12 +99,12 @@ export default function PDFUploader({ onTextExtracted, label = "PDF Yükle" }: P
 
       {/* Metin önizleme */}
       {preview && (
-        <div className="p-3 rounded-xl bg-white/5 border border-white/5">
+        <div className="p-3 rounded-xl bg-[hsl(var(--muted))] border border-[hsl(var(--border))]">
           <div className="flex items-center gap-2 mb-1.5">
-            <FileText className="w-3.5 h-3.5 text-slate-500" />
-            <span className="text-xs text-slate-500">Çıkarılan metin önizlemesi</span>
+            <FileText className="w-3.5 h-3.5 text-[hsl(var(--muted-foreground))]" />
+            <span className="text-xs text-[hsl(var(--muted-foreground))]">Çıkarılan metin önizlemesi</span>
           </div>
-          <p className="text-slate-400 text-xs leading-relaxed font-mono line-clamp-3">{preview}...</p>
+          <p className="text-[hsl(var(--muted-foreground))] text-xs leading-relaxed font-mono line-clamp-3">{preview}...</p>
         </div>
       )}
     </div>

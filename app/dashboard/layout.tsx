@@ -50,27 +50,27 @@ function SettingsMenu({ userName, onSignOut }: { userName: string; onSignOut: ()
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
-            className="absolute bottom-full left-0 right-0 mb-2 rounded-2xl border border-white/10 overflow-hidden shadow-xl"
+            className="absolute bottom-full left-0 right-0 mb-2 rounded-2xl border border-[hsl(var(--border))] overflow-hidden shadow-xl"
             style={{ background: "var(--bg-card)" }}
           >
             <div className="p-2 space-y-0.5">
               {settingsItems.map(item => (
                 <Link key={item.href} href={item.href} onClick={() => setOpen(false)}
                   className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
-                    pathname.startsWith(item.href) ? "bg-indigo-600/20 text-indigo-300" : "text-slate-400 hover:text-white hover:bg-white/5"
+                    pathname.startsWith(item.href) ? "bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))]" : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]"
                   }`}>
-                  <span className={pathname.startsWith(item.href) ? "text-indigo-400" : "text-slate-600"}>{item.icon}</span>
+                  <span className={pathname.startsWith(item.href) ? "text-[hsl(var(--primary))]" : "text-[hsl(var(--muted-foreground)/0.6)]"}>{item.icon}</span>
                   {item.label}
                 </Link>
               ))}
             </div>
-            <div className="border-t border-white/5 p-2">
+            <div className="border-t border-[hsl(var(--border))] p-2">
               <div className="flex items-center justify-between px-3 py-2">
-                <span className="text-xs text-slate-500">Tema</span>
+                <span className="text-xs text-[hsl(var(--muted-foreground))]">Tema</span>
                 <ThemeToggle />
               </div>
               <button onClick={onSignOut}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-all">
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-[hsl(var(--muted-foreground))] hover:text-red-400 hover:bg-red-500/10 transition-all">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
@@ -84,7 +84,7 @@ function SettingsMenu({ userName, onSignOut }: { userName: string; onSignOut: ()
       {/* Ayarlar butonu */}
       <button onClick={() => setOpen(!open)}
         className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-          open ? "bg-white/10 text-white" : "text-slate-500 hover:text-white hover:bg-white/5"
+          open ? "bg-[hsl(var(--accent))] text-[hsl(var(--foreground))]" : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]"
         }`}>
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -239,12 +239,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen flex">
       {/* ====== SIDEBAR (Masaustu) ====== */}
-      <aside className="hidden lg:flex flex-col w-64 border-r border-white/5 bg-dark-900/50 backdrop-blur-xl fixed h-full z-40">
+      <aside className="hidden lg:flex flex-col w-64 border-r border-[hsl(var(--border))] bg-[hsl(var(--background))] fixed h-full z-40">
         {/* Logo */}
-        <div className="p-6 border-b border-white/5">
+        <div className="p-6 border-b border-[hsl(var(--border))]">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">K</div>
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-[hsl(var(--foreground))] font-bold text-lg">K</div>
               <span className="text-xl font-bold gradient-text">KEDA</span>
             </Link>
             {user && <Notifications userId={user.id} />}
@@ -252,14 +252,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
 
         {/* Kullanici bilgisi */}
-        <div className="p-4 border-b border-white/5">
-          <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 mb-3">
+        <div className="p-4 border-b border-[hsl(var(--border))]">
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-[hsl(var(--muted))] mb-3">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500/30 to-purple-600/30 flex items-center justify-center text-indigo-300 font-semibold">
               {userName.charAt(0).toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-white truncate">{userName}</p>
-              <p className="text-xs text-slate-500 truncate">{user.email}</p>
+              <p className="text-sm font-medium text-[hsl(var(--foreground))] truncate">{userName}</p>
+              <p className="text-xs text-[hsl(var(--muted-foreground))] truncate">{user.email}</p>
             </div>
           </div>
           <Search />
@@ -273,37 +273,37 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               href={item.href}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group ${
                 isActive(item.href, item.exact)
-                  ? "bg-indigo-600/20 text-indigo-300 border border-indigo-500/20"
-                  : "text-slate-400 hover:text-white hover:bg-white/5"
+                  ? "bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))] border border-indigo-500/20"
+                  : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]"
               }`}
             >
-              <span className={`${isActive(item.href, item.exact) ? "text-indigo-400" : "text-slate-500 group-hover:text-slate-300"} transition-colors`}>
+              <span className={`${isActive(item.href, item.exact) ? "text-[hsl(var(--primary))]" : "text-[hsl(var(--muted-foreground))]"} transition-colors`}>
                 {item.icon}
               </span>
               {item.label}
               {item.module && (
-                <span className="ml-auto text-xs text-slate-600 font-mono">{item.module}</span>
+                <span className="ml-auto text-xs text-[hsl(var(--muted-foreground)/0.5)] font-mono">{item.module}</span>
               )}
             </Link>
           ))}
         </nav>
 
         {/* Ayarlar & Çıkış */}
-        <div className="p-4 border-t border-white/5">
+        <div className="p-4 border-t border-[hsl(var(--border))]">
           <SettingsMenu userName={userName} onSignOut={handleSignOut} />
         </div>
       </aside>
 
       {/* ====== MOBİL HEADER ====== */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 z-50 glass border-b border-white/5 px-4 py-3 flex items-center justify-between">
+      <header className="lg:hidden fixed top-0 left-0 right-0 z-50 border-b border-[hsl(var(--border))] px-4 py-3 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold">K</div>
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-[hsl(var(--foreground))] font-bold">K</div>
           <span className="text-lg font-bold gradient-text">KEDA</span>
         </Link>
         <div className="flex items-center gap-2">
           <Search />
           {user && <Notifications userId={user.id} />}
-          <button onClick={() => setSidebarOpen(true)} className="p-2 text-slate-400 hover:text-white">
+          <button onClick={() => setSidebarOpen(true)} className="p-2 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
@@ -323,11 +323,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <motion.div
               initial={{ x: -280 }} animate={{ x: 0 }} exit={{ x: -280 }}
               transition={{ type: "spring", damping: 25 }}
-              className="fixed left-0 top-0 bottom-0 w-64 bg-dark-800 border-r border-white/10 z-50 lg:hidden flex flex-col"
+              className="fixed left-0 top-0 bottom-0 w-64 bg-dark-800 border-r border-[hsl(var(--border))] z-50 lg:hidden flex flex-col"
             >
-              <div className="p-4 flex items-center justify-between border-b border-white/5">
+              <div className="p-4 flex items-center justify-between border-b border-[hsl(var(--border))]">
                 <span className="text-lg font-bold gradient-text">KEDA</span>
-                <button onClick={() => setSidebarOpen(false)} className="text-slate-400">
+                <button onClick={() => setSidebarOpen(false)} className="text-[hsl(var(--muted-foreground))]">
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
@@ -337,7 +337,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 {navItems.map((item) => (
                   <Link key={item.href} href={item.href} onClick={() => setSidebarOpen(false)}
                     className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                      isActive(item.href, item.exact) ? "bg-indigo-600/20 text-indigo-300" : "text-slate-400 hover:text-white hover:bg-white/5"
+                      isActive(item.href, item.exact) ? "bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))]" : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]"
                     }`}
                   >
                     {item.icon}
@@ -345,8 +345,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   </Link>
                 ))}
               </nav>
-              <div className="p-4 border-t border-white/5">
-                <button onClick={handleSignOut} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-500 hover:text-red-400">
+              <div className="p-4 border-t border-[hsl(var(--border))]">
+                <button onClick={handleSignOut} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[hsl(var(--muted-foreground))] hover:text-red-400">
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                   </svg>
@@ -366,11 +366,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </main>
 
       {/* ====== MOBİL ALT NAVİGASYON (< 768px) ====== */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 glass border-t border-white/5 px-2 py-2 flex justify-around z-40">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 glass border-t border-[hsl(var(--border))] px-2 py-2 flex justify-around z-40">
         {navItems.filter(item => ["/dashboard", "/dashboard/agenda", "/dashboard/flashcards", "/dashboard/ai", "/dashboard/profile"].includes(item.href)).map((item) => (
           <Link key={item.href} href={item.href}
             className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${
-              isActive(item.href, item.exact) ? "text-indigo-400" : "text-slate-500"
+              isActive(item.href, item.exact) ? "text-[hsl(var(--primary))]" : "text-[hsl(var(--muted-foreground))]"
             }`}
           >
             {item.icon}

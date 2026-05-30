@@ -165,15 +165,15 @@ export default function AgendaPage() {
   return (
     <div className="p-6 lg:p-8 max-w-4xl mx-auto pb-24 lg:pb-8">
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-        <h1 className="text-2xl font-bold text-white mb-1">Akıllı Ajanda & Çalışma Planı</h1>
-        <p className="text-slate-400 text-sm">M-01 · Sorumlu: Sezin Nisa Ataseven · Gemini AI ile konu bazlı planlama</p>
+        <h1 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-1">Akıllı Ajanda & Çalışma Planı</h1>
+        <p className="text-[hsl(var(--muted-foreground))] text-sm">M-01 · Sorumlu: Sezin Nisa Ataseven · Gemini AI ile konu bazlı planlama</p>
       </motion.div>
 
       {/* Sekmeler */}
       <div className="flex gap-2 mb-6">
         {[{ key: "new", label: "Yeni Plan" }, { key: "saved", label: "Planlarım" }].map((t) => (
           <button key={t.key} onClick={() => setTab(t.key as "new" | "saved")}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${tab === t.key ? "bg-indigo-600/30 border border-indigo-500/40 text-indigo-300" : "glass text-slate-400 hover:text-white"}`}>
+            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${tab === t.key ? "bg-indigo-600/30 border border-[hsl(var(--primary)/0.3)] text-[hsl(var(--primary)/0.85)]" : "glass text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"}`}>
             {t.label}
           </button>
         ))}
@@ -185,20 +185,20 @@ export default function AgendaPage() {
           <div className="flex items-center gap-3 mb-8">
             {[1, 2, 3].map((s) => (
               <div key={s} className="flex items-center gap-3">
-                <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold transition-all ${step >= s ? "bg-indigo-600 text-white" : "bg-slate-700 text-slate-500"}`}>{s}</div>
-                {s < 3 && <div className={`w-12 h-px ${step > s ? "bg-indigo-500" : "bg-slate-700"}`} />}
+                <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold transition-all ${step >= s ? "bg-indigo-600 text-[hsl(var(--foreground))]" : "bg-[hsl(var(--secondary))] text-[hsl(var(--muted-foreground))]"}`}>{s}</div>
+                {s < 3 && <div className={`w-12 h-px ${step > s ? "bg-indigo-500" : "bg-[hsl(var(--secondary))]"}`} />}
               </div>
             ))}
-            <span className="text-sm text-slate-400 ml-2">{step === 1 ? "Metin Gir" : step === 2 ? "Notları Gir & Ayarla" : "Plan Hazır"}</span>
+            <span className="text-sm text-[hsl(var(--muted-foreground))] ml-2">{step === 1 ? "Metin Gir" : step === 2 ? "Notları Gir & Ayarla" : "Plan Hazır"}</span>
           </div>
 
           <AnimatePresence mode="wait">
             {step === 1 && (
               <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
                 <div className="keda-card p-6">
-                  <h2 className="text-lg font-semibold text-white mb-4">Ders İçeriğini Gir</h2>
+                  <h2 className="text-lg font-semibold text-[hsl(var(--foreground))] mb-4">Ders İçeriğini Gir</h2>
                   <div className="mb-4">
-                    <label className="block text-sm text-slate-400 mb-2">PDF Yükle (opsiyonel)</label>
+                    <label className="block text-sm text-[hsl(var(--muted-foreground))] mb-2">PDF Yükle (opsiyonel)</label>
                     <PDFUploader
                       label="PDF'ten konu listesi çıkar"
                       onTextExtracted={(text) => {
@@ -207,7 +207,7 @@ export default function AgendaPage() {
                       }}
                     />
                   </div>
-                  <label className="block text-sm text-slate-400 mb-2">Ya da metni manuel gir</label>
+                  <label className="block text-sm text-[hsl(var(--muted-foreground))] mb-2">Ya da metni manuel gir</label>
                   <textarea value={inputText} onChange={(e) => setInputText(e.target.value)}
                     placeholder="Örnek: Bu dönemde Matematik dersinden Türevler, İntegraller; Fizik'ten Newton Yasaları çalışacağım..."
                     rows={8} className="keda-input resize-none" />
@@ -221,14 +221,14 @@ export default function AgendaPage() {
             {step === 2 && (
               <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
                 <div className="keda-card p-6">
-                  <h2 className="text-lg font-semibold text-white mb-4">Konu Notlarını Girin (0-100)</h2>
-                  <p className="text-slate-500 text-xs mb-4">Düşük notu olan konulara plan içinde daha fazla zaman ayrılacak.</p>
+                  <h2 className="text-lg font-semibold text-[hsl(var(--foreground))] mb-4">Konu Notlarını Girin (0-100)</h2>
+                  <p className="text-[hsl(var(--muted-foreground))] text-xs mb-4">Düşük notu olan konulara plan içinde daha fazla zaman ayrılacak.</p>
                   <div className="space-y-3">
                     {topics.map((topic) => (
                       <div key={topic.baslik} className="flex items-center gap-3">
                         <div className="flex-1">
-                          <p className="text-sm text-white">{topic.baslik}</p>
-                          <p className="text-xs text-slate-500">Zorluk: {topic.zorluk}/5</p>
+                          <p className="text-sm text-[hsl(var(--foreground))]">{topic.baslik}</p>
+                          <p className="text-xs text-[hsl(var(--muted-foreground))]">Zorluk: {topic.zorluk}/5</p>
                         </div>
                         <input type="number" min="0" max="100" value={grades[topic.baslik] || ""} onChange={(e) => setGrades(prev => ({ ...prev, [topic.baslik]: e.target.value }))}
                           placeholder="Not" className="keda-input w-24 text-center" />
@@ -238,11 +238,11 @@ export default function AgendaPage() {
                 </div>
 
                 <div className="keda-card p-6">
-                  <h2 className="text-lg font-semibold text-white mb-4">Çalışma Süresi</h2>
+                  <h2 className="text-lg font-semibold text-[hsl(var(--foreground))] mb-4">Çalışma Süresi</h2>
                   <div className="flex items-center gap-4 flex-wrap">
                     {[7, 14, 21, 30].map((days) => (
                       <button key={days} onClick={() => setTargetDays(days)}
-                        className={`px-5 py-3 rounded-xl text-sm font-medium transition-all ${targetDays === days ? "bg-indigo-600/20 border border-indigo-500/40 text-indigo-300" : "glass text-slate-400 hover:text-white"}`}>
+                        className={`px-5 py-3 rounded-xl text-sm font-medium transition-all ${targetDays === days ? "bg-[hsl(var(--primary)/0.1)] border border-[hsl(var(--primary)/0.3)] text-[hsl(var(--primary)/0.85)]" : "glass text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"}`}>
                         {days} Gün
                       </button>
                     ))}
@@ -250,12 +250,12 @@ export default function AgendaPage() {
                 </div>
 
                 <div className="keda-card p-6">
-                  <h2 className="text-lg font-semibold text-white mb-2">Müsait Olmayan Günler</h2>
-                  <p className="text-slate-500 text-xs mb-4">Seçilen günler plandan çıkarılır.</p>
+                  <h2 className="text-lg font-semibold text-[hsl(var(--foreground))] mb-2">Müsait Olmayan Günler</h2>
+                  <p className="text-[hsl(var(--muted-foreground))] text-xs mb-4">Seçilen günler plandan çıkarılır.</p>
                   <div className="flex gap-2 flex-wrap">
                     {daysOfWeek.map((day, i) => (
                       <button key={day} onClick={() => toggleDay(i)}
-                        className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${unavailableDays.includes(i) ? "bg-red-500/20 border border-red-500/40 text-red-300" : "glass text-slate-400 hover:text-white"}`}>
+                        className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${unavailableDays.includes(i) ? "bg-red-500/20 border border-red-500/40 text-red-300" : "glass text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"}`}>
                         {day}
                       </button>
                     ))}
@@ -263,7 +263,7 @@ export default function AgendaPage() {
                 </div>
 
                 <div className="flex gap-3">
-                  <button onClick={() => setStep(1)} className="flex-1 glass py-3 rounded-2xl text-slate-400 hover:text-white transition-colors">Geri</button>
+                  <button onClick={() => setStep(1)} className="flex-1 glass py-3 rounded-2xl text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] transition-colors">Geri</button>
                   <button onClick={handleGeneratePlan} disabled={loading} className="flex-2 btn-primary py-3 px-8 disabled:opacity-50 disabled:cursor-not-allowed">
                     {loading ? (<div className="flex items-center gap-2"><div className="loading-dots"><span /><span /><span /></div>Plan Hazırlanıyor</div>) : "Çalışma Planı Oluştur"}
                   </button>
@@ -274,8 +274,8 @@ export default function AgendaPage() {
             {step === 3 && plan.length > 0 && (
               <motion.div key="step3" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
                 {planSummary && (
-                  <div className="keda-card p-5 border border-indigo-500/20 bg-indigo-600/5">
-                    <p className="text-slate-300 text-sm">{planSummary}</p>
+                  <div className="keda-card p-5 border border-[hsl(var(--primary)/0.2)] bg-indigo-600/5">
+                    <p className="text-[hsl(var(--foreground)/0.85)] text-sm">{planSummary}</p>
                   </div>
                 )}
 
@@ -284,20 +284,20 @@ export default function AgendaPage() {
                     <motion.div key={day.gun} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: day.gun * 0.03 }} className="keda-card p-5">
                       <div className="flex items-start justify-between mb-3">
                         <div>
-                          <span className="text-indigo-400 font-bold text-sm">Gün {day.gun}</span>
-                          <span className="text-slate-600 text-xs ml-2">~{day.tahmini_sure_dk} dk</span>
+                          <span className="text-[hsl(var(--primary))] font-bold text-sm">Gün {day.gun}</span>
+                          <span className="text-[hsl(var(--muted-foreground)/0.6)] text-xs ml-2">~{day.tahmini_sure_dk} dk</span>
                         </div>
                         <span className={`text-xs font-medium ${getDifficultyColor(day.zorluk_ortalama)}`}>{getDifficultyLabel(day.zorluk_ortalama)}</span>
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        {day.konular.map((konu) => (<span key={konu} className="px-3 py-1 bg-white/5 rounded-lg text-sm text-slate-300">{konu}</span>))}
+                        {day.konular.map((konu) => (<span key={konu} className="px-3 py-1 bg-[hsl(var(--muted))] rounded-lg text-sm text-[hsl(var(--foreground)/0.85)]">{konu}</span>))}
                       </div>
                     </motion.div>
                   ))}
                 </div>
 
                 <div className="flex gap-3 mt-4">
-                  <button onClick={() => { setStep(1); setInputText(""); }} className="flex-1 glass py-3 rounded-2xl text-slate-400 hover:text-white transition-colors">Yeni Plan</button>
+                  <button onClick={() => { setStep(1); setInputText(""); }} className="flex-1 glass py-3 rounded-2xl text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] transition-colors">Yeni Plan</button>
                   <button onClick={handleSavePlan} disabled={saving} className="flex-1 btn-primary py-3 disabled:opacity-50">
                     {saving ? "Kaydediliyor..." : "Planı Kaydet ✓"}
                   </button>
@@ -311,13 +311,13 @@ export default function AgendaPage() {
       {tab === "saved" && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
           {loadingPlans ? (
-            <div className="text-center py-12 text-slate-500">Yükleniyor...</div>
+            <div className="text-center py-12 text-[hsl(var(--muted-foreground))]">Yükleniyor...</div>
           ) : savedPlans.length === 0 ? (
             <div className="keda-card p-8 text-center">
-              <div className="w-12 h-12 rounded-2xl bg-indigo-600/15 border border-indigo-500/20 flex items-center justify-center mx-auto mb-3">
-                <CalendarDays className="w-5 h-5 text-indigo-400" />
+              <div className="w-12 h-12 rounded-2xl bg-[hsl(var(--primary)/0.08)] border border-[hsl(var(--primary)/0.2)] flex items-center justify-center mx-auto mb-3">
+                <CalendarDays className="w-5 h-5 text-[hsl(var(--primary))]" />
               </div>
-              <p className="text-slate-400 text-sm">Henüz kayıtlı plan yok. Yeni Plan sekmesinden oluştur.</p>
+              <p className="text-[hsl(var(--muted-foreground))] text-sm">Henüz kayıtlı plan yok. Yeni Plan sekmesinden oluştur.</p>
             </div>
           ) : savedPlans.map((plan) => {
             const done = plan.topics?.filter(t => t.tamamlandi_mi).length || 0;
@@ -349,16 +349,16 @@ export default function AgendaPage() {
                 {/* Plan başlığı ve progress */}
                 <div className="flex items-start justify-between mb-3">
                   <div>
-                    <h3 className="text-white font-semibold">{plan.baslik}</h3>
-                    <p className="text-slate-500 text-xs mt-1">{new Date(plan.created_at).toLocaleDateString("tr-TR")} · {plan.hedef_gun_sayisi} gün</p>
+                    <h3 className="text-[hsl(var(--foreground))] font-semibold">{plan.baslik}</h3>
+                    <p className="text-[hsl(var(--muted-foreground))] text-xs mt-1">{new Date(plan.created_at).toLocaleDateString("tr-TR")} · {plan.hedef_gun_sayisi} gün</p>
                   </div>
-                  <span className="text-indigo-400 font-bold text-sm">{pct}%</span>
+                  <span className="text-[hsl(var(--primary))] font-bold text-sm">{pct}%</span>
                 </div>
                 <div className="progress-bar mb-5"><div className="progress-bar-fill" style={{ width: `${pct}%` }} /></div>
 
                 {/* Takvim görünümü */}
                 <div className="mb-4">
-                  <p className="text-xs text-slate-500 mb-3 font-mono uppercase tracking-wider">Takvim</p>
+                  <p className="text-xs text-[hsl(var(--muted-foreground))] mb-3 font-mono uppercase tracking-wider">Takvim</p>
                   <div className="grid grid-cols-7 gap-1.5">
                     {calendarDays.map(dayNum => {
                       const dayDate = new Date(startDate);
@@ -371,13 +371,13 @@ export default function AgendaPage() {
 
                       return (
                         <div key={dayNum} className="text-center group relative">
-                          <div className="text-xs text-slate-600 mb-1">{dayNames[dayDate.getDay()]}</div>
+                          <div className="text-xs text-[hsl(var(--muted-foreground)/0.6)] mb-1">{dayNames[dayDate.getDay()]}</div>
                           <div className={`w-full aspect-square rounded-xl flex flex-col items-center justify-center text-xs font-medium transition-all cursor-default
-                            ${isToday ? "bg-indigo-600/30 border border-indigo-500/50 text-indigo-300" :
+                            ${isToday ? "bg-indigo-600/30 border border-indigo-500/50 text-[hsl(var(--primary)/0.85)]" :
                               allDone ? "bg-emerald-500/20 border border-emerald-500/30 text-emerald-400" :
                               someDone ? "bg-amber-500/15 border border-amber-500/25 text-amber-400" :
-                              dayTopics.length > 0 ? (isPast ? "bg-red-500/10 border border-red-500/20 text-red-400" : "bg-white/5 border border-white/10 text-slate-400") :
-                              "bg-white/3 border border-white/5 text-slate-700"
+                              dayTopics.length > 0 ? (isPast ? "bg-red-500/10 border border-red-500/20 text-red-400" : "bg-[hsl(var(--muted))] border border-[hsl(var(--border))] text-[hsl(var(--muted-foreground))]") :
+                              "bg-white/3 border border-[hsl(var(--border))] text-[hsl(var(--muted-foreground)/0.4)]"
                             }`}>
                             <span>{dayDate.getDate()}</span>
                             {dayTopics.length > 0 && (
@@ -387,14 +387,14 @@ export default function AgendaPage() {
 
                           {/* Hover tooltip */}
                           {dayTopics.length > 0 && (
-                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-40 bg-slate-800 border border-white/10 rounded-xl p-2 text-left z-10 hidden group-hover:block shadow-xl">
-                              <p className="text-xs text-slate-400 mb-1">Gün {dayNum}</p>
+                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-40 bg-[hsl(var(--secondary))] border border-[hsl(var(--border))] rounded-xl p-2 text-left z-10 hidden group-hover:block shadow-xl">
+                              <p className="text-xs text-[hsl(var(--muted-foreground))] mb-1">Gün {dayNum}</p>
                               {dayTopics.slice(0, 3).map(t => (
-                                <p key={t.id} className={`text-xs truncate ${t.tamamlandi_mi ? "text-emerald-400 line-through" : "text-slate-300"}`}>
+                                <p key={t.id} className={`text-xs truncate ${t.tamamlandi_mi ? "text-emerald-400 line-through" : "text-[hsl(var(--foreground)/0.85)]"}`}>
                                   {t.baslik}
                                 </p>
                               ))}
-                              {dayTopics.length > 3 && <p className="text-xs text-slate-600">+{dayTopics.length - 3} daha</p>}
+                              {dayTopics.length > 3 && <p className="text-xs text-[hsl(var(--muted-foreground)/0.6)]">+{dayTopics.length - 3} daha</p>}
                             </div>
                           )}
                         </div>
@@ -412,22 +412,22 @@ export default function AgendaPage() {
                     ].map(({ color, label }) => (
                       <div key={label} className="flex items-center gap-1.5">
                         <div className={`w-3 h-3 rounded border ${color}`} />
-                        <span className="text-xs text-slate-600">{label}</span>
+                        <span className="text-xs text-[hsl(var(--muted-foreground)/0.6)]">{label}</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
                 {/* Konu listesi */}
-                <div className="border-t border-white/5 pt-4 space-y-2">
-                  <p className="text-xs text-slate-500 font-mono uppercase tracking-wider mb-3">Tüm Konular</p>
+                <div className="border-t border-[hsl(var(--border))] pt-4 space-y-2">
+                  <p className="text-xs text-[hsl(var(--muted-foreground))] font-mono uppercase tracking-wider mb-3">Tüm Konular</p>
                   {plan.topics?.map((topic) => (
                     <div key={topic.id} className="flex items-center gap-3 cursor-pointer group/topic" onClick={() => handleToggleTopic(topic.id, topic.tamamlandi_mi)}>
                       <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all flex-shrink-0 ${topic.tamamlandi_mi ? "bg-emerald-500 border-emerald-500" : "border-slate-600 group-hover/topic:border-indigo-500"}`}>
-                        {topic.tamamlandi_mi && <Check className="w-3 h-3 text-white" />}
+                        {topic.tamamlandi_mi && <Check className="w-3 h-3 text-[hsl(var(--foreground))]" />}
                       </div>
-                      <span className={`text-sm transition-all flex-1 ${topic.tamamlandi_mi ? "text-slate-600 line-through" : "text-slate-300"}`}>{topic.baslik}</span>
-                      <span className="text-xs text-slate-700">Gün {topic.hedef_gun}</span>
+                      <span className={`text-sm transition-all flex-1 ${topic.tamamlandi_mi ? "text-[hsl(var(--muted-foreground)/0.6)] line-through" : "text-[hsl(var(--foreground)/0.85)]"}`}>{topic.baslik}</span>
+                      <span className="text-xs text-[hsl(var(--muted-foreground)/0.4)]">Gün {topic.hedef_gun}</span>
                     </div>
                   ))}
                 </div>

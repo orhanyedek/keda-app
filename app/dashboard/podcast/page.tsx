@@ -153,15 +153,15 @@ export default function PodcastPage() {
   return (
     <div className="p-6 lg:p-8 max-w-4xl mx-auto pb-24 lg:pb-8">
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-        <h1 className="text-2xl font-bold text-white mb-1">Podcast Stüdyosu</h1>
-        <p className="text-slate-400 text-sm">M-02 · Sorumlu: Kerem Mert Duru · Gemini AI ile ders podcasti</p>
+        <h1 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-1">Podcast Stüdyosu</h1>
+        <p className="text-[hsl(var(--muted-foreground))] text-sm">M-02 · Sorumlu: Kerem Mert Duru · Gemini AI ile ders podcasti</p>
       </motion.div>
 
       {/* Sekmeler */}
       <div className="flex gap-2 mb-6">
         {[{ key: "new", label: "Yeni Podcast" }, { key: "history", label: "Geçmiş" }].map((t) => (
           <button key={t.key} onClick={() => setTab(t.key as "new" | "history")}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${tab === t.key ? "bg-indigo-600/30 border border-indigo-500/40 text-indigo-300" : "glass text-slate-400 hover:text-white"}`}>
+            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${tab === t.key ? "bg-indigo-600/30 border border-[hsl(var(--primary)/0.3)] text-[hsl(var(--primary)/0.85)]" : "glass text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"}`}>
             {t.label}
           </button>
         ))}
@@ -172,13 +172,13 @@ export default function PodcastPage() {
           {/* Giriş formu */}
           {!dialogue.length && (
             <div className="keda-card p-6">
-              <h2 className="text-lg font-semibold text-white mb-4">Ders Metnini Gir</h2>
+              <h2 className="text-lg font-semibold text-[hsl(var(--foreground))] mb-4">Ders Metnini Gir</h2>
               <div className="mb-4">
-                <label className="block text-sm text-slate-400 mb-2">Podcast Başlığı (isteğe bağlı)</label>
+                <label className="block text-sm text-[hsl(var(--muted-foreground))] mb-2">Podcast Başlığı (isteğe bağlı)</label>
                 <input value={podcastTitle} onChange={(e) => setPodcastTitle(e.target.value)} placeholder="Örn: Veri Yapıları - Ağaçlar" className="keda-input" />
               </div>
               <div className="mb-4">
-                <label className="block text-sm text-slate-400 mb-2">PDF Yükle (opsiyonel)</label>
+                <label className="block text-sm text-[hsl(var(--muted-foreground))] mb-2">PDF Yükle (opsiyonel)</label>
                 <PDFUploader
                   label="PDF'i podcast'e dönüştür"
                   onTextExtracted={(text, name) => {
@@ -189,7 +189,7 @@ export default function PodcastPage() {
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-sm text-slate-400 mb-2">Ya da metni manuel gir</label>
+                <label className="block text-sm text-[hsl(var(--muted-foreground))] mb-2">Ya da metni manuel gir</label>
                 <textarea value={inputText} onChange={(e) => setInputText(e.target.value)}
                   placeholder="Podcast'e dönüştürmek istediğiniz ders metnini buraya yapıştırın..."
                   rows={5} className="keda-input resize-none" />
@@ -205,15 +205,15 @@ export default function PodcastPage() {
           {dialogue.length > 0 && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
               {/* Player */}
-              <div className="keda-card p-6 border border-indigo-500/20">
+              <div className="keda-card p-6 border border-[hsl(var(--primary)/0.2)]">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h3 className="text-white font-semibold">{podcastTitle || "Podcast"}</h3>
-                    <p className="text-slate-500 text-xs">{dialogue.length} satır diyalog</p>
+                    <h3 className="text-[hsl(var(--foreground))] font-semibold">{podcastTitle || "Podcast"}</h3>
+                    <p className="text-[hsl(var(--muted-foreground))] text-xs">{dialogue.length} satır diyalog</p>
                   </div>
                   <button onClick={handlePlay}
-                    className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${playing ? "bg-red-500/20 border border-red-500/30 hover:bg-red-500/30" : "bg-indigo-600/20 border border-indigo-500/30 hover:bg-indigo-600/30"}`}>
-                    {playing ? <Square className="w-4 h-4 text-red-400" /> : <Play className="w-4 h-4 text-indigo-400" />}
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${playing ? "bg-red-500/20 border border-red-500/30 hover:bg-red-500/30" : "bg-[hsl(var(--primary)/0.1)] border border-[hsl(var(--primary)/0.25)] hover:bg-indigo-600/30"}`}>
+                    {playing ? <Square className="w-4 h-4 text-red-400" /> : <Play className="w-4 h-4 text-[hsl(var(--primary))]" />}
                   </button>
                 </div>
                 {playing && (
@@ -226,18 +226,18 @@ export default function PodcastPage() {
                 <AnimatePresence>
                   {dialogue.map((line, i) => (
                     <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
-                      className={`flex gap-4 p-4 rounded-2xl transition-all ${currentLine === i ? "bg-indigo-600/20 border border-indigo-500/40" : "keda-card"}`}>
-                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold shrink-0 ${line.speaker === "A" ? "bg-indigo-600/30 text-indigo-300" : "bg-purple-600/30 text-purple-300"}`}>
+                      className={`flex gap-4 p-4 rounded-2xl transition-all ${currentLine === i ? "bg-[hsl(var(--primary)/0.1)] border border-[hsl(var(--primary)/0.3)]" : "keda-card"}`}>
+                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold shrink-0 ${line.speaker === "A" ? "bg-indigo-600/30 text-[hsl(var(--primary)/0.85)]" : "bg-purple-600/30 text-purple-300"}`}>
                         {line.speaker}
                       </div>
-                      <p className="text-slate-300 text-sm leading-relaxed pt-1">{line.text}</p>
+                      <p className="text-[hsl(var(--foreground)/0.85)] text-sm leading-relaxed pt-1">{line.text}</p>
                     </motion.div>
                   ))}
                 </AnimatePresence>
               </div>
 
               <button onClick={() => { setDialogue([]); setInputText(""); setPodcastTitle(""); setPlaying(false); window.speechSynthesis?.cancel(); }}
-                className="w-full glass py-3 rounded-2xl text-slate-400 hover:text-white transition-colors">
+                className="w-full glass py-3 rounded-2xl text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] transition-colors">
                 Yeni Podcast Oluştur
               </button>
             </motion.div>
@@ -248,29 +248,29 @@ export default function PodcastPage() {
       {tab === "history" && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
           {loadingHistory ? (
-            <div className="text-center py-12 text-slate-500">Yükleniyor...</div>
+            <div className="text-center py-12 text-[hsl(var(--muted-foreground))]">Yükleniyor...</div>
           ) : savedPodcasts.length === 0 ? (
             <div className="keda-card p-8 text-center">
-              <div className="w-12 h-12 rounded-2xl bg-indigo-600/15 border border-indigo-500/20 flex items-center justify-center mx-auto mb-3">
-                <Mic className="w-5 h-5 text-indigo-400" />
+              <div className="w-12 h-12 rounded-2xl bg-[hsl(var(--primary)/0.08)] border border-[hsl(var(--primary)/0.2)] flex items-center justify-center mx-auto mb-3">
+                <Mic className="w-5 h-5 text-[hsl(var(--primary))]" />
               </div>
-              <p className="text-slate-400 text-sm">Henüz podcast yok. Yeni Podcast sekmesinden başla.</p>
+              <p className="text-[hsl(var(--muted-foreground))] text-sm">Henüz podcast yok. Yeni Podcast sekmesinden başla.</p>
             </div>
           ) : savedPodcasts.map((podcast) => (
             <div key={podcast.id} className="keda-card p-5">
               <div className="flex items-center justify-between cursor-pointer" onClick={() => setExpandedId(expandedId === podcast.id ? null : podcast.id)}>
                 <div>
-                  <h3 className="text-white font-medium">{podcast.baslik}</h3>
-                  <p className="text-slate-500 text-xs mt-1">{new Date(podcast.created_at).toLocaleDateString("tr-TR")}</p>
+                  <h3 className="text-[hsl(var(--foreground))] font-medium">{podcast.baslik}</h3>
+                  <p className="text-[hsl(var(--muted-foreground))] text-xs mt-1">{new Date(podcast.created_at).toLocaleDateString("tr-TR")}</p>
                 </div>
-                <span className="text-slate-500 text-sm">{expandedId === podcast.id ? "▲" : "▼"}</span>
+                <span className="text-[hsl(var(--muted-foreground))] text-sm">{expandedId === podcast.id ? "▲" : "▼"}</span>
               </div>
               {expandedId === podcast.id && podcast.diyalog_metni && (
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mt-4 space-y-2">
                   {parseDialogue(podcast.diyalog_metni).map((line, i) => (
-                    <div key={i} className="flex gap-3 p-3 bg-white/5 rounded-xl">
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${line.speaker === "A" ? "bg-indigo-600/30 text-indigo-300" : "bg-purple-600/30 text-purple-300"}`}>{line.speaker}</div>
-                      <p className="text-slate-400 text-sm pt-1">{line.text}</p>
+                    <div key={i} className="flex gap-3 p-3 bg-[hsl(var(--muted))] rounded-xl">
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${line.speaker === "A" ? "bg-indigo-600/30 text-[hsl(var(--primary)/0.85)]" : "bg-purple-600/30 text-purple-300"}`}>{line.speaker}</div>
+                      <p className="text-[hsl(var(--muted-foreground))] text-sm pt-1">{line.text}</p>
                     </div>
                   ))}
                 </motion.div>

@@ -10,8 +10,8 @@ const STEPS = [
     icon: Sparkles,
     title: "KEDA'ya Hoş Geldin!",
     desc: "Yapay zeka destekli çalışma asistanın hazır. 3 adımda nasıl kullanacağını gösterelim.",
-    color: "text-indigo-400",
-    bg: "bg-indigo-600/15 border-indigo-500/20",
+    color: "text-[hsl(var(--primary))]",
+    bg: "bg-[hsl(var(--primary)/0.08)] border-[hsl(var(--primary)/0.2)]",
   },
   {
     icon: Layers,
@@ -68,7 +68,7 @@ export default function Onboarding() {
             className="keda-card w-full max-w-md p-8 relative">
 
             {/* Kapat */}
-            <button onClick={finish} className="absolute top-4 right-4 text-slate-600 hover:text-white transition-colors">
+            <button onClick={finish} className="absolute top-4 right-4 text-[hsl(var(--muted-foreground)/0.6)] hover:text-[hsl(var(--foreground))] transition-colors">
               <X className="w-5 h-5" />
             </button>
 
@@ -79,14 +79,14 @@ export default function Onboarding() {
 
             {/* İçerik */}
             <motion.div key={step} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
-              <h2 className="text-xl font-bold text-white mb-3">{current.title}</h2>
-              <p className="text-slate-400 text-sm leading-relaxed mb-6">{current.desc}</p>
+              <h2 className="text-xl font-bold text-[hsl(var(--foreground))] mb-3">{current.title}</h2>
+              <p className="text-[hsl(var(--muted-foreground))] text-sm leading-relaxed mb-6">{current.desc}</p>
             </motion.div>
 
             {/* Adım noktaları */}
             <div className="flex items-center gap-2 mb-6">
               {STEPS.map((_, i) => (
-                <div key={i} className={`h-1.5 rounded-full transition-all ${i === step ? "w-6 bg-indigo-400" : "w-1.5 bg-slate-700"}`} />
+                <div key={i} className={`h-1.5 rounded-full transition-all ${i === step ? "w-6 bg-indigo-400" : "w-1.5 bg-[hsl(var(--secondary))]"}`} />
               ))}
             </div>
 
@@ -103,7 +103,7 @@ export default function Onboarding() {
                   {current.linkText || "Başla"}
                 </Link>
               )}
-              <button onClick={finish} className="glass px-4 py-2.5 rounded-xl text-slate-400 hover:text-white text-sm transition-colors">
+              <button onClick={finish} className="glass px-4 py-2.5 rounded-xl text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] text-sm transition-colors">
                 Atla
               </button>
             </div>

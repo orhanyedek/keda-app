@@ -44,7 +44,7 @@ export default function Notifications({ userId }: { userId: string }) {
             title: "Çalışma Planı",
             desc: `${stats.aktif_plan.baslik} — ${pending} konu bekliyor.`,
             icon: CalendarDays,
-            color: "text-indigo-400",
+            color: "text-[hsl(var(--primary))]",
             read: false,
           });
         }
@@ -93,10 +93,10 @@ export default function Notifications({ userId }: { userId: string }) {
   return (
     <div ref={ref} className="relative">
       <button onClick={() => setOpen(!open)}
-        className="relative w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:text-white hover:bg-white/10 transition-all">
+        className="relative w-8 h-8 rounded-lg flex items-center justify-center text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:bg-white/10 transition-all">
         <Bell className="w-4 h-4" />
         {unread > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-indigo-500 rounded-full text-[10px] text-white flex items-center justify-center font-bold">
+          <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-indigo-500 rounded-full text-[10px] text-[hsl(var(--foreground))] flex items-center justify-center font-bold">
             {unread}
           </span>
         )}
@@ -106,16 +106,16 @@ export default function Notifications({ userId }: { userId: string }) {
         {open && (
           <motion.div initial={{ opacity: 0, y: 8, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 8, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="absolute left-0 top-10 w-80 keda-card border border-white/10 shadow-2xl z-50 overflow-hidden">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
-              <span className="text-white text-sm font-semibold">Bildirimler</span>
+            className="absolute left-0 top-10 w-80 keda-card border border-[hsl(var(--border))] shadow-2xl z-50 overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-[hsl(var(--border))]">
+              <span className="text-[hsl(var(--foreground))] text-sm font-semibold">Bildirimler</span>
               <div className="flex items-center gap-2">
                 {unread > 0 && (
-                  <button onClick={markAllRead} className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors">
+                  <button onClick={markAllRead} className="text-xs text-[hsl(var(--primary))] hover:text-[hsl(var(--primary)/0.85)] transition-colors">
                     Tümünü oku
                   </button>
                 )}
-                <button onClick={() => setOpen(false)} className="text-slate-600 hover:text-white transition-colors">
+                <button onClick={() => setOpen(false)} className="text-[hsl(var(--muted-foreground)/0.6)] hover:text-[hsl(var(--foreground))] transition-colors">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -123,18 +123,18 @@ export default function Notifications({ userId }: { userId: string }) {
 
             <div className="max-h-72 overflow-y-auto">
               {notifications.length === 0 ? (
-                <div className="px-4 py-8 text-center text-slate-600 text-sm">Bildirim yok</div>
+                <div className="px-4 py-8 text-center text-[hsl(var(--muted-foreground)/0.6)] text-sm">Bildirim yok</div>
               ) : notifications.map(n => {
                 const Icon = n.icon;
                 return (
                   <div key={n.id} onClick={() => markRead(n.id)}
-                    className={`flex items-start gap-3 px-4 py-3 border-b border-white/5 cursor-pointer hover:bg-white/5 transition-colors ${n.read ? "opacity-50" : ""}`}>
-                    <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    className={`flex items-start gap-3 px-4 py-3 border-b border-[hsl(var(--border))] cursor-pointer hover:bg-[hsl(var(--muted))] transition-colors ${n.read ? "opacity-50" : ""}`}>
+                    <div className="w-8 h-8 rounded-lg bg-[hsl(var(--muted))] flex items-center justify-center flex-shrink-0 mt-0.5">
                       <Icon className={`w-4 h-4 ${n.color}`} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-white font-medium">{n.title}</p>
-                      <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">{n.desc}</p>
+                      <p className="text-sm text-[hsl(var(--foreground))] font-medium">{n.title}</p>
+                      <p className="text-xs text-[hsl(var(--muted-foreground))] mt-0.5 leading-relaxed">{n.desc}</p>
                     </div>
                     {!n.read && <div className="w-2 h-2 rounded-full bg-indigo-500 flex-shrink-0 mt-2" />}
                   </div>
