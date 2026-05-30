@@ -4,11 +4,11 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft, Mail } from "lucide-react";
 import { signUp, signInWithOAuth } from "@/lib/supabase";
 import toast from "react-hot-toast";
 
-type Step = "form" | "otp";
+type Step = "form" | "verify";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -18,7 +18,6 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<"google" | "github" | null>(null);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -33,8 +32,8 @@ export default function RegisterPage() {
     return s;
   };
 
-  const strengthColor = ["bg-red-500", "bg-red-500", "bg-amber-500", "bg-yellow-500", "bg-emerald-500"];
-  const strengthLabel = ["", "Zayıf", "Orta", "İyi", "Güçlü", "Çok Güçlü"];
+  const strengthColors = ["", "bg-red-500", "bg-orange-500", "bg-yellow-500", "bg-emerald-500", "bg-emerald-400"];
+  const strengthLabels = ["", "Zayıf", "Orta", "İyi", "Güçlü", "Çok Güçlü"];
   const strength = getPasswordStrength();
 
   const validateForm = () => {
@@ -50,67 +49,30 @@ export default function RegisterPage() {
     return Object.keys(e).length === 0;
   };
 
-  // Adım 1: Form gönder → OTP gönder
-  const handleFormSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
     setLoading(true);
     try {
-      // OTP gönder
-      const res = await fetch("/api/send-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, fullName }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        toast.error(data.error || "E-posta gönderilemedi");
-        return;
-      }
-      setStep("otp");
-      toast.success(`Doğrulama kodu ${email} adresine gönderildi`);
-    } catch {
-      toast.error("Bağlantı hatası");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Adım 2: OTP doğrula → Hesap oluştur
-  const handleOTPSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (otp.length !== 6) { toast.error("6 haneli kodu girin"); return; }
-    setLoading(true);
-    try {
-      // OTP doğrula
-      const verifyRes = await fetch("/api/verify-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp }),
-      });
-      const verifyData = await verifyRes.json();
-      if (!verifyRes.ok) {
-        toast.error(verifyData.error || "Hatalı kod");
-        return;
-      }
-
-      // Hesabı oluştur
       const { data, error } = await signUp(email, password, fullName);
       if (error) {
         if (error.message.includes("already registered")) {
-          toast.error("Bu e-posta zaten kayıtlı");
+          setErrors({ email: "Bu e-posta zaten kayıtlı" });
         } else {
           toast.error("Kayıt başarısız: " + error.message);
         }
         return;
       }
       if (data.user) {
-        toast.success("Hesabınız oluşturuldu! Hoş geldiniz.");
-        router.push("/dashboard");
-        router.refresh();
+        // Email confirmation açıksa verify adımına geç
+        if (!data.session) {
+          setStep("verify");
+        } else {
+          toast.success("Hesabınız oluşturuldu! Hoş geldiniz.");
+          router.push("/dashboard");
+          router.refresh();
+        }
       }
-    } catch {
-      toast.error("Bağlantı hatası");
     } finally {
       setLoading(false);
     }
@@ -120,19 +82,6 @@ export default function RegisterPage() {
     setOauthLoading(provider);
     const { error } = await signInWithOAuth(provider);
     if (error) { toast.error(`${provider} ile giriş başarısız`); setOauthLoading(null); }
-  };
-
-  const resendOTP = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/send-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, fullName }),
-      });
-      if (res.ok) toast.success("Yeni kod gönderildi");
-      else toast.error("Kod gönderilemedi");
-    } finally { setLoading(false); }
   };
 
   return (
@@ -149,12 +98,12 @@ export default function RegisterPage() {
             {step === "form" ? "Hesap Oluştur" : "E-postanı Doğrula"}
           </h1>
           <p className="text-sm mt-1" style={{ color: "hsl(var(--muted-foreground))" }}>
-            {step === "form" ? "Ücretsiz başla, hemen çalışmaya başla" : `${email} adresine gönderilen kodu gir`}
+            {step === "form" ? "Ücretsiz başla, hemen çalışmaya başla" : `Doğrulama bağlantısı ${email} adresine gönderildi`}
           </p>
         </div>
 
         <AnimatePresence mode="wait">
-          {/* ── ADIM 1: KAYIT FORMU ── */}
+          {/* ADIM 1: FORM */}
           {step === "form" && (
             <motion.div key="form" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
               <div className="keda-card p-6 space-y-4">
@@ -180,22 +129,26 @@ export default function RegisterPage() {
                   <div className="flex-1 h-px" style={{ background: "hsl(var(--border))" }} />
                 </div>
 
-                <form onSubmit={handleFormSubmit} className="space-y-3">
+                <form onSubmit={handleSubmit} className="space-y-3">
                   <div>
                     <label className="block text-sm font-medium mb-1.5" style={{ color: "hsl(var(--foreground))" }}>Ad Soyad</label>
-                    <input value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Adın Soyadın" className={`keda-input ${errors.fullName ? "border-red-500/50" : ""}`} />
+                    <input value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Adın Soyadın"
+                      className={`keda-input ${errors.fullName ? "border-red-500/50" : ""}`} />
                     {errors.fullName && <p className="text-xs mt-1" style={{ color: "hsl(var(--destructive))" }}>{errors.fullName}</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1.5" style={{ color: "hsl(var(--foreground))" }}>E-posta</label>
-                    <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="ornek@email.com" className={`keda-input ${errors.email ? "border-red-500/50" : ""}`} />
+                    <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="ornek@email.com"
+                      className={`keda-input ${errors.email ? "border-red-500/50" : ""}`} />
                     {errors.email && <p className="text-xs mt-1" style={{ color: "hsl(var(--destructive))" }}>{errors.email}</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1.5" style={{ color: "hsl(var(--foreground))" }}>Şifre</label>
                     <div className="relative">
-                      <input type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder="En az 8 karakter" className={`keda-input pr-10 ${errors.password ? "border-red-500/50" : ""}`} />
-                      <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: "hsl(var(--muted-foreground))" }}>
+                      <input type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)}
+                        placeholder="En az 8 karakter" className={`keda-input pr-10 ${errors.password ? "border-red-500/50" : ""}`} />
+                      <button type="button" onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: "hsl(var(--muted-foreground))" }}>
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
                     </div>
@@ -203,21 +156,22 @@ export default function RegisterPage() {
                       <div className="mt-2">
                         <div className="flex gap-1 mb-1">
                           {[1,2,3,4,5].map(i => (
-                            <div key={i} className={`flex-1 h-1 rounded-full transition-all ${i <= strength ? strengthColor[strength - 1] : "bg-[hsl(var(--border))]"}`} />
+                            <div key={i} className={`flex-1 h-1 rounded-full transition-all ${i <= strength ? strengthColors[strength] : "bg-[hsl(var(--border))]"}`} />
                           ))}
                         </div>
-                        <p className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>{strengthLabel[strength]}</p>
+                        <p className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>{strengthLabels[strength]}</p>
                       </div>
                     )}
                     {errors.password && <p className="text-xs mt-1" style={{ color: "hsl(var(--destructive))" }}>{errors.password}</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1.5" style={{ color: "hsl(var(--foreground))" }}>Şifre Tekrar</label>
-                    <input type="password" value={passwordConfirm} onChange={e => setPasswordConfirm(e.target.value)} placeholder="Şifreni tekrar gir" className={`keda-input ${errors.passwordConfirm ? "border-red-500/50" : ""}`} />
+                    <input type="password" value={passwordConfirm} onChange={e => setPasswordConfirm(e.target.value)}
+                      placeholder="Şifreni tekrar gir" className={`keda-input ${errors.passwordConfirm ? "border-red-500/50" : ""}`} />
                     {errors.passwordConfirm && <p className="text-xs mt-1" style={{ color: "hsl(var(--destructive))" }}>{errors.passwordConfirm}</p>}
                   </div>
                   <button type="submit" disabled={loading} className="btn-primary w-full py-2.5 mt-1 disabled:opacity-50">
-                    {loading ? <div className="loading-dots"><span/><span/><span/></div> : "Devam Et →"}
+                    {loading ? <div className="loading-dots"><span/><span/><span/></div> : "Hesap Oluştur"}
                   </button>
                 </form>
 
@@ -229,50 +183,30 @@ export default function RegisterPage() {
             </motion.div>
           )}
 
-          {/* ── ADIM 2: OTP DOĞRULAMA ── */}
-          {step === "otp" && (
-            <motion.div key="otp" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-              <div className="keda-card p-6">
-                <button onClick={() => setStep("form")} className="flex items-center gap-1.5 text-sm mb-6 transition-colors" style={{ color: "hsl(var(--muted-foreground))" }}>
-                  <ArrowLeft className="w-4 h-4" /> Geri dön
-                </button>
-
-                {/* Mail ikonu */}
-                <div className="text-center mb-6">
-                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-3" style={{ background: "hsl(var(--primary)/0.1)", border: "1px solid hsl(var(--primary)/0.2)" }}>
-                    <svg className="w-8 h-8" style={{ color: "hsl(var(--primary))" }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                  <p className="text-sm" style={{ color: "hsl(var(--muted-foreground))" }}>
-                    <span style={{ color: "hsl(var(--foreground))" }} className="font-medium">{email}</span> adresine<br />6 haneli doğrulama kodu gönderildi.
-                  </p>
+          {/* ADIM 2: EMAIL DOĞRULAMA BEKLENİYOR */}
+          {step === "verify" && (
+            <motion.div key="verify" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+              <div className="keda-card p-8 text-center">
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5"
+                  style={{ background: "hsl(var(--primary)/0.1)", border: "1px solid hsl(var(--primary)/0.2)" }}>
+                  <Mail className="w-8 h-8" style={{ color: "hsl(var(--primary))" }} />
                 </div>
-
-                <form onSubmit={handleOTPSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-1.5 text-center" style={{ color: "hsl(var(--foreground))" }}>Doğrulama Kodu</label>
-                    <input
-                      value={otp}
-                      onChange={e => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                      placeholder="000000"
-                      maxLength={6}
-                      className="keda-input text-center text-2xl font-mono tracking-widest py-4"
-                      style={{ letterSpacing: "0.3em" }}
-                      autoFocus
-                    />
-                    <p className="text-xs text-center mt-2" style={{ color: "hsl(var(--muted-foreground))" }}>Kod 10 dakika geçerlidir</p>
-                  </div>
-
-                  <button type="submit" disabled={loading || otp.length !== 6} className="btn-primary w-full py-2.5 disabled:opacity-50">
-                    {loading ? <div className="loading-dots"><span/><span/><span/></div> : "Doğrula ve Hesap Oluştur"}
-                  </button>
-                </form>
-
-                <div className="mt-4 text-center">
-                  <span className="text-sm" style={{ color: "hsl(var(--muted-foreground))" }}>Kod gelmedi mi? </span>
-                  <button onClick={resendOTP} disabled={loading} className="text-sm font-medium disabled:opacity-50" style={{ color: "hsl(var(--primary))" }}>
-                    Tekrar gönder
+                <h2 className="text-lg font-semibold mb-2" style={{ color: "hsl(var(--foreground))" }}>E-postanı kontrol et</h2>
+                <p className="text-sm leading-relaxed mb-6" style={{ color: "hsl(var(--muted-foreground))" }}>
+                  <span className="font-medium" style={{ color: "hsl(var(--foreground))" }}>{email}</span> adresine doğrulama bağlantısı gönderdik. Bağlantıya tıkladıktan sonra giriş yapabilirsin.
+                </p>
+                <div className="p-3 rounded-xl text-xs text-left space-y-1.5 mb-6"
+                  style={{ background: "hsl(var(--muted))", color: "hsl(var(--muted-foreground))" }}>
+                  <p>• Spam/gereksiz klasörünü kontrol et</p>
+                  <p>• Bağlantı 24 saat geçerlidir</p>
+                  <p>• Gelmezse birkaç dakika bekle</p>
+                </div>
+                <div className="space-y-2">
+                  <Link href="/auth/login" className="btn-primary w-full py-2.5 block text-center">
+                    Giriş Sayfasına Git
+                  </Link>
+                  <button onClick={() => setStep("form")} className="btn-ghost w-full py-2.5 flex items-center justify-center gap-2 text-sm">
+                    <ArrowLeft className="w-4 h-4" /> Geri dön
                   </button>
                 </div>
               </div>
