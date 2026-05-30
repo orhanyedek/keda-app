@@ -21,6 +21,7 @@ import { signOut } from "@/lib/supabase";
 import ThemeToggle from "@/components/ThemeToggle";
 import Notifications from "@/components/Notifications";
 import Search from "@/components/Search";
+import { registerServiceWorker, scheduleDailyReminder } from "@/lib/notifications";
 import toast from "react-hot-toast";
 
 // Ayarlar alt menüsü
@@ -209,6 +210,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       router.push("/auth/login");
     }
   }, [user, loading, router]);
+
+  // Service Worker kaydet ve günlük hatırlatıcı kur
+  useEffect(() => {
+    if (!user) return;
+    registerServiceWorker();
+    // Bildirim izni varsa günlük hatırlatıcı kur
+    if ("Notification" in window && Notification.permission === "granted") {
+      scheduleDailyReminder();
+    }
+  }, [user]);
 
   const handleSignOut = async () => {
     await signOut();

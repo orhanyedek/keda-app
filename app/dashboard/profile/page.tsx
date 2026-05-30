@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 import { getDetailedStats } from "@/lib/db";
 import { Layers, Mic, CalendarDays, TrendingUp, Eye, EyeOff, Trash2, Bell, ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
+import NotificationPermission from "@/components/NotificationPermission";
 import toast from "react-hot-toast";
 
 interface Stats { toplam_flashcard: number; toplam_plan: number; toplam_podcast: number; basari_orani: number; }
@@ -216,19 +217,25 @@ export default function ProfilePage() {
         <AnimatePresence>
           {notifOpen && (
             <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden">
-              <div className="px-6 pb-6 space-y-3 border-t border-[hsl(var(--border))] pt-4">
-                {NOTIF_KEYS.map(n => (
-                  <div key={n.key} className="flex items-center justify-between gap-4">
-                    <div>
-                      <p className="text-sm" style={{ color: "hsl(var(--foreground))" }}>{n.label}</p>
-                      <p className="text-xs mt-0.5" style={{ color: "hsl(var(--muted-foreground))" }}>{n.desc}</p>
+              <div className="px-6 pb-6 space-y-4 border-t border-[hsl(var(--border))] pt-4">
+                {/* Push bildirim izni */}
+                <NotificationPermission />
+
+                {/* Bildirim toggle'ları */}
+                <div className="space-y-3">
+                  {NOTIF_KEYS.map(n => (
+                    <div key={n.key} className="flex items-center justify-between gap-4">
+                      <div>
+                        <p className="text-sm" style={{ color: "hsl(var(--foreground))" }}>{n.label}</p>
+                        <p className="text-xs mt-0.5" style={{ color: "hsl(var(--muted-foreground))" }}>{n.desc}</p>
+                      </div>
+                      <button onClick={() => toggleNotif(n.key)}
+                        className={`relative w-11 h-6 rounded-full transition-all flex-shrink-0 ${notifs[n.key] ? "bg-[hsl(var(--primary))]" : "bg-[hsl(var(--secondary))]"}`}>
+                        <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all ${notifs[n.key] ? "left-[22px]" : "left-0.5"}`} />
+                      </button>
                     </div>
-                    <button onClick={() => toggleNotif(n.key)}
-                      className={`relative w-11 h-6 rounded-full transition-all flex-shrink-0 ${notifs[n.key] ? "bg-[hsl(var(--primary))]" : "bg-[hsl(var(--secondary))]"}`}>
-                      <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-all ${notifs[n.key] ? "left-[22px]" : "left-0.5"}`} />
-                    </button>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </motion.div>
           )}

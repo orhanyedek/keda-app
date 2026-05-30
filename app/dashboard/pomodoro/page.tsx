@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, Pause, RotateCcw, SkipForward, Coffee, Brain, Settings, Maximize2, Minimize2 } from "lucide-react";
+import { sendPomodoroNotification, requestNotificationPermission } from "@/lib/notifications";
 import toast from "react-hot-toast";
 
 type Mode = "work" | "short" | "long";
@@ -66,6 +67,9 @@ export default function PomodoroPage() {
     if (intervalRef.current) clearInterval(intervalRef.current);
     setRunning(false);
     saveSession(mode, durations[mode]);
+
+    // Push notification gönder
+    sendPomodoroNotification(mode);
 
     if (mode === "work") {
       const next = cycle % 4 === 0 ? "long" : "short";
