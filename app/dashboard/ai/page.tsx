@@ -9,7 +9,7 @@ import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
 import Groq from "groq-sdk";
-import { Send, Plus, Trash2, Sparkles } from "lucide-react";
+import { Send, Plus, Trash2, Sparkles, Mic, MicOff } from "lucide-react";
 import { getDashboardStats } from "@/lib/db";
 
 const groq = new Groq({
@@ -67,8 +67,31 @@ export default function AIPage() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [userContext, setUserContext] = useState("");
+  const [listening, setListening] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
+
+  const startListening = () => {
+    const SpeechRecognition = window.SpeechRecognition || (window as unknown as { webkitSpeechRecognition: typeof SpeechRecognition }).webkitSpeechRecognition;
+    if (!SpeechRecognition) { toast.error("Tarayıcınız ses tanımayı desteklemiyor"); return; }
+    const recognition = new SpeechRecognition();
+    recognition.lang = "tr-TR";
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.onstart = () => setListening(true);
+    recognition.onresult = (e: SpeechRecognitionEvent) => {
+      const transcript = e.results[0][0].transcript;
+      setInput(prev => prev ? prev + " " + transcript : transcript);
+      setListening(false);
+    };
+    recognition.onerror = () => setListening(false);
+    recognition.onend = () => setListening(false);
+    recognitionRef.current = recognition;
+    recognition.start();
+  };
+
+  const stopListening = () => { recognitionRef.current?.stop(); setListening(false); };
 
   // Kullanıcının gerçek verilerini yükle (bağlam için)
   useEffect(() => {
@@ -351,6 +374,10 @@ export default function AIPage() {
                 className="flex-1 bg-transparent text-slate-200 text-sm outline-none resize-none placeholder-slate-600 leading-relaxed"
                 style={{ maxHeight: "120px" }}
               />
+              <button onClick={listening ? stopListening : startListening}
+                className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all ${listening ? "bg-red-500/20 border border-red-500/30 animate-pulse" : "glass text-slate-500 hover:text-indigo-400"}`}>
+                {listening ? <MicOff className="w-4 h-4 text-red-400" /> : <Mic className="w-4 h-4" />}
+              </button>
               <button onClick={() => sendMessage()} disabled={!input.trim() || loading}
                 className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center flex-shrink-0 hover:bg-indigo-500 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
                 <Send className="w-4 h-4 text-white" />
