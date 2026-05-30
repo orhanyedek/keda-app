@@ -1,194 +1,123 @@
 /**
- * Google Gemini API Konfigürasyonu
- * 
- * Bu dosya Gemini AI entegrasyonunu yönetir.
- * KEDA'nın tüm yapay zeka özellikleri (konu analizi, flashcard üretimi,
- * podcast diyalogu, çalışma planı) bu modül üzerinden çalışır.
- * 
- * Sorumlu: Sezin Nisa Ataseven (M-01), Kerem Mert Duru (M-02), Mustafa Çakmak (M-03)
- * Katkı: Serdar Durgut
+ * KEDA - AI Entegrasyonu (Groq)
+ * Groq API ile llama-3.3-70b-versatile modeli kullanılıyor
  */
 
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import Groq from "groq-sdk";
 
-// Gemini API istemcisi başlatılır
-const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY!);
+const groq = new Groq({
+  apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY!,
+  dangerouslyAllowBrowser: true,
+});
 
-// Gemini 2.0 Flash modeli - hızlı ve verimli
-export const geminiModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+async function ask(prompt: string): Promise<string> {
+  const completion = await groq.chat.completions.create({
+    model: "llama-3.3-70b-versatile",
+    messages: [{ role: "user", content: prompt }],
+    temperature: 0.7,
+    max_tokens: 4096,
+  });
+  return completion.choices[0]?.message?.content || "";
+}
 
-// ==================== FLASHCARD ÜRETİMİ (M-03) ====================
-
-/**
- * PDF metninden Flashcard Üretimi
- * 
- * Mustafa Çakmak - M-03 Flash Notlar Modülü
- * Gemini API ile verilen metinden soru-cevap çiftleri oluşturur.
- * Leitner Spaced Repetition algoritması ile birlikte çalışır.
- */
+// ==================== FLASHCARD ÜRETİMİ ====================
 export async function generateFlashcards(text: string, count: number = 10) {
-  // Gemini'ye gönderilecek prompt - JSON formatında yanıt istenir
-  const prompt = `Sen bir eğitim asistanısın. Aşağıdaki metinden ${count} adet flashcard (soru-cevap kartı) oluştur.
-  
-Metin:
-${text}
+  const prompt = `Aşağıdaki metinden ${count} adet soru-cevap flashcard oluştur.
 
-Lütfen SADECE aşağıdaki JSON formatında yanıt ver, başka hiçbir şey ekleme:
+Metin:
+${text.substring(0, 4000)}
+
+SADECE aşağıdaki JSON formatında yanıt ver, başka hiçbir şey yazma:
 {
   "flashcards": [
-    {
-      "soru": "Soru buraya yazılır",
-      "cevap": "Cevap buraya yazılır",
-      "zorluk": 3
-    }
+    { "soru": "Soru metni?", "cevap": "Cevap metni.", "zorluk": 3 },
+    { "soru": "Soru metni?", "cevap": "Cevap metni.", "zorluk": 2 }
   ]
 }
 
-Zorluk seviyesi 1 (çok kolay) ile 5 (çok zor) arasında olmalıdır.
-Sorular net ve anlaşılır olsun. Cevaplar kısa ve öz olsun.`;
+Zorluk 1-5 arası olsun. Sorular net ve öğretici olsun. Türkçe yaz.`;
 
-  try {
-    const result = await geminiModel.generateContent(prompt);
-    const response = result.response.text();
-    
-    // JSON yanıtını temizle ve parse et
-    const cleanedResponse = response.replace(/```json|```/g, "").trim();
-    return JSON.parse(cleanedResponse);
-  } catch (error) {
-    console.error("Flashcard üretim hatası:", error);
-    throw error;
-  }
+  const response = await ask(prompt);
+  const clean = response.replace(/```json|```/g, "").trim();
+  return JSON.parse(clean);
 }
 
-// ==================== ÇALIŞMA PLANI (M-01) ====================
-
-/**
- * Çalışma Planı Oluşturma
- * 
- * Sezin Nisa Ataseven - M-01 Akıllı Eğitim & Ajanda Modülü
- * Girilen konular ve süreye göre kişiselleştirilmiş çalışma planı oluşturur.
- * Zorluk seviyesine göre konuları günlere dağıtır (IK-A04 iş kuralı).
- */
+// ==================== ÇALIŞMA PLANI ====================
 export async function generateStudyPlan(params: {
   topics: string[];
-  grades: { [topic: string]: number };
+  grades: { [key: string]: number };
   targetDays: number;
   unavailableDays: number[];
 }) {
-  const daysOfWeek = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
-  const unavailableNames = params.unavailableDays.map(d => daysOfWeek[d]).join(", ");
+  const topicList = params.topics
+    .map(t => `- ${t} (not: ${params.grades[t] || 0}/100)`)
+    .join("\n");
 
-  const prompt = `Sen bir akademik planlama asistanısın. Aşağıdaki bilgilere göre konu odaklı (task-based) çalışma planı oluştur.
+  const prompt = `Aşağıdaki konular için ${params.targetDays} günlük çalışma planı oluştur.
+Müsait olmayan günler (0=Pazar, 6=Cumartesi): ${params.unavailableDays.join(", ")}
 
-Konular ve Notlar:
-${params.topics.map(t => `- ${t}: ${params.grades[t] || "not girilmedi"}/100`).join("\n")}
+Konular ve mevcut notlar:
+${topicList}
 
-Toplam süre: ${params.targetDays} gün
-Müsait olmayan günler: ${unavailableNames || "Yok"}
+Düşük notlu konulara daha fazla zaman ayır. Zorluk 4-5 olan konuları haftanın başına koy.
 
-Kurallar:
-- Düşük not alan konular (50 altı) daha fazla zaman almalı
-- Zorluk 4-5 konular haftanın başına, 1-2 konular sonuna dağıtılmalı
-- Her güne maksimum 3 konu ata
-
-SADECE şu JSON formatında yanıt ver:
+SADECE aşağıdaki JSON formatında yanıt ver:
 {
+  "ozet": "Planın kısa özeti",
   "plan": [
-    {
-      "gun": 1,
-      "tarih_offset": 0,
-      "konular": ["Konu 1", "Konu 2"],
-      "tahmini_sure_dk": 120,
-      "zorluk_ortalama": 3
-    }
-  ],
-  "ozet": "Genel plan özeti buraya"
+    { "gun": 1, "konular": ["Konu adı"], "tahmini_sure_dk": 60, "zorluk_ortalama": 3 }
+  ]
 }`;
 
-  try {
-    const result = await geminiModel.generateContent(prompt);
-    const response = result.response.text();
-    const cleanedResponse = response.replace(/```json|```/g, "").trim();
-    return JSON.parse(cleanedResponse);
-  } catch (error) {
-    console.error("Çalışma planı üretim hatası:", error);
-    throw error;
-  }
+  const response = await ask(prompt);
+  const clean = response.replace(/```json|```/g, "").trim();
+  return JSON.parse(clean);
 }
 
-// ==================== PODCAST DİYALOGU (M-02) ====================
-
-/**
- * PDF Metninden Podcast Diyalogu Üretimi
- * 
- * Kerem Mert Duru - M-02 Podcast & Ses Üretimi Modülü
- * Verilen metni iki konuşmacılı (Öğrenci-Öğretmen) diyalog formatına çevirir.
- * Bu metin daha sonra TTS ile seslendirilir.
- */
+// ==================== PODCAST DIYALOGU ====================
 export async function generatePodcastDialogue(text: string) {
-  const prompt = `Sen bir eğitim podcast senaryosu yazarısın. Aşağıdaki metni iki konuşmacının (A ve B) diyaloğuna çevir.
+  const prompt = `Aşağıdaki metni iki konuşmacının (A ve B) eğitim podcast diyaloğuna çevir.
 A = Öğretmen (açıklayan), B = Öğrenci (soru soran).
 
 Metin:
 ${text.substring(0, 3000)}
 
 Kurallar:
-- Diyalog doğal, akıcı ve öğretici olsun
-- 10-15 konuşma satırı olsun
-- Türkçe olsun
+- 10-15 konuşma satırı
+- Doğal ve öğretici olsun
+- Türkçe
 
-SADECE şu JSON formatında yanıt ver, başka hiçbir şey yazma:
+SADECE aşağıdaki JSON formatında yanıt ver:
 {
   "baslik": "Podcast başlığı",
   "dialogue": [
-    { "speaker": "A", "text": "Merhaba! Bugün..." },
+    { "speaker": "A", "text": "Merhaba, bugün..." },
     { "speaker": "B", "text": "Hocam, şunu merak ediyorum..." }
   ]
 }`;
 
-  try {
-    const result = await geminiModel.generateContent(prompt);
-    const response = result.response.text();
-    const cleanedResponse = response.replace(/```json|```/g, "").trim();
-    return JSON.parse(cleanedResponse);
-  } catch (error) {
-    console.error("Podcast diyalogu üretim hatası:", error);
-    throw error;
-  }
+  const response = await ask(prompt);
+  const clean = response.replace(/```json|```/g, "").trim();
+  return JSON.parse(clean);
 }
 
 // ==================== KONU ANALİZİ ====================
-
-/**
- * Metin Konu Analizi
- * Yüklenen PDF metninden konu başlıklarını çıkarır
- */
 export async function analyzeTopics(text: string) {
-  const prompt = `Aşağıdaki akademik metinden ana konu başlıklarını çıkar.
+  const prompt = `Aşağıdaki metinden çalışma konularını çıkar ve zorluklarını belirle.
 
 Metin:
-${text.substring(0, 5000)}
+${text.substring(0, 3000)}
 
-SADECE şu JSON formatında yanıt ver:
+SADECE aşağıdaki JSON formatında yanıt ver:
 {
   "konular": [
-    {
-      "baslik": "Konu başlığı",
-      "zorluk": 3,
-      "aciklama": "Kısa açıklama"
-    }
+    { "baslik": "Konu adı", "zorluk": 3 }
   ]
 }
 
-Zorluk 1-5 arasında, 5 en zor.`;
+Zorluk 1-5 arası. Türkçe yaz.`;
 
-  try {
-    const result = await geminiModel.generateContent(prompt);
-    const response = result.response.text();
-    const cleanedResponse = response.replace(/```json|```/g, "").trim();
-    return JSON.parse(cleanedResponse);
-  } catch (error) {
-    console.error("Konu analiz hatası:", error);
-    throw error;
-  }
+  const response = await ask(prompt);
+  const clean = response.replace(/```json|```/g, "").trim();
+  return JSON.parse(clean);
 }
