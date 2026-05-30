@@ -212,8 +212,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const handleSignOut = async () => {
     await signOut();
-    toast.success("Cikis yapildi");
+    toast.success("Çıkış yapıldı");
     router.push("/");
+    router.refresh();
   };
 
   // Yuklenme ekrani
