@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Pause, RotateCcw, SkipForward, Coffee, Brain, Settings } from "lucide-react";
+import { Play, Pause, RotateCcw, SkipForward, Coffee, Brain, Settings, Maximize2, Minimize2 } from "lucide-react";
 import toast from "react-hot-toast";
 
 type Mode = "work" | "short" | "long";
@@ -30,6 +30,7 @@ export default function PomodoroPage() {
   const [cycle, setCycle] = useState(1);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [showSettings, setShowSettings] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
   const [durations, setDurations] = useState(DEFAULTS);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const total = durations[mode] * 60;
@@ -127,10 +128,86 @@ export default function PomodoroPage() {
           <h1 className="text-2xl font-bold text-white mb-1">Pomodoro</h1>
           <p className="text-slate-400 text-sm">Odaklanma zamanlayıcısı · {cycle}. tur</p>
         </div>
-        <button onClick={() => setShowSettings(!showSettings)} className="w-9 h-9 rounded-xl glass flex items-center justify-center text-slate-500 hover:text-white transition-colors">
-          <Settings className="w-4 h-4" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={() => setFullscreen(true)} className="w-9 h-9 rounded-xl glass flex items-center justify-center text-slate-500 hover:text-white transition-colors" title="Tam ekran">
+            <Maximize2 className="w-4 h-4" />
+          </button>
+          <button onClick={() => setShowSettings(!showSettings)} className="w-9 h-9 rounded-xl glass flex items-center justify-center text-slate-500 hover:text-white transition-colors">
+            <Settings className="w-4 h-4" />
+          </button>
+        </div>
       </motion.div>
+
+      {/* TAM EKRAN OVERLAY */}
+      <AnimatePresence>
+        {fullscreen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center"
+            style={{ background: "hsl(var(--background))" }}
+          >
+            {/* Mod etiketi */}
+            <p className="text-sm font-medium mb-8 tracking-widest uppercase" style={{ color: MODE_COLORS[mode].replace("text-", "") === "indigo-400" ? "#818cf8" : mode === "short" ? "#34d399" : "#60a5fa" }}>
+              {MODE_LABELS[mode]}
+            </p>
+
+            {/* Büyük timer ring */}
+            <div className="relative" style={{ width: "min(70vw, 420px)", height: "min(70vw, 420px)" }}>
+              <svg className="w-full h-full -rotate-90" viewBox="0 0 200 200">
+                <circle cx="100" cy="100" r={R} fill="none" stroke="hsl(var(--border))" strokeWidth="4" />
+                <motion.circle cx="100" cy="100" r={R} fill="none"
+                  stroke={mode === "work" ? "#6366f1" : mode === "short" ? "#10b981" : "#3b82f6"}
+                  strokeWidth="4" strokeLinecap="round"
+                  strokeDasharray={circ} strokeDashoffset={dash}
+                  transition={{ duration: 0.5 }} />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <div className="font-bold font-mono tabular-nums" style={{ fontSize: "clamp(3rem, 12vw, 6rem)", color: "hsl(var(--foreground))", letterSpacing: "-0.02em" }}>
+                  {String(minutes).padStart(2, "0")}:{String(seconds).padStart(2, "0")}
+                </div>
+                <div className="text-sm mt-2" style={{ color: "hsl(var(--muted-foreground))" }}>{cycle}. tur</div>
+              </div>
+            </div>
+
+            {/* Kontroller */}
+            <div className="flex items-center gap-6 mt-12">
+              <button onClick={reset} className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all" style={{ background: "hsl(var(--secondary))", color: "hsl(var(--muted-foreground))" }}>
+                <RotateCcw className="w-5 h-5" />
+              </button>
+              <button onClick={toggle} className="w-20 h-20 rounded-3xl flex items-center justify-center transition-all shadow-lg" style={{ background: "hsl(var(--primary))" }}>
+                {running ? <Pause className="w-8 h-8 text-white" /> : <Play className="w-8 h-8 text-white ml-1" />}
+              </button>
+              <button onClick={skip} className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all" style={{ background: "hsl(var(--secondary))", color: "hsl(var(--muted-foreground))" }}>
+                <SkipForward className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Mod geçişleri */}
+            <div className="flex gap-2 mt-10">
+              {(["work", "short", "long"] as Mode[]).map(m => (
+                <button key={m} onClick={() => switchMode(m)}
+                  className="px-4 py-2 rounded-xl text-sm font-medium transition-all"
+                  style={{
+                    background: mode === m ? "hsl(var(--primary)/0.15)" : "hsl(var(--secondary))",
+                    color: mode === m ? "hsl(var(--primary))" : "hsl(var(--muted-foreground))",
+                    border: mode === m ? "1px solid hsl(var(--primary)/0.3)" : "1px solid hsl(var(--border))",
+                  }}>
+                  {MODE_LABELS[m]}
+                </button>
+              ))}
+            </div>
+
+            {/* Kapat butonu */}
+            <button onClick={() => setFullscreen(false)}
+              className="absolute top-6 right-6 w-10 h-10 rounded-xl flex items-center justify-center transition-all"
+              style={{ background: "hsl(var(--secondary))", color: "hsl(var(--muted-foreground))" }}>
+              <Minimize2 className="w-5 h-5" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Ayarlar */}
       <AnimatePresence>
