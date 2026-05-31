@@ -125,6 +125,21 @@ export default function AIPage() {
         if (parsed.length > 0) setActiveId(parsed[0].id);
       }
     } catch { /* ignore */ }
+
+    // Ajanda asistanından gelen mesaj
+    const initialMsg = localStorage.getItem("keda_ai_initial_message");
+    if (initialMsg) {
+      localStorage.removeItem("keda_ai_initial_message");
+      // Kısa gecikme sonra gönder (sayfa yüklendikten sonra)
+      setTimeout(() => {
+        setInput(initialMsg);
+        // Otomatik gönder
+        setTimeout(() => {
+          const btn = document.getElementById("ai-send-btn");
+          btn?.click();
+        }, 100);
+      }, 500);
+    }
   }, []);
 
   const saveSessions = (updated: Session[]) => {
@@ -381,7 +396,7 @@ export default function AIPage() {
                 className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all ${listening ? "bg-red-500/20 border border-red-500/30 animate-pulse" : "glass text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"}`}>
                 {listening ? <MicOff className="w-4 h-4 text-red-400" /> : <Mic className="w-4 h-4" />}
               </button>
-              <button onClick={() => sendMessage()} disabled={!input.trim() || loading}
+              <button id="ai-send-btn" onClick={() => sendMessage()} disabled={!input.trim() || loading}
                 className="w-9 h-9 rounded-xl bg-[hsl(var(--foreground))] flex items-center justify-center flex-shrink-0 hover:bg-[hsl(var(--foreground))] transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
                 <Send className="w-4 h-4 text-[hsl(var(--foreground))]" />
               </button>

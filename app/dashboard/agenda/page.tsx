@@ -13,6 +13,7 @@ import { saveStudyPlan, getStudyPlans, markTopicDone, deleteStudyPlan } from "@/
 import { useAuth } from "@/hooks/useAuth";
 import PDFUploader from "@/components/PDFUploader";
 import { CalendarDays, Check, Trash2 } from "lucide-react";
+import SezinAssistant from "@/components/SezinAssistant";
 import toast from "react-hot-toast";
 
 const daysOfWeek = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
@@ -449,6 +450,7 @@ export default function AgendaPage() {
           })}
         </motion.div>
       )}
+      <SezinAssistant />
     </div>
   );
 }
