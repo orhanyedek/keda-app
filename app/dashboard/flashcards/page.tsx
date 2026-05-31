@@ -13,6 +13,7 @@ import { generateFlashcards } from "@/lib/gemini";
 import { getFlashcardSets, createFlashcardSet, saveFlashcards, getDueFlashcards, getFlashcardsBySet, updateFlashcard, deleteFlashcard, deleteFlashcardSet } from "@/lib/db";
 import PDFUploader from "@/components/PDFUploader";
 import { CheckCircle2, XCircle, Clock, Layers, Trash2, Pencil } from "lucide-react";
+import MustafaAssistant from "@/components/MustafaAssistant";
 import toast from "react-hot-toast";
 
 const leitnerBoxes = [
@@ -503,6 +504,7 @@ export default function FlashcardsPage() {
       {sessionState === "finished" && (
         <SessionSummary correct={correct} wrong={wrong} total={cards.length} onRestart={handleRestart} />
       )}
+      <MustafaAssistant />
     </div>
   );
 }
