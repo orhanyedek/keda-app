@@ -218,8 +218,8 @@ export default function NotesPage() {
                     to bottom,
                     transparent,
                     transparent ${lineHeight - 1}px,
-                    hsl(var(--border)/0.35) ${lineHeight - 1}px,
-                    hsl(var(--border)/0.35) ${lineHeight}px
+                    hsl(var(--border)/0.65) ${lineHeight - 1}px,
+                    hsl(var(--border)/0.65) ${lineHeight}px
                   )`,
                   backgroundPositionY: "52px",
                 }} />
