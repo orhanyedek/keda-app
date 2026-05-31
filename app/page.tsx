@@ -295,7 +295,143 @@ function LeitnerSection() {
   );
 }
 
-/* ─── FAQ ─── */
+/* ─── SCREENSHOTS CAROUSEL ─── */
+const screenshots = [
+  { src: "/screen-dashboard.png", label: "Dashboard", desc: "Tüm modülleri tek ekrandan yönet" },
+  { src: "/screen-flashcard.png", label: "Flashcard", desc: "Leitner algoritmasıyla akıllı tekrar" },
+  { src: "/screen-podcast.png",   label: "Podcast",   desc: "PDF'ten sesli özet, Spotify tarzı dinle" },
+  { src: "/screen-agenda.png",    label: "Ajanda",    desc: "AI destekli kişisel çalışma planı" },
+];
+
+function Screenshots() {
+  const { ref, inView } = useSection();
+  const [active, setActive] = useState(0);
+  const [prev, setPrev] = useState<number | null>(null);
+  const [direction, setDirection] = useState(1);
+
+  const goTo = (i: number) => {
+    if (i === active) return;
+    setDirection(i > active ? 1 : -1);
+    setPrev(active);
+    setActive(i);
+  };
+
+  return (
+    <section className="py-24 px-6 overflow-hidden">
+      <div className="max-w-5xl mx-auto">
+        <motion.div ref={ref} initial="hidden" animate={inView ? "show" : "hidden"} variants={stagger}>
+          <motion.div variants={fade} className="mb-12">
+            <span className="section-label">Ekranlar</span>
+            <h2 className="text-2xl font-bold mt-2" style={{ color: "hsl(var(--foreground))", letterSpacing: "-0.01em" }}>
+              Her modül, amacına uygun tasarlandı
+            </h2>
+          </motion.div>
+
+          {/* Sekme seçici */}
+          <motion.div variants={fade} className="flex gap-2 mb-6 flex-wrap">
+            {screenshots.map((s, i) => (
+              <button key={s.label} onClick={() => goTo(i)}
+                className="px-4 py-2 rounded-lg text-sm font-medium transition-all"
+                style={{
+                  background: active === i ? "hsl(var(--foreground))" : "hsl(var(--secondary))",
+                  color: active === i ? "hsl(var(--background))" : "hsl(var(--muted-foreground))",
+                  border: "1px solid hsl(var(--border))",
+                }}>
+                {s.label}
+              </button>
+            ))}
+          </motion.div>
+
+          {/* Görsel */}
+          <motion.div variants={fade} className="relative overflow-hidden rounded-xl border border-[hsl(var(--border))]"
+            style={{ boxShadow: "0 24px 60px rgba(0,0,0,0.5)" }}>
+            {/* Tarayıcı çubuğu */}
+            <div className="flex items-center gap-1.5 px-4 py-3 border-b border-[hsl(var(--border))]"
+              style={{ background: "hsl(var(--card))" }}>
+              <div className="w-2.5 h-2.5 rounded-full bg-red-500/60" />
+              <div className="w-2.5 h-2.5 rounded-full bg-amber-500/60" />
+              <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/60" />
+              <div className="flex-1 mx-4 h-5 rounded flex items-center justify-center text-xs"
+                style={{ background: "hsl(var(--secondary))", color: "hsl(var(--muted-foreground))" }}>
+                keda-app-five.vercel.app/{screenshots[active].label.toLowerCase()}
+              </div>
+            </div>
+
+            {/* Animasyonlu görsel geçişi */}
+            <div className="relative overflow-hidden" style={{ aspectRatio: "16/9" }}>
+              <AnimatePresence mode="wait">
+                <motion.img
+                  key={active}
+                  src={screenshots[active].src}
+                  alt={screenshots[active].label}
+                  initial={{ opacity: 0, x: direction * 40 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: direction * -40 }}
+                  transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+                  className="w-full h-full object-cover object-top"
+                />
+              </AnimatePresence>
+            </div>
+
+            {/* Alt bilgi */}
+            <div className="px-5 py-3 border-t border-[hsl(var(--border))] flex items-center justify-between"
+              style={{ background: "hsl(var(--card))" }}>
+              <p className="text-sm" style={{ color: "hsl(var(--muted-foreground))" }}>
+                {screenshots[active].desc}
+              </p>
+              <div className="flex gap-1.5">
+                {screenshots.map((_, i) => (
+                  <button key={i} onClick={() => goTo(i)}
+                    className="rounded-full transition-all"
+                    style={{
+                      width: i === active ? 20 : 6,
+                      height: 6,
+                      background: i === active ? "hsl(var(--foreground))" : "hsl(var(--border))",
+                    }} />
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── FULL WIDTH MOCKUP ─── */
+function FullMockup() {
+  const { ref, inView } = useSection();
+  return (
+    <section className="py-16 px-6 overflow-hidden">
+      <div className="max-w-6xl mx-auto">
+        <motion.div ref={ref} initial={{ opacity: 0, y: 40 }} animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}>
+          <div className="relative rounded-2xl overflow-hidden border border-[hsl(var(--border))]"
+            style={{ boxShadow: "0 40px 100px rgba(0,0,0,0.6)" }}>
+            {/* Tarayıcı çubuğu */}
+            <div className="flex items-center gap-1.5 px-5 py-3.5 border-b border-[hsl(var(--border))]"
+              style={{ background: "hsl(var(--card))" }}>
+              <div className="w-3 h-3 rounded-full bg-red-500/60" />
+              <div className="w-3 h-3 rounded-full bg-amber-500/60" />
+              <div className="w-3 h-3 rounded-full bg-emerald-500/60" />
+              <div className="flex-1 mx-6 h-6 rounded flex items-center justify-center text-xs"
+                style={{ background: "hsl(var(--secondary))", color: "hsl(var(--muted-foreground))" }}>
+                keda-app-five.vercel.app/dashboard
+              </div>
+            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/screen-dashboard.png" alt="KEDA Dashboard" className="w-full block" />
+            {/* Alt gradient */}
+            <div className="absolute bottom-0 inset-x-0 h-32 pointer-events-none"
+              style={{ background: "linear-gradient(to top, hsl(var(--background)), transparent)" }} />
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+
 const faqs = [
   { q:"KEDA tamamen ücretsiz mi?", a:"Evet, KEDA bir akademik proje olarak geliştirilmiştir ve ücretsiz kullanıma sunulmuştur." },
   { q:"Hangi formatlarda dosya yükleyebilirim?", a:"Şu an için PDF formatı desteklenmektedir. Dijital PDF'lerden metin otomatik çıkarılır." },
@@ -386,8 +522,10 @@ export default function HomePage() {
       <Nav />
       <Hero />
       <Features />
+      <Screenshots />
       <HowItWorks />
       <LeitnerSection />
+      <FullMockup />
       <FAQ />
       <CTA />
       <Footer />
