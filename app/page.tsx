@@ -445,51 +445,20 @@ const faqs = [
 /* ─── MODÜL EKRANLARI ─── */
 
 const screens = [
-  { src: "/screen-dashboard.png", label: "Dashboard", tag: "Genel Bakış", desc: "Tüm modülleri tek ekrandan yönet, istatistikleri takip et." },
-  { src: "/screen-flashcard.png", label: "Flashcard",  tag: "M-03",        desc: "Leitner algoritmasıyla akıllı tekrar sistemi." },
-  { src: "/screen-podcast.png",   label: "Podcast",    tag: "M-02",        desc: "PDF'ten sesli özet üret, Spotify tarzı dinle." },
-  { src: "/screen-agenda.png",    label: "Ajanda",     tag: "M-01",        desc: "AI destekli kişisel çalışma planı oluştur." },
+  { src: "/screen-dashboard.png", label: "Dashboard", tag: "Genel Bakış", desc: "Tüm modülleri tek ekrandan yönet" },
+  { src: "/screen-flashcard.png", label: "Flashcard",  tag: "M-03",        desc: "Leitner algoritmasıyla akıllı tekrar" },
+  { src: "/screen-podcast.png",   label: "Podcast",    tag: "M-02",        desc: "PDF'ten sesli özet, dinle ve takip et" },
+  { src: "/screen-agenda.png",    label: "Ajanda",     tag: "M-01",        desc: "AI destekli kişisel çalışma planı" },
 ];
-
-function MockupFrame({ src, label, tag, desc }: { src: string; label: string; tag: string; desc: string }) {
-  const { ref, inView } = useSection();
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 32 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
-    >
-      <div className="flex items-center gap-3 mb-4 flex-wrap">
-        <span className="text-xs font-mono px-2 py-1 rounded" style={{ background: "hsl(var(--secondary))", color: "hsl(var(--muted-foreground))", border: "1px solid hsl(var(--border))" }}>{tag}</span>
-        <h3 className="text-sm font-semibold" style={{ color: "hsl(var(--foreground))" }}>{label}</h3>
-        <span className="text-sm" style={{ color: "hsl(var(--muted-foreground))" }}>— {desc}</span>
-      </div>
-      <div className="rounded-xl overflow-hidden border border-[hsl(var(--border))]"
-        style={{ boxShadow: "0 20px 60px rgba(0,0,0,0.25)" }}>
-        <div className="flex items-center gap-1.5 px-4 py-2.5 border-b border-[hsl(var(--border))]"
-          style={{ background: "hsl(var(--card))" }}>
-          <div className="w-2.5 h-2.5 rounded-full" style={{ background: "rgba(255,90,90,0.6)" }} />
-          <div className="w-2.5 h-2.5 rounded-full" style={{ background: "rgba(255,190,50,0.6)" }} />
-          <div className="w-2.5 h-2.5 rounded-full" style={{ background: "rgba(50,200,100,0.6)" }} />
-          <div className="flex-1 mx-3 h-5 rounded text-xs flex items-center justify-center"
-            style={{ background: "hsl(var(--secondary))", color: "hsl(var(--muted-foreground))" }}>
-            keda-app-five.vercel.app/{label.toLowerCase()}
-          </div>
-        </div>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={src} alt={label} className="w-full block" />
-      </div>
-    </motion.div>
-  );
-}
 
 function ModuleScreens() {
   const { ref, inView } = useSection();
+  const [lightbox, setLightbox] = useState<number | null>(null);
+
   return (
-    <section className="py-24 px-6">
-      <div className="max-w-5xl mx-auto">
-        <motion.div ref={ref} initial="hidden" animate={inView ? "show" : "hidden"} variants={stagger} className="mb-14">
+    <section className="py-24 overflow-hidden">
+      <div className="max-w-5xl mx-auto px-6 mb-10">
+        <motion.div ref={ref} initial="hidden" animate={inView ? "show" : "hidden"} variants={stagger}>
           <motion.div variants={fade}>
             <span className="section-label">Ekranlar</span>
             <h2 className="text-2xl font-bold mt-2" style={{ color: "hsl(var(--foreground))", letterSpacing: "-0.01em" }}>
@@ -497,12 +466,108 @@ function ModuleScreens() {
             </h2>
           </motion.div>
         </motion.div>
-        <div className="space-y-16">
-          {screens.map((s) => (
-            <MockupFrame key={s.label} {...s} />
-          ))}
-        </div>
       </div>
+
+      {/* Yatay scroll */}
+      <motion.div
+        initial={{ opacity: 0, x: 40 }}
+        animate={inView ? { opacity: 1, x: 0 } : {}}
+        transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+        className="flex gap-4 overflow-x-auto pb-4 px-6"
+        style={{ scrollSnapType: "x mandatory", scrollbarWidth: "none", msOverflowStyle: "none" }}
+      >
+        {screens.map((s, i) => (
+          <motion.div
+            key={s.label}
+            initial={{ opacity: 0, y: 20 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5, delay: i * 0.08 }}
+            onClick={() => setLightbox(i)}
+            className="flex-shrink-0 cursor-zoom-in group"
+            style={{ scrollSnapAlign: "start", width: "clamp(280px, 60vw, 520px)" }}
+          >
+            <div className="rounded-xl overflow-hidden border border-[hsl(var(--border))] transition-all duration-200 group-hover:border-[hsl(0_0%_30%)]"
+              style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.2)" }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={s.src} alt={s.label} className="w-full block" />
+            </div>
+            <div className="mt-3 flex items-center gap-2">
+              <span className="text-xs font-mono px-2 py-0.5 rounded"
+                style={{ background: "hsl(var(--secondary))", color: "hsl(var(--muted-foreground))", border: "1px solid hsl(var(--border))" }}>
+                {s.tag}
+              </span>
+              <span className="text-sm font-medium" style={{ color: "hsl(var(--foreground))" }}>{s.label}</span>
+              <span className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>— {s.desc}</span>
+            </div>
+          </motion.div>
+        ))}
+      </motion.div>
+
+      {/* Lightbox */}
+      <AnimatePresence>
+        {lightbox !== null && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 md:p-8"
+            style={{ background: "rgba(0,0,0,0.85)", backdropFilter: "blur(8px)" }}
+            onClick={() => setLightbox(null)}
+          >
+            {/* Kapat */}
+            <button
+              onClick={() => setLightbox(null)}
+              className="absolute top-4 right-4 w-10 h-10 rounded-xl flex items-center justify-center transition-colors"
+              style={{ background: "hsl(var(--card))", color: "hsl(var(--muted-foreground))", border: "1px solid hsl(var(--border))" }}
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            {/* Önceki / Sonraki */}
+            <button onClick={e => { e.stopPropagation(); setLightbox(i => i !== null ? Math.max(0, i - 1) : 0); }}
+              className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl flex items-center justify-center transition-colors disabled:opacity-30"
+              style={{ background: "hsl(var(--card))", color: "hsl(var(--muted-foreground))", border: "1px solid hsl(var(--border))" }}
+              disabled={lightbox === 0}>
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+            </button>
+            <button onClick={e => { e.stopPropagation(); setLightbox(i => i !== null ? Math.min(screens.length - 1, i + 1) : 0); }}
+              className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl flex items-center justify-center transition-colors disabled:opacity-30"
+              style={{ background: "hsl(var(--card))", color: "hsl(var(--muted-foreground))", border: "1px solid hsl(var(--border))" }}
+              disabled={lightbox === screens.length - 1}>
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+            </button>
+
+            {/* Görsel */}
+            <motion.div
+              key={lightbox}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              onClick={e => e.stopPropagation()}
+              className="relative max-w-5xl w-full"
+            >
+              <div className="rounded-xl overflow-hidden border border-[hsl(var(--border))]"
+                style={{ boxShadow: "0 32px 80px rgba(0,0,0,0.6)" }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={screens[lightbox].src} alt={screens[lightbox].label} className="w-full block" />
+              </div>
+              <div className="mt-4 flex items-center gap-3">
+                <span className="text-xs font-mono px-2 py-0.5 rounded"
+                  style={{ background: "hsl(var(--card))", color: "hsl(var(--muted-foreground))", border: "1px solid hsl(var(--border))" }}>
+                  {screens[lightbox].tag}
+                </span>
+                <span className="text-sm font-medium text-white">{screens[lightbox].label}</span>
+                <span className="text-sm" style={{ color: "hsl(0 0% 60%)" }}>— {screens[lightbox].desc}</span>
+                <span className="ml-auto text-xs" style={{ color: "hsl(0 0% 40%)" }}>{lightbox + 1} / {screens.length}</span>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }
