@@ -143,7 +143,7 @@ export default function SezinAssistant() {
                   className="absolute bottom-full right-0 mb-2 whitespace-nowrap px-3 py-1.5 rounded-xl text-xs shadow-lg"
                   style={{ background: "hsl(var(--card))", color: "hsl(var(--foreground))", border: "1px solid hsl(var(--border))" }}
                 >
-                  Bana danismak ister misin?
+                  Bana danisabilirsin, buradayim.
                   <div className="absolute bottom-0 right-4 translate-y-full w-0 h-0"
                     style={{ borderLeft: "5px solid transparent", borderRight: "5px solid transparent", borderTop: "5px solid hsl(var(--border))" }} />
                 </motion.div>
@@ -155,8 +155,14 @@ export default function SezinAssistant() {
                   src="/sezin.png"
                   alt="Sezin"
                   className="block"
-                  style={{ height: 120, width: "auto", objectFit: "contain", filter: "drop-shadow(0 4px 16px rgba(0,0,0,0.4))" }}
-                  animate={{ y: [0, -4, 0] }}
+                  style={{
+                    height: 180,
+                    width: "auto",
+                    objectFit: "contain",
+                    filter: "drop-shadow(0 4px 24px rgba(0,0,0,0.3))",
+                    mixBlendMode: "screen",
+                  }}
+                  animate={{ y: [0, -5, 0] }}
                   transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                   whileHover={{ scale: 1.05 }}
                 />
