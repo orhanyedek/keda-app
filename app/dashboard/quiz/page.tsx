@@ -123,7 +123,7 @@ correct = doğru seçeneğin index'i (0-3). Türkçe olsun.`;
               <div className="flex gap-2">
                 {[3, 5, 10, 15].map(n => (
                   <button key={n} onClick={() => setCount(n)}
-                    className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${count === n ? "bg-indigo-600/20 border border-indigo-500/30 text-indigo-300" : "glass text-slate-400 hover:text-white"}`}>
+                    className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${count === n ? "bg-[hsl(var(--foreground))]/20 border border-[hsl(var(--border))]/30 text-[hsl(var(--foreground)/0.8)]" : "glass text-slate-400 hover:text-white"}`}>
                     {n}
                   </button>
                 ))}
@@ -150,7 +150,7 @@ correct = doğru seçeneğin index'i (0-3). Türkçe olsun.`;
               <p className="text-white font-medium text-base leading-relaxed mb-6">{q.question}</p>
               <div className="space-y-3">
                 {q.options.map((opt, i) => {
-                  let cls = "glass text-slate-300 hover:border-indigo-500/40 hover:text-white cursor-pointer";
+                  let cls = "glass text-slate-300 hover:border-[hsl(var(--border))]/40 hover:text-white cursor-pointer";
                   if (selected !== null) {
                     if (i === q.correct) cls = "bg-emerald-500/15 border-emerald-500/40 text-emerald-300 cursor-default";
                     else if (i === selected && selected !== q.correct) cls = "bg-red-500/15 border-red-500/40 text-red-300 cursor-default";
@@ -173,7 +173,7 @@ correct = doğru seçeneğin index'i (0-3). Türkçe olsun.`;
               {/* Açıklama */}
               {selected !== null && (
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mt-4 overflow-hidden">
-                  <button onClick={() => setShowExplain(!showExplain)} className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors mb-2">
+                  <button onClick={() => setShowExplain(!showExplain)} className="text-xs text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground)/0.8)] transition-colors mb-2">
                     {showExplain ? "Açıklamayı gizle" : "Açıklamayı göster"}
                   </button>
                   {showExplain && <p className="text-slate-400 text-sm bg-white/5 rounded-xl p-3">{q.explanation}</p>}

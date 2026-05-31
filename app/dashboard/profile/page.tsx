@@ -165,7 +165,7 @@ export default function ProfilePage() {
           ].map(({ icon: Icon, label, value }) => (
             <div key={label} className="keda-card p-4 flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-                style={{ background: "hsl(var(--primary)/0.1)", border: "1px solid hsl(var(--primary)/0.2)" }}>
+                style={{ background: "hsl(0 0% 100% / 0.04)", border: "1px solid hsl(0 0% 100% / 0.07)" }}>
                 <Icon className="w-4 h-4" style={{ color: "hsl(var(--primary))" }} />
               </div>
               <div>
@@ -228,7 +228,7 @@ export default function ProfilePage() {
           className="w-full flex items-center justify-between p-6 text-left">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl flex items-center justify-center"
-              style={{ background: "hsl(var(--primary)/0.1)", border: "1px solid hsl(var(--primary)/0.2)" }}>
+              style={{ background: "hsl(0 0% 100% / 0.04)", border: "1px solid hsl(0 0% 100% / 0.07)" }}>
               <Bell className="w-4 h-4" style={{ color: "hsl(var(--primary))" }} />
             </div>
             <div>

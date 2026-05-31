@@ -10,7 +10,7 @@ const STEPS = [
     icon: Sparkles,
     title: "KEDA'ya Hoş Geldin!",
     desc: "Yapay zeka destekli çalışma asistanın hazır. 3 adımda nasıl kullanacağını gösterelim.",
-    color: "text-[hsl(var(--primary))]",
+    color: "text-[hsl(var(--foreground))]",
     bg: "bg-[hsl(var(--foreground)/0.05)] border-[hsl(var(--border))]",
   },
   {

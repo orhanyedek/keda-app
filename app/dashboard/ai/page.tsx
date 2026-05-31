@@ -261,7 +261,7 @@ export default function AIPage() {
           )}
           {sessions.map(s => (
             <div key={s.id} onClick={() => setActiveId(s.id)}
-              className={`group flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer transition-all text-sm ${activeId === s.id ? "bg-[hsl(var(--foreground)/0.06)] text-[hsl(var(--primary)/0.85)]" : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]"}`}>
+              className={`group flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer transition-all text-sm ${activeId === s.id ? "bg-[hsl(var(--foreground)/0.06)] text-[hsl(0 0% 80%)]" : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]"}`}>
               <span className="truncate flex-1">{s.title}</span>
               <button onClick={(e) => deleteSession(s.id, e)}
                 className="opacity-0 group-hover:opacity-100 p-1 rounded-lg hover:text-red-400 transition-all ml-1 flex-shrink-0">
@@ -279,7 +279,7 @@ export default function AIPage() {
         <div className="flex items-center justify-between px-6 py-4 border-b border-[hsl(var(--border))]">
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-[hsl(var(--foreground)/0.06)] border border-[hsl(var(--border))] flex items-center justify-center">
-              <svg width="16" height="16" viewBox="0 0 60 60" fill="none"><defs><linearGradient id="kgai1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#a855f7"/><stop offset="55%" stopColor="#7c3aed"/><stop offset="100%" stopColor="#60a5fa"/></linearGradient></defs><rect x="4" y="4" width="12" height="52" rx="6" fill="url(#kgai1)"/><path d="M16 30 L44 8 Q51 3 54 10 L26 30Z" fill="url(#kgai1)" opacity="0.95"/><path d="M16 30 L44 52 Q51 57 54 50 L26 30Z" fill="url(#kgai1)" opacity="0.82"/></svg>
+              <svg width="16" height="16" viewBox="0 0 60 60" fill="none"><defs><linearGradient id="kgai1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="hsl(0 0% 70%)"/><stop offset="55%" stopColor="hsl(0 0% 70%)"/><stop offset="100%" stopColor="hsl(0 0% 65%)"/></linearGradient></defs><rect x="4" y="4" width="12" height="52" rx="6" fill="url(#kgai1)"/><path d="M16 30 L44 8 Q51 3 54 10 L26 30Z" fill="url(#kgai1)" opacity="0.95"/><path d="M16 30 L44 52 Q51 57 54 50 L26 30Z" fill="url(#kgai1)" opacity="0.82"/></svg>
             </div>
             <span className="text-[hsl(var(--foreground))] font-semibold text-sm">KEDA AI</span>
           </div>
@@ -294,7 +294,7 @@ export default function AIPage() {
             {!activeSession || activeSession.messages.length === 0 ? (
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center pt-12">
                 <div className="w-14 h-14 rounded-2xl bg-[hsl(var(--foreground)/0.05)] border border-[hsl(var(--border))] flex items-center justify-center mx-auto mb-4">
-                  <svg width="28" height="28" viewBox="0 0 60 60" fill="none"><defs><linearGradient id="kgai2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#a855f7"/><stop offset="55%" stopColor="#7c3aed"/><stop offset="100%" stopColor="#60a5fa"/></linearGradient></defs><rect x="4" y="4" width="12" height="52" rx="6" fill="url(#kgai2)"/><path d="M16 30 L44 8 Q51 3 54 10 L26 30Z" fill="url(#kgai2)" opacity="0.95"/><path d="M16 30 L44 52 Q51 57 54 50 L26 30Z" fill="url(#kgai2)" opacity="0.82"/></svg>
+                  <svg width="28" height="28" viewBox="0 0 60 60" fill="none"><defs><linearGradient id="kgai2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="hsl(0 0% 70%)"/><stop offset="55%" stopColor="hsl(0 0% 70%)"/><stop offset="100%" stopColor="hsl(0 0% 65%)"/></linearGradient></defs><rect x="4" y="4" width="12" height="52" rx="6" fill="url(#kgai2)"/><path d="M16 30 L44 8 Q51 3 54 10 L26 30Z" fill="url(#kgai2)" opacity="0.95"/><path d="M16 30 L44 52 Q51 57 54 50 L26 30Z" fill="url(#kgai2)" opacity="0.82"/></svg>
                 </div>
                 <h2 className="text-xl font-semibold text-[hsl(var(--foreground))] mb-2">Merhaba, {userName}</h2>
                 <p className="text-[hsl(var(--muted-foreground))] text-sm mb-10">Sana nasıl yardımcı olabilirim?</p>
@@ -317,7 +317,7 @@ export default function AIPage() {
                     {/* AI avatar */}
                     {msg.role === "assistant" && (
                       <div className="w-8 h-8 rounded-xl bg-[hsl(var(--foreground)/0.06)] border border-[hsl(var(--border))] flex items-center justify-center flex-shrink-0 mt-1">
-                        <svg width="16" height="16" viewBox="0 0 60 60" fill="none"><defs><linearGradient id="kgai1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#a855f7"/><stop offset="55%" stopColor="#7c3aed"/><stop offset="100%" stopColor="#60a5fa"/></linearGradient></defs><rect x="4" y="4" width="12" height="52" rx="6" fill="url(#kgai1)"/><path d="M16 30 L44 8 Q51 3 54 10 L26 30Z" fill="url(#kgai1)" opacity="0.95"/><path d="M16 30 L44 52 Q51 57 54 50 L26 30Z" fill="url(#kgai1)" opacity="0.82"/></svg>
+                        <svg width="16" height="16" viewBox="0 0 60 60" fill="none"><defs><linearGradient id="kgai1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="hsl(0 0% 70%)"/><stop offset="55%" stopColor="hsl(0 0% 70%)"/><stop offset="100%" stopColor="hsl(0 0% 65%)"/></linearGradient></defs><rect x="4" y="4" width="12" height="52" rx="6" fill="url(#kgai1)"/><path d="M16 30 L44 8 Q51 3 54 10 L26 30Z" fill="url(#kgai1)" opacity="0.95"/><path d="M16 30 L44 52 Q51 57 54 50 L26 30Z" fill="url(#kgai1)" opacity="0.82"/></svg>
                       </div>
                     )}
 
@@ -351,7 +351,7 @@ export default function AIPage() {
             {loading && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-3 justify-start">
                 <div className="w-8 h-8 rounded-xl bg-[hsl(var(--foreground)/0.06)] border border-[hsl(var(--border))] flex items-center justify-center flex-shrink-0">
-                  <svg width="16" height="16" viewBox="0 0 60 60" fill="none"><defs><linearGradient id="kgai1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#a855f7"/><stop offset="55%" stopColor="#7c3aed"/><stop offset="100%" stopColor="#60a5fa"/></linearGradient></defs><rect x="4" y="4" width="12" height="52" rx="6" fill="url(#kgai1)"/><path d="M16 30 L44 8 Q51 3 54 10 L26 30Z" fill="url(#kgai1)" opacity="0.95"/><path d="M16 30 L44 52 Q51 57 54 50 L26 30Z" fill="url(#kgai1)" opacity="0.82"/></svg>
+                  <svg width="16" height="16" viewBox="0 0 60 60" fill="none"><defs><linearGradient id="kgai1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="hsl(0 0% 70%)"/><stop offset="55%" stopColor="hsl(0 0% 70%)"/><stop offset="100%" stopColor="hsl(0 0% 65%)"/></linearGradient></defs><rect x="4" y="4" width="12" height="52" rx="6" fill="url(#kgai1)"/><path d="M16 30 L44 8 Q51 3 54 10 L26 30Z" fill="url(#kgai1)" opacity="0.95"/><path d="M16 30 L44 52 Q51 57 54 50 L26 30Z" fill="url(#kgai1)" opacity="0.82"/></svg>
                 </div>
                 <div className="px-4 py-3 rounded-2xl rounded-bl-sm">
                   <div className="loading-dots"><span /><span /><span /></div>
@@ -378,11 +378,11 @@ export default function AIPage() {
                 style={{ maxHeight: "120px" }}
               />
               <button onClick={listening ? stopListening : startListening}
-                className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all ${listening ? "bg-red-500/20 border border-red-500/30 animate-pulse" : "glass text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))]"}`}>
+                className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all ${listening ? "bg-red-500/20 border border-red-500/30 animate-pulse" : "glass text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"}`}>
                 {listening ? <MicOff className="w-4 h-4 text-red-400" /> : <Mic className="w-4 h-4" />}
               </button>
               <button onClick={() => sendMessage()} disabled={!input.trim() || loading}
-                className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center flex-shrink-0 hover:bg-indigo-500 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+                className="w-9 h-9 rounded-xl bg-[hsl(var(--foreground))] flex items-center justify-center flex-shrink-0 hover:bg-[hsl(var(--foreground))] transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
                 <Send className="w-4 h-4 text-[hsl(var(--foreground))]" />
               </button>
             </div>

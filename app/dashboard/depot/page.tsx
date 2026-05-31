@@ -110,7 +110,7 @@ export default function DepotPage() {
           ) : filtered.length === 0 ? (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="keda-card p-12 text-center">
               <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4"
-                style={{ background: "hsl(var(--primary)/0.1)", border: "1px solid hsl(var(--primary)/0.2)" }}>
+                style={{ background: "hsl(0 0% 100% / 0.04)", border: "1px solid hsl(0 0% 100% / 0.07)" }}>
                 <FileText className="w-7 h-7" style={{ color: "hsl(var(--primary))" }} />
               </div>
               <p className="font-medium mb-1" style={{ color: "hsl(var(--foreground))" }}>
@@ -125,13 +125,13 @@ export default function DepotPage() {
               {filtered.map((doc) => (
                 <motion.div key={doc.id}
                   initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -20 }}
-                  className={`keda-card p-4 cursor-pointer transition-all ${previewDoc?.id === doc.id ? "border-[hsl(var(--primary)/0.4)]" : ""}`}
+                  className={`keda-card p-4 cursor-pointer transition-all ${previewDoc?.id === doc.id ? "border-[hsl(0 0% 100% / 0.15)]" : ""}`}
                   onClick={() => setPreviewDoc(previewDoc?.id === doc.id ? null : doc)}
                 >
                   <div className="flex items-start gap-3">
                     {/* İkon */}
                     <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5"
-                      style={{ background: "hsl(var(--primary)/0.1)", border: "1px solid hsl(var(--primary)/0.2)" }}>
+                      style={{ background: "hsl(0 0% 100% / 0.04)", border: "1px solid hsl(0 0% 100% / 0.07)" }}>
                       <FileText className="w-5 h-5" style={{ color: "hsl(var(--primary))" }} />
                     </div>
 

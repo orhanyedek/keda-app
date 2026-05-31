@@ -71,7 +71,7 @@ export default function Search() {
   }, [query, user]);
 
   const icons = { flashcard: Layers, plan: CalendarDays, podcast: Mic };
-  const colors = { flashcard: "text-[hsl(var(--primary))]", plan: "text-blue-400", podcast: "text-purple-400" };
+  const colors = { flashcard: "text-[hsl(var(--foreground))]", plan: "text-blue-400", podcast: "text-purple-400" };
 
   return (
     <div ref={ref} className="relative">

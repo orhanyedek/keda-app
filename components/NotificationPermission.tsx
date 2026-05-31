@@ -31,7 +31,7 @@ export default function NotificationPermission() {
       style={{ background: "hsl(var(--muted))" }}>
       <div className="flex items-center gap-3">
         <div className="w-9 h-9 rounded-xl flex items-center justify-center"
-          style={{ background: "hsl(var(--primary)/0.1)", border: "1px solid hsl(var(--primary)/0.2)" }}>
+          style={{ background: "hsl(0 0% 100% / 0.04)", border: "1px solid hsl(0 0% 100% / 0.07)" }}>
           {permission === "granted" ? <BellRing className="w-4 h-4" style={{ color: "hsl(var(--primary))" }} />
             : permission === "denied" ? <BellOff className="w-4 h-4 text-red-400" />
             : <Bell className="w-4 h-4" style={{ color: "hsl(var(--primary))" }} />}

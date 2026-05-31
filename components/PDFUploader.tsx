@@ -71,9 +71,9 @@ export default function PDFUploader({ onTextExtracted, label = "PDF Yükle" }: P
         onDrop={handleDrop}
         onClick={() => !loading && inputRef.current?.click()}
         className={`relative border-2 border-dashed rounded-2xl p-5 text-center cursor-pointer transition-all ${
-          dragging ? "border-[hsl(var(--primary))] bg-[hsl(var(--primary)/0.05)]"
+          dragging ? "border-[hsl(var(--primary))] bg-[hsl(0 0% 100% / 0.03)]"
           : fileName ? "border-[hsl(142_72%_29%/0.5)] bg-[hsl(142_72%_29%/0.05)]"
-          : "border-[hsl(var(--border))] hover:border-[hsl(var(--primary)/0.4)] hover:bg-[hsl(var(--primary)/0.03)]"
+          : "border-[hsl(var(--border))] hover:border-[hsl(0 0% 100% / 0.15)] hover:bg-[hsl(var(--primary)/0.03)]"
         } ${loading ? "pointer-events-none opacity-70" : ""}`}
       >
         <input ref={inputRef} type="file" accept="application/pdf" className="hidden"
@@ -95,7 +95,7 @@ export default function PDFUploader({ onTextExtracted, label = "PDF Yükle" }: P
         ) : (
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{ background: "hsl(var(--primary)/0.1)", border: "1px solid hsl(var(--primary)/0.2)" }}>
+              style={{ background: "hsl(0 0% 100% / 0.04)", border: "1px solid hsl(0 0% 100% / 0.07)" }}>
               <Upload className="w-4 h-4" style={{ color: "hsl(var(--primary))" }} />
             </div>
             <div className="text-left">

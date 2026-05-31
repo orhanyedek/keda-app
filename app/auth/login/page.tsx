@@ -45,7 +45,7 @@ export default function LoginPage() {
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-6">
             <svg width="40" height="40" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <defs><linearGradient id="kg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#a855f7"/><stop offset="55%" stopColor="#7c3aed"/><stop offset="100%" stopColor="#60a5fa"/></linearGradient></defs>
+              <defs><linearGradient id="kg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="hsl(0 0% 70%)"/><stop offset="55%" stopColor="hsl(0 0% 70%)"/><stop offset="100%" stopColor="hsl(0 0% 65%)"/></linearGradient></defs>
               <rect x="4" y="4" width="12" height="52" rx="6" fill="url(#kg2)"/>
               <path d="M16 30 L44 8 Q51 3 54 10 L26 30Z" fill="url(#kg2)" opacity="0.95"/>
               <path d="M16 30 L44 52 Q51 57 54 50 L26 30Z" fill="url(#kg2)" opacity="0.82"/>

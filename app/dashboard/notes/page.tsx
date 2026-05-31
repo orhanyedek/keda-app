@@ -13,7 +13,7 @@ interface Note { id: string; title: string; content: string; color: string; upda
 
 const TEXT_COLORS = [
   { label: "Varsayılan", value: "hsl(var(--foreground)/0.9)", key: "default" },
-  { label: "Mavi", value: "#60a5fa", key: "blue" },
+  { label: "Mavi", value: "hsl(0 0% 65%)", key: "blue" },
   { label: "Yeşil", value: "#34d399", key: "green" },
   { label: "Mor", value: "#a78bfa", key: "purple" },
   { label: "Sarı", value: "#fbbf24", key: "yellow" },
@@ -205,7 +205,7 @@ export default function NotesPage() {
                   <Sparkles className="w-3.5 h-3.5" />Flashcard
                 </button>
                 <button onClick={saveNote} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs transition-all"
-                  style={{ background: "hsl(var(--primary)/0.15)", border: "1px solid hsl(var(--primary)/0.25)", color: "hsl(var(--primary))" }}>
+                  style={{ background: "hsl(0 0% 100% / 0.05)", border: "1px solid hsl(0 0% 100% / 0.1)", color: "hsl(var(--primary))" }}>
                   <Save className="w-3.5 h-3.5" />Kaydet
                 </button>
               </div>
@@ -227,7 +227,7 @@ export default function NotesPage() {
                   backgroundPositionY: "52px",
                 }} />
                 {/* Sol kenar çizgisi */}
-                <div className="absolute left-12 top-0 bottom-0 w-px pointer-events-none" style={{ background: "hsl(var(--primary)/0.12)" }} />
+                <div className="absolute left-12 top-0 bottom-0 w-px pointer-events-none" style={{ background: "hsl(0 0% 100% / 0.05)" }} />
 
                 <textarea
                   ref={textareaRef}

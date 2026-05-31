@@ -23,7 +23,7 @@ function StatCard({ icon: Icon, label, value, sub }: { icon: React.ElementType; 
   return (
     <motion.div variants={fadeUp} className="keda-card p-5">
       <div className="w-9 h-9 rounded-xl bg-[hsl(var(--foreground)/0.05)] border border-[hsl(var(--border))] flex items-center justify-center mb-4">
-        <Icon className="w-4 h-4 text-[hsl(var(--primary))]" />
+        <Icon className="w-4 h-4 text-[hsl(var(--foreground))]" />
       </div>
       <div className="text-2xl font-bold text-[hsl(var(--foreground))] mb-1">{value}</div>
       <div className="text-sm text-[hsl(var(--muted-foreground))]">{label}</div>
@@ -39,13 +39,13 @@ function ModuleCard({ href, icon: Icon, title, desc, module }: {
     <motion.div variants={fadeUp}>
       <Link href={href} className="keda-card block p-6 hover:border-[hsl(var(--border))] transition-colors group">
         <div className="w-10 h-10 rounded-xl bg-[hsl(var(--foreground)/0.05)] border border-[hsl(var(--border))] flex items-center justify-center mb-4">
-          <Icon className="w-5 h-5 text-[hsl(var(--primary))]" />
+          <Icon className="w-5 h-5 text-[hsl(var(--foreground))]" />
         </div>
-        <h3 className="text-base font-semibold text-[hsl(var(--foreground))] mb-1 group-hover:text-[hsl(var(--primary)/0.85)] transition-colors">{title}</h3>
+        <h3 className="text-base font-semibold text-[hsl(var(--foreground))] mb-1 group-hover:text-[hsl(0 0% 80%)] transition-colors">{title}</h3>
         <p className="text-[hsl(var(--muted-foreground))] text-sm leading-relaxed mb-4">{desc}</p>
         <div className="flex items-center justify-between">
           <span className="text-xs text-[hsl(var(--muted-foreground)/0.6)] font-mono">{module}</span>
-          <ArrowRight className="w-4 h-4 text-[hsl(var(--muted-foreground)/0.6)] group-hover:text-[hsl(var(--primary))] transition-colors" />
+          <ArrowRight className="w-4 h-4 text-[hsl(var(--muted-foreground)/0.6)] group-hover:text-[hsl(var(--foreground))] transition-colors" />
         </div>
       </Link>
     </motion.div>
@@ -160,7 +160,7 @@ export default function DashboardPage() {
                   <Link key={set.id} href="/dashboard/flashcards"
                     className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-[hsl(var(--accent))] transition-colors">
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-                      style={{ background:"hsl(var(--primary)/0.1)", border:"1px solid hsl(var(--primary)/0.2)" }}>
+                      style={{ background:"hsl(0 0% 100% / 0.04)", border:"1px solid hsl(0 0% 100% / 0.07)" }}>
                       <Layers className="w-3.5 h-3.5" style={{ color:"hsl(var(--primary))" }} />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -185,7 +185,7 @@ export default function DashboardPage() {
                   <Link key={p.id} href="/dashboard/podcast"
                     className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-[hsl(var(--accent))] transition-colors">
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-                      style={{ background:"hsl(var(--primary)/0.1)", border:"1px solid hsl(var(--primary)/0.2)" }}>
+                      style={{ background:"hsl(0 0% 100% / 0.04)", border:"1px solid hsl(0 0% 100% / 0.07)" }}>
                       <Mic className="w-3.5 h-3.5" style={{ color:"hsl(var(--primary))" }} />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -240,14 +240,14 @@ export default function DashboardPage() {
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.3 }} className="keda-card p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-base font-semibold text-[hsl(var(--foreground))]">Yaklaşan Görevler</h3>
-            <Link href="/dashboard/agenda" className="text-xs text-[hsl(var(--primary))] hover:text-[hsl(var(--primary)/0.85)] transition-colors">Tümünü gör</Link>
+            <Link href="/dashboard/agenda" className="text-xs text-[hsl(var(--foreground))] hover:text-[hsl(0 0% 80%)] transition-colors">Tümünü gör</Link>
           </div>
           {loadingStats ? (
             <div className="text-center py-6 text-[hsl(var(--muted-foreground)/0.6)] text-sm">Yükleniyor...</div>
           ) : yaklasanKonular.length === 0 ? (
             <div className="text-center py-6">
               <p className="text-[hsl(var(--muted-foreground)/0.6)] text-sm mb-3">Aktif plan yok</p>
-              <Link href="/dashboard/agenda" className="text-[hsl(var(--primary))] text-sm hover:text-[hsl(var(--primary)/0.85)]">Plan oluştur →</Link>
+              <Link href="/dashboard/agenda" className="text-[hsl(var(--foreground))] text-sm hover:text-[hsl(0 0% 80%)]">Plan oluştur →</Link>
             </div>
           ) : (
             <div className="space-y-3">
@@ -260,7 +260,7 @@ export default function DashboardPage() {
               ))}
             </div>
           )}
-          <Link href="/dashboard/agenda" className="mt-4 w-full flex items-center justify-center gap-2 py-2 text-sm text-[hsl(var(--primary))] hover:text-[hsl(var(--primary)/0.85)] border border-[hsl(var(--border))] rounded-xl transition-colors">
+          <Link href="/dashboard/agenda" className="mt-4 w-full flex items-center justify-center gap-2 py-2 text-sm text-[hsl(var(--foreground))] hover:text-[hsl(0 0% 80%)] border border-[hsl(var(--border))] rounded-xl transition-colors">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
             Yeni Plan Oluştur
           </Link>
@@ -271,7 +271,7 @@ export default function DashboardPage() {
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.4 }} className="keda-card p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-semibold text-[hsl(var(--foreground))]">Flashcard Durumu</h3>
-              <Link href="/dashboard/flashcards" className="text-xs text-[hsl(var(--primary))] hover:text-[hsl(var(--primary)/0.85)] transition-colors">Başlat</Link>
+              <Link href="/dashboard/flashcards" className="text-xs text-[hsl(var(--foreground))] hover:text-[hsl(0 0% 80%)] transition-colors">Başlat</Link>
             </div>
             {loadingStats ? (
               <div className="text-center py-4 text-[hsl(var(--muted-foreground)/0.6)] text-sm">Yükleniyor...</div>
@@ -293,14 +293,14 @@ export default function DashboardPage() {
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.5 }} className="keda-card p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-semibold text-[hsl(var(--foreground))]">Son Podcast</h3>
-              <Link href="/dashboard/podcast" className="text-xs text-[hsl(var(--primary))] hover:text-[hsl(var(--primary)/0.85)] transition-colors">Tümü</Link>
+              <Link href="/dashboard/podcast" className="text-xs text-[hsl(var(--foreground))] hover:text-[hsl(0 0% 80%)] transition-colors">Tümü</Link>
             </div>
             {loadingStats ? (
               <div className="text-center py-4 text-[hsl(var(--muted-foreground)/0.6)] text-sm">Yükleniyor...</div>
             ) : stats?.son_podcast ? (
               <div className="flex items-center gap-3 p-3 rounded-xl bg-[hsl(var(--muted))]">
                 <div className="w-9 h-9 rounded-xl bg-[hsl(var(--foreground)/0.05)] border border-[hsl(var(--border))] flex items-center justify-center shrink-0">
-                  <BookOpen className="w-4 h-4 text-[hsl(var(--primary))]" />
+                  <BookOpen className="w-4 h-4 text-[hsl(var(--foreground))]" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-[hsl(var(--foreground))] truncate">{stats.son_podcast.baslik}</p>
@@ -310,7 +310,7 @@ export default function DashboardPage() {
             ) : (
               <div className="text-center py-4">
                 <p className="text-[hsl(var(--muted-foreground)/0.6)] text-sm mb-2">Henüz podcast yok</p>
-                <Link href="/dashboard/podcast" className="text-[hsl(var(--primary))] text-xs hover:text-[hsl(var(--primary)/0.85)] transition-colors">Oluştur →</Link>
+                <Link href="/dashboard/podcast" className="text-[hsl(var(--foreground))] text-xs hover:text-[hsl(0 0% 80%)] transition-colors">Oluştur →</Link>
               </div>
             )}
           </motion.div>

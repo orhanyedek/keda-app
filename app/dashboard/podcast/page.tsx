@@ -222,7 +222,7 @@ export default function PodcastPage() {
         {[{ key: "new", label: "Yeni Podcast" }, { key: "history", label: `Geçmiş${history.length > 0 ? ` (${history.length})` : ""}` }].map(t => (
           <button key={t.key} onClick={() => setTab(t.key as "new" | "history")}
             className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${tab === t.key
-              ? "bg-[hsl(var(--foreground)/0.08)] border border-[hsl(var(--border))] text-[hsl(var(--primary))]"
+              ? "bg-[hsl(var(--foreground)/0.08)] border border-[hsl(var(--border))] text-[hsl(var(--foreground))]"
               : "glass text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"}`}>
             {t.label}
           </button>
@@ -303,11 +303,11 @@ export default function PodcastPage() {
             <motion.div id="player-section" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
 
               {/* Sticky player bar */}
-              <div className="keda-card p-5 sticky top-2 z-20" style={{ borderColor: "hsl(var(--primary)/0.25)", backdropFilter: "blur(12px)" }}>
+              <div className="keda-card p-5 sticky top-2 z-20" style={{ borderColor: "hsl(0 0% 100% / 0.1)", backdropFilter: "blur(12px)" }}>
                 <div className="flex items-center gap-4 mb-3">
                   {/* Albüm kapağı */}
                   <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style={{ background: "hsl(var(--primary)/0.15)", border: "1px solid hsl(var(--primary)/0.3)" }}>
+                    style={{ background: "hsl(0 0% 100% / 0.05)", border: "1px solid hsl(0 0% 100% / 0.12)" }}>
                     <Mic className="w-6 h-6" style={{ color: "hsl(var(--primary))" }} />
                   </div>
                   {/* Başlık */}
@@ -381,8 +381,8 @@ export default function PodcastPage() {
                         fontSize: isActive ? "1.05rem" : "0.9rem",
                         fontWeight: isActive ? 600 : 400,
                         color: isActive ? "hsl(var(--foreground))" : "hsl(var(--muted-foreground))",
-                        background: isActive ? "hsl(var(--primary)/0.08)" : "transparent",
-                        border: isActive ? "1px solid hsl(var(--primary)/0.2)" : "1px solid transparent",
+                        background: isActive ? "hsl(0 0% 100% / 0.04)" : "transparent",
+                        border: isActive ? "1px solid hsl(0 0% 100% / 0.07)" : "1px solid transparent",
                         lineHeight: "1.8",
                       }}
                     >
@@ -421,7 +421,7 @@ export default function PodcastPage() {
           ) : filteredHistory.length === 0 ? (
             <div className="keda-card p-8 text-center">
               <div className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3"
-                style={{ background: "hsl(var(--primary)/0.08)", border: "1px solid hsl(var(--primary)/0.2)" }}>
+                style={{ background: "hsl(0 0% 100% / 0.04)", border: "1px solid hsl(0 0% 100% / 0.07)" }}>
                 <Mic className="w-5 h-5" style={{ color: "hsl(var(--primary))" }} />
               </div>
               <p className="text-sm" style={{ color: "hsl(var(--muted-foreground))" }}>
@@ -506,7 +506,7 @@ export default function PodcastPage() {
                                 fontSize: isActive ? "0.95rem" : "0.875rem",
                                 fontWeight: isActive ? 600 : 400,
                                 color: isActive ? "hsl(var(--foreground))" : "hsl(var(--muted-foreground))",
-                                background: isActive ? "hsl(var(--primary)/0.08)" : "transparent",
+                                background: isActive ? "hsl(0 0% 100% / 0.04)" : "transparent",
                                 lineHeight: "1.8",
                               }}
                             >

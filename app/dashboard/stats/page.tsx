@@ -78,8 +78,8 @@ export default function StatsPage() {
           { icon: TrendingUp, label: "Başarı Oranı", value: `${stats?.basari_orani || 0}%`, sub: `${stats?.dogru_sayisi || 0} doğru` },
         ].map(({ icon: Icon, label, value, sub }) => (
           <motion.div key={label} variants={fadeUp} className="keda-card p-5">
-            <div className="w-9 h-9 rounded-xl bg-indigo-600/15 border border-indigo-500/20 flex items-center justify-center mb-3">
-              <Icon className="w-4 h-4 text-indigo-400" />
+            <div className="w-9 h-9 rounded-xl bg-[hsl(var(--foreground))]/15 border border-[hsl(var(--border))]/20 flex items-center justify-center mb-3">
+              <Icon className="w-4 h-4 text-[hsl(var(--muted-foreground))]" />
             </div>
             <div className="text-2xl font-bold text-white mb-1">{value}</div>
             <div className="text-sm text-slate-400">{label}</div>
@@ -92,7 +92,7 @@ export default function StatsPage() {
         {/* Haftalık aktivite */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="keda-card p-6">
           <div className="flex items-center gap-2 mb-6">
-            <BarChart2 className="w-4 h-4 text-indigo-400" />
+            <BarChart2 className="w-4 h-4 text-[hsl(var(--muted-foreground))]" />
             <h3 className="text-white font-semibold text-sm">Haftalık Aktivite</h3>
           </div>
           <div className="flex items-end gap-2 h-32">
@@ -103,10 +103,10 @@ export default function StatsPage() {
                     initial={{ height: 0 }}
                     animate={{ height: `${maxActivity > 0 ? (day.flashcards / maxActivity) * 96 : 4}px` }}
                     transition={{ delay: 0.1 * i, duration: 0.5 }}
-                    className="w-full rounded-t-lg bg-indigo-600/40 border border-indigo-500/30 min-h-1"
+                    className="w-full rounded-t-lg bg-[hsl(var(--foreground))]/40 border border-[hsl(var(--border))]/30 min-h-1"
                   />
                   {day.flashcards > 0 && (
-                    <span className="absolute -top-5 text-[10px] text-indigo-400 font-mono">{day.flashcards}</span>
+                    <span className="absolute -top-5 text-[10px] text-[hsl(var(--muted-foreground))] font-mono">{day.flashcards}</span>
                   )}
                 </div>
                 <span className="text-[10px] text-slate-600">{day.label}</span>
@@ -121,7 +121,7 @@ export default function StatsPage() {
         {/* Leitner kutu dağılımı */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="keda-card p-6">
           <div className="flex items-center gap-2 mb-6">
-            <Layers className="w-4 h-4 text-indigo-400" />
+            <Layers className="w-4 h-4 text-[hsl(var(--muted-foreground))]" />
             <h3 className="text-white font-semibold text-sm">Leitner Kutu Dağılımı</h3>
           </div>
           <div className="space-y-3">
@@ -152,7 +152,7 @@ export default function StatsPage() {
         {/* Doğru/Yanlış */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="keda-card p-6">
           <div className="flex items-center gap-2 mb-6">
-            <CheckCircle2 className="w-4 h-4 text-indigo-400" />
+            <CheckCircle2 className="w-4 h-4 text-[hsl(var(--muted-foreground))]" />
             <h3 className="text-white font-semibold text-sm">Doğru / Yanlış Oranı</h3>
           </div>
           {(stats?.dogru_sayisi || 0) + (stats?.yanlis_sayisi || 0) === 0 ? (
@@ -170,7 +170,7 @@ export default function StatsPage() {
                   <div className="text-xs text-slate-500 mt-1">Yanlış</div>
                 </div>
                 <div className="ml-auto text-right">
-                  <div className="text-3xl font-bold text-indigo-400">{stats?.basari_orani}%</div>
+                  <div className="text-3xl font-bold text-[hsl(var(--muted-foreground))]">{stats?.basari_orani}%</div>
                   <div className="text-xs text-slate-500 mt-1">Başarı</div>
                 </div>
               </div>
@@ -185,7 +185,7 @@ export default function StatsPage() {
         {/* Konu tamamlama */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="keda-card p-6">
           <div className="flex items-center gap-2 mb-6">
-            <CalendarDays className="w-4 h-4 text-indigo-400" />
+            <CalendarDays className="w-4 h-4 text-[hsl(var(--muted-foreground))]" />
             <h3 className="text-white font-semibold text-sm">Konu Tamamlama</h3>
           </div>
           {stats?.toplam_konu === 0 ? (
@@ -195,7 +195,7 @@ export default function StatsPage() {
               <div className="flex items-end gap-3 mb-4">
                 <div className="text-4xl font-bold text-white">{stats?.tamamlanan_konu}</div>
                 <div className="text-slate-500 text-sm mb-1">/ {stats?.toplam_konu} konu</div>
-                <div className="ml-auto text-indigo-400 font-bold">
+                <div className="ml-auto text-[hsl(var(--muted-foreground))] font-bold">
                   {stats && stats.toplam_konu > 0 ? Math.round((stats.tamamlanan_konu / stats.toplam_konu) * 100) : 0}%
                 </div>
               </div>
@@ -203,7 +203,7 @@ export default function StatsPage() {
                 <motion.div initial={{ width: 0 }}
                   animate={{ width: stats && stats.toplam_konu > 0 ? `${Math.round((stats.tamamlanan_konu / stats.toplam_konu) * 100)}%` : "0%" }}
                   transition={{ duration: 0.8 }}
-                  className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full" />
+                  className="h-full bg-gradient-to-r from-zinc-700 to-purple-500 rounded-full" />
               </div>
               <p className="text-xs text-slate-600 mt-3">Tüm planlardaki konu tamamlama oranı</p>
             </>

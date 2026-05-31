@@ -61,7 +61,7 @@ function SettingsMenu({ userName, onSignOut }: { userName: string; onSignOut: ()
                   className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
                     pathname.startsWith(item.href) ? "bg-[hsl(var(--foreground)/0.08)] text-[hsl(var(--foreground))]" : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]"
                   }`}>
-                  <span className={pathname.startsWith(item.href) ? "text-[hsl(var(--primary))]" : "text-[hsl(var(--muted-foreground)/0.6)]"}>{item.icon}</span>
+                  <span className={pathname.startsWith(item.href) ? "text-[hsl(var(--foreground))]" : "text-[hsl(var(--muted-foreground)/0.6)]"}>{item.icon}</span>
                   {item.label}
                 </Link>
               ))}
@@ -266,7 +266,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="p-6 border-b border-[hsl(var(--border))]">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
-              <svg width="32" height="32" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="kg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#a855f7"/><stop offset="55%" stopColor="#7c3aed"/><stop offset="100%" stopColor="#60a5fa"/></linearGradient></defs><rect x="4" y="4" width="12" height="52" rx="6" fill="url(#kg)"/><path d="M16 30 L44 8 Q51 3 54 10 L26 30Z" fill="url(#kg)" opacity="0.95"/><path d="M16 30 L44 52 Q51 57 54 50 L26 30Z" fill="url(#kg)" opacity="0.82"/></svg>
+              <svg width="32" height="32" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="kg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="hsl(0 0% 70%)"/><stop offset="55%" stopColor="hsl(0 0% 70%)"/><stop offset="100%" stopColor="hsl(0 0% 65%)"/></linearGradient></defs><rect x="4" y="4" width="12" height="52" rx="6" fill="url(#kg)"/><path d="M16 30 L44 8 Q51 3 54 10 L26 30Z" fill="url(#kg)" opacity="0.95"/><path d="M16 30 L44 52 Q51 57 54 50 L26 30Z" fill="url(#kg)" opacity="0.82"/></svg>
               <span className="text-base font-semibold" style={{ color: "hsl(var(--foreground))" }}>KEDA</span>
             </Link>
             {user && <Notifications userId={user.id} />}
@@ -293,11 +293,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               href={item.href}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group ${
                 isActive(item.href, item.exact)
-                  ? "bg-[hsl(var(--foreground)/0.08)] text-[hsl(var(--foreground))] border border-indigo-500/20"
+                  ? "bg-[hsl(var(--foreground)/0.08)] text-[hsl(var(--foreground))] border border-[hsl(var(--border))]/20"
                   : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]"
               }`}
             >
-              <span className={`${isActive(item.href, item.exact) ? "text-[hsl(var(--primary))]" : "text-[hsl(var(--muted-foreground))]"} transition-colors`}>
+              <span className={`${isActive(item.href, item.exact) ? "text-[hsl(var(--foreground))]" : "text-[hsl(var(--muted-foreground))]"} transition-colors`}>
                 {item.icon}
               </span>
               {item.label}
@@ -317,7 +317,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* ====== MOBİL HEADER ====== */}
       <header className="lg:hidden fixed top-0 left-0 right-0 z-50 border-b border-[hsl(var(--border))] px-4 py-3 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <svg width="28" height="28" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="kg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#a855f7"/><stop offset="55%" stopColor="#7c3aed"/><stop offset="100%" stopColor="#60a5fa"/></linearGradient></defs><rect x="4" y="4" width="12" height="52" rx="6" fill="url(#kg2)"/><path d="M16 30 L44 8 Q51 3 54 10 L26 30Z" fill="url(#kg2)" opacity="0.95"/><path d="M16 30 L44 52 Q51 57 54 50 L26 30Z" fill="url(#kg2)" opacity="0.82"/></svg>
+          <svg width="28" height="28" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="kg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="hsl(0 0% 70%)"/><stop offset="55%" stopColor="hsl(0 0% 70%)"/><stop offset="100%" stopColor="hsl(0 0% 65%)"/></linearGradient></defs><rect x="4" y="4" width="12" height="52" rx="6" fill="url(#kg2)"/><path d="M16 30 L44 8 Q51 3 54 10 L26 30Z" fill="url(#kg2)" opacity="0.95"/><path d="M16 30 L44 52 Q51 57 54 50 L26 30Z" fill="url(#kg2)" opacity="0.82"/></svg>
           <span className="text-base font-semibold" style={{ color: "hsl(var(--foreground))" }}>KEDA</span>
         </Link>
         <div className="flex items-center gap-2">
@@ -347,7 +347,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             >
               <div className="p-4 flex items-center justify-between border-b border-[hsl(var(--border))]">
                 <div className="flex items-center gap-2">
-                  <svg width="26" height="26" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="kgd" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#a855f7"/><stop offset="55%" stopColor="#7c3aed"/><stop offset="100%" stopColor="#60a5fa"/></linearGradient></defs><rect x="4" y="4" width="12" height="52" rx="6" fill="url(#kgd)"/><path d="M16 30 L44 8 Q51 3 54 10 L26 30Z" fill="url(#kgd)" opacity="0.95"/><path d="M16 30 L44 52 Q51 57 54 50 L26 30Z" fill="url(#kgd)" opacity="0.82"/></svg>
+                  <svg width="26" height="26" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="kgd" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="hsl(0 0% 70%)"/><stop offset="55%" stopColor="hsl(0 0% 70%)"/><stop offset="100%" stopColor="hsl(0 0% 65%)"/></linearGradient></defs><rect x="4" y="4" width="12" height="52" rx="6" fill="url(#kgd)"/><path d="M16 30 L44 8 Q51 3 54 10 L26 30Z" fill="url(#kgd)" opacity="0.95"/><path d="M16 30 L44 52 Q51 57 54 50 L26 30Z" fill="url(#kgd)" opacity="0.82"/></svg>
                   <span className="text-base font-semibold" style={{ color: "hsl(var(--foreground))" }}>KEDA</span>
                 </div>
                 <button onClick={() => setSidebarOpen(false)} className="text-[hsl(var(--muted-foreground))]">
@@ -393,7 +393,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {navItems.filter(item => ["/dashboard", "/dashboard/agenda", "/dashboard/flashcards", "/dashboard/ai", "/dashboard/profile"].includes(item.href)).map((item) => (
           <Link key={item.href} href={item.href}
             className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${
-              isActive(item.href, item.exact) ? "text-[hsl(var(--primary))]" : "text-[hsl(var(--muted-foreground))]"
+              isActive(item.href, item.exact) ? "text-[hsl(var(--foreground))]" : "text-[hsl(var(--muted-foreground))]"
             }`}
           >
             {item.icon}

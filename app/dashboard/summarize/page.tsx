@@ -92,7 +92,7 @@ export default function SummarizePage() {
             <div className="grid grid-cols-2 gap-2">
               {TYPES.map(t => (
                 <button key={t.key} onClick={() => setType(t.key)}
-                  className={`p-3 rounded-xl text-left transition-all ${type === t.key ? "bg-indigo-600/20 border border-indigo-500/30 text-indigo-300" : "glass text-slate-400 hover:text-white"}`}>
+                  className={`p-3 rounded-xl text-left transition-all ${type === t.key ? "bg-[hsl(var(--foreground))]/20 border border-[hsl(var(--border))]/30 text-[hsl(var(--foreground)/0.8)]" : "glass text-slate-400 hover:text-white"}`}>
                   <div className="text-sm font-medium">{t.label}</div>
                   <div className="text-xs opacity-60 mt-0.5">{t.desc}</div>
                 </button>
@@ -112,10 +112,10 @@ export default function SummarizePage() {
             <label className="text-sm text-slate-400">Özet</label>
             {result && (
               <div className="flex gap-2">
-                <button onClick={copyResult} className="flex items-center gap-1 text-xs text-slate-500 hover:text-indigo-400 transition-colors">
+                <button onClick={copyResult} className="flex items-center gap-1 text-xs text-slate-500 hover:text-[hsl(var(--muted-foreground))] transition-colors">
                   <Copy className="w-3.5 h-3.5" />Kopyala
                 </button>
-                <button onClick={downloadResult} className="flex items-center gap-1 text-xs text-slate-500 hover:text-indigo-400 transition-colors">
+                <button onClick={downloadResult} className="flex items-center gap-1 text-xs text-slate-500 hover:text-[hsl(var(--muted-foreground))] transition-colors">
                   <Download className="w-3.5 h-3.5" />İndir
                 </button>
               </div>
@@ -130,10 +130,10 @@ export default function SummarizePage() {
               </motion.div>
             ) : result ? (
               <motion.div key="result" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                className="keda-card p-6 min-h-64 border border-indigo-500/15">
+                className="keda-card p-6 min-h-64 border border-[hsl(var(--border))]/15">
                 <div className="flex items-center gap-2 mb-4">
-                  <Sparkles className="w-4 h-4 text-indigo-400" />
-                  <span className="text-indigo-300 text-xs font-medium">{TYPES.find(t => t.key === type)?.label}</span>
+                  <Sparkles className="w-4 h-4 text-[hsl(var(--muted-foreground))]" />
+                  <span className="text-[hsl(var(--foreground)/0.8)] text-xs font-medium">{TYPES.find(t => t.key === type)?.label}</span>
                 </div>
                 <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">{result}</p>
               </motion.div>

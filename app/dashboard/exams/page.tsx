@@ -9,7 +9,7 @@ import toast from "react-hot-toast";
 
 interface Exam { id: string; name: string; date: string; subject: string; color: string; }
 
-const COLORS = ["bg-indigo-500", "bg-purple-500", "bg-blue-500", "bg-emerald-500", "bg-amber-500", "bg-red-500", "bg-pink-500"];
+const COLORS = ["bg-[hsl(var(--foreground))]", "bg-[hsl(var(--secondary))]", "bg-blue-500", "bg-emerald-500", "bg-amber-500", "bg-red-500", "bg-pink-500"];
 
 function getDaysLeft(dateStr: string) {
   const exam = new Date(dateStr);
@@ -115,7 +115,7 @@ export default function ExamsPage() {
                   <label className="text-xs text-slate-500 mb-1.5 block">Renk</label>
                   <div className="flex gap-2 mt-1">
                     {COLORS.map(c => (
-                      <button key={c} onClick={() => setColor(c)} className={`w-7 h-7 rounded-lg ${c} transition-all ${color === c ? "ring-2 ring-white/50 scale-110" : "opacity-60 hover:opacity-100"}`} />
+                      <button key={c} onClick={() => setColor(c)} className={`w-7 h-7 rounded-lg ${c} transition-all ${color === c ? "ring-2 ring-white/30 scale-110" : "opacity-60 hover:opacity-100"}`} />
                     ))}
                   </div>
                 </div>
@@ -203,8 +203,8 @@ export default function ExamsPage() {
 
       {exams.length === 0 && !showForm && (
         <div className="keda-card p-12 text-center">
-          <div className="w-14 h-14 rounded-2xl bg-indigo-600/15 border border-indigo-500/20 flex items-center justify-center mx-auto mb-4">
-            <CalendarDays className="w-7 h-7 text-indigo-400" />
+          <div className="w-14 h-14 rounded-2xl bg-[hsl(var(--foreground))]/15 border border-[hsl(var(--border))]/20 flex items-center justify-center mx-auto mb-4">
+            <CalendarDays className="w-7 h-7 text-[hsl(var(--muted-foreground))]" />
           </div>
           <p className="text-white font-medium mb-2">Sınav yok</p>
           <p className="text-slate-500 text-sm mb-6">Yaklaşan sınavlarını ekle, geri sayımı takip et.</p>

@@ -186,8 +186,8 @@ export default function LoadingScreen() {
                 style={{
                   width: p.size,
                   height: p.size,
-                  background: p.id % 3 === 0 ? "#a855f7" : p.id % 3 === 1 ? "#818cf8" : "#60a5fa",
-                  boxShadow: `0 0 ${p.size * 3}px ${p.id % 3 === 0 ? "#a855f7" : p.id % 3 === 1 ? "#818cf8" : "#60a5fa"}`,
+                  background: p.id % 3 === 0 ? "hsl(0 0% 70%)" : p.id % 3 === 1 ? "hsl(0 0% 65%)" : "hsl(0 0% 65%)",
+                  boxShadow: `0 0 ${p.size * 3}px ${p.id % 3 === 0 ? "hsl(0 0% 70%)" : p.id % 3 === 1 ? "hsl(0 0% 65%)" : "hsl(0 0% 65%)"}`,
                 }}
                 animate={{
                   x: [
@@ -236,9 +236,9 @@ export default function LoadingScreen() {
                 <svg width="52" height="52" viewBox="0 0 60 60" fill="none">
                   <defs>
                     <linearGradient id="lg-load" x1="0" y1="0" x2="1" y2="1">
-                      <stop offset="0%" stopColor="#a855f7" />
-                      <stop offset="55%" stopColor="#7c3aed" />
-                      <stop offset="100%" stopColor="#60a5fa" />
+                      <stop offset="0%" stopColor="hsl(0 0% 70%)" />
+                      <stop offset="55%" stopColor="hsl(0 0% 70%)" />
+                      <stop offset="100%" stopColor="hsl(0 0% 65%)" />
                     </linearGradient>
                   </defs>
                   <rect x="4" y="4" width="12" height="52" rx="6" fill="url(#lg-load)" />
@@ -266,7 +266,7 @@ export default function LoadingScreen() {
                     className="text-2xl font-bold tracking-widest"
                     style={{
                       fontFamily: "'Inter', sans-serif",
-                      background: "linear-gradient(135deg, #a5b4fc, #818cf8, #6366f1)",
+                      background: "linear-gradient(135deg, hsl(0 0% 80%), hsl(0 0% 65%), hsl(0 0% 70%))",
                       WebkitBackgroundClip: "text",
                       WebkitTextFillColor: "transparent",
                       backgroundClip: "text",
@@ -292,7 +292,7 @@ export default function LoadingScreen() {
                   animate={phase >= 3 ? { x: "0%" } : {}}
                   transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
                   className="h-full rounded-full"
-                  style={{ background: "linear-gradient(90deg, #7c3aed, #a855f7, #60a5fa)" }}
+                  style={{ background: "linear-gradient(90deg, hsl(0 0% 70%), hsl(0 0% 70%), hsl(0 0% 65%))" }}
                 />
               </div>
             </motion.div>

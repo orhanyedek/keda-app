@@ -13,12 +13,12 @@ type Mode = "work" | "short" | "long";
 const DEFAULTS = { work: 25, short: 5, long: 15 };
 const MODE_LABELS: Record<Mode, string> = { work: "Çalışma", short: "Kısa Mola", long: "Uzun Mola" };
 const MODE_COLORS: Record<Mode, string> = {
-  work: "text-indigo-400",
+  work: "text-[hsl(var(--muted-foreground))]",
   short: "text-emerald-400",
   long: "text-blue-400",
 };
 const MODE_BG: Record<Mode, string> = {
-  work: "from-indigo-600/20 to-purple-600/10",
+  work: "from-zinc-800/30 to-zinc-600/10",
   short: "from-emerald-600/20 to-teal-600/10",
   long: "from-blue-600/20 to-cyan-600/10",
 };
@@ -163,7 +163,7 @@ export default function PomodoroPage() {
             style={{ background: "hsl(var(--background))" }}
           >
             {/* Mod etiketi */}
-            <p className="text-sm font-medium mb-8 tracking-widest uppercase" style={{ color: MODE_COLORS[mode].replace("text-", "") === "indigo-400" ? "#818cf8" : mode === "short" ? "#34d399" : "#60a5fa" }}>
+            <p className="text-sm font-medium mb-8 tracking-widest uppercase" style={{ color: MODE_COLORS[mode].replace("text-", "") === "indigo-400" ? "hsl(0 0% 65%)" : mode === "short" ? "#34d399" : "hsl(0 0% 65%)" }}>
               {MODE_LABELS[mode]}
             </p>
 
@@ -172,7 +172,7 @@ export default function PomodoroPage() {
               <svg className="w-full h-full -rotate-90" viewBox="0 0 200 200">
                 <circle cx="100" cy="100" r={R} fill="none" stroke="hsl(var(--border))" strokeWidth="4" />
                 <motion.circle cx="100" cy="100" r={R} fill="none"
-                  stroke={mode === "work" ? "#6366f1" : mode === "short" ? "#10b981" : "#3b82f6"}
+                  stroke={mode === "work" ? "hsl(0 0% 70%)" : mode === "short" ? "#10b981" : "#3b82f6"}
                   strokeWidth="4" strokeLinecap="round"
                   strokeDasharray={circ} strokeDashoffset={dash}
                   transition={{ duration: 0.5 }} />
@@ -204,9 +204,9 @@ export default function PomodoroPage() {
                 <button key={m} onClick={() => switchMode(m)}
                   className="px-4 py-2 rounded-xl text-sm font-medium transition-all"
                   style={{
-                    background: mode === m ? "hsl(var(--primary)/0.15)" : "hsl(var(--secondary))",
+                    background: mode === m ? "hsl(0 0% 100% / 0.05)" : "hsl(var(--secondary))",
                     color: mode === m ? "hsl(var(--primary))" : "hsl(var(--muted-foreground))",
-                    border: mode === m ? "1px solid hsl(var(--primary)/0.3)" : "1px solid hsl(var(--border))",
+                    border: mode === m ? "1px solid hsl(0 0% 100% / 0.12)" : "1px solid hsl(var(--border))",
                   }}>
                   {MODE_LABELS[m]}
                 </button>
@@ -248,7 +248,7 @@ export default function PomodoroPage() {
       <div className="flex gap-2 mb-8">
         {(["work", "short", "long"] as Mode[]).map(m => (
           <button key={m} onClick={() => switchMode(m)}
-            className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 ${mode === m ? "bg-indigo-600/20 border border-indigo-500/30 text-indigo-300" : "glass text-slate-500 hover:text-white"}`}>
+            className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 ${mode === m ? "bg-[hsl(var(--foreground))]/20 border border-[hsl(var(--border))]/30 text-[hsl(var(--foreground)/0.8)]" : "glass text-slate-500 hover:text-white"}`}>
             {m === "work" ? <Brain className="w-3.5 h-3.5" /> : <Coffee className="w-3.5 h-3.5" />}
             {MODE_LABELS[m]}
           </button>
@@ -261,7 +261,7 @@ export default function PomodoroPage() {
           <svg className="w-full h-full -rotate-90" viewBox="0 0 200 200">
             <circle cx="100" cy="100" r={R} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="8" />
             <motion.circle cx="100" cy="100" r={R} fill="none"
-              stroke={mode === "work" ? "#6366f1" : mode === "short" ? "#10b981" : "#3b82f6"}
+              stroke={mode === "work" ? "hsl(0 0% 70%)" : mode === "short" ? "#10b981" : "#3b82f6"}
               strokeWidth="8" strokeLinecap="round"
               strokeDasharray={circ} strokeDashoffset={dash}
               transition={{ duration: 0.5 }} />
@@ -280,7 +280,7 @@ export default function PomodoroPage() {
             <RotateCcw className="w-5 h-5" />
           </button>
           <button onClick={toggle}
-            className="w-16 h-16 rounded-2xl bg-indigo-600 hover:bg-indigo-500 flex items-center justify-center transition-all shadow-lg shadow-indigo-600/30">
+            className="w-16 h-16 rounded-2xl bg-[hsl(var(--foreground))] hover:bg-[hsl(var(--foreground))] flex items-center justify-center transition-all shadow-lg shadow-indigo-600/30">
             {running ? <Pause className="w-7 h-7 text-white" /> : <Play className="w-7 h-7 text-white ml-1" />}
           </button>
           <button onClick={skip} className="w-11 h-11 rounded-xl glass flex items-center justify-center text-slate-500 hover:text-white transition-all">
@@ -311,7 +311,7 @@ export default function PomodoroPage() {
             {sessions.slice(0, 10).map((s, i) => (
               <div key={i} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
                 <div className="flex items-center gap-2">
-                  {s.mode === "work" ? <Brain className="w-3.5 h-3.5 text-indigo-400" /> : <Coffee className="w-3.5 h-3.5 text-emerald-400" />}
+                  {s.mode === "work" ? <Brain className="w-3.5 h-3.5 text-[hsl(var(--muted-foreground))]" /> : <Coffee className="w-3.5 h-3.5 text-emerald-400" />}
                   <span className="text-slate-300 text-sm">{MODE_LABELS[s.mode]}</span>
                 </div>
                 <div className="flex items-center gap-3">

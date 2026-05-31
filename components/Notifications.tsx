@@ -44,7 +44,7 @@ export default function Notifications({ userId }: { userId: string }) {
             title: "Çalışma Planı",
             desc: `${stats.aktif_plan.baslik} — ${pending} konu bekliyor.`,
             icon: CalendarDays,
-            color: "text-[hsl(var(--primary))]",
+            color: "text-[hsl(var(--foreground))]",
             read: false,
           });
         }
@@ -96,7 +96,7 @@ export default function Notifications({ userId }: { userId: string }) {
         className="relative w-8 h-8 rounded-lg flex items-center justify-center text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:bg-white/10 transition-all">
         <Bell className="w-4 h-4" />
         {unread > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-indigo-500 rounded-full text-[10px] text-[hsl(var(--foreground))] flex items-center justify-center font-bold">
+          <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-[hsl(var(--foreground))] rounded-full text-[10px] text-[hsl(var(--foreground))] flex items-center justify-center font-bold">
             {unread}
           </span>
         )}
@@ -111,7 +111,7 @@ export default function Notifications({ userId }: { userId: string }) {
               <span className="text-[hsl(var(--foreground))] text-sm font-semibold">Bildirimler</span>
               <div className="flex items-center gap-2">
                 {unread > 0 && (
-                  <button onClick={markAllRead} className="text-xs text-[hsl(var(--primary))] hover:text-[hsl(var(--primary)/0.85)] transition-colors">
+                  <button onClick={markAllRead} className="text-xs text-[hsl(var(--foreground))] hover:text-[hsl(0 0% 80%)] transition-colors">
                     Tümünü oku
                   </button>
                 )}
@@ -136,7 +136,7 @@ export default function Notifications({ userId }: { userId: string }) {
                       <p className="text-sm text-[hsl(var(--foreground))] font-medium">{n.title}</p>
                       <p className="text-xs text-[hsl(var(--muted-foreground))] mt-0.5 leading-relaxed">{n.desc}</p>
                     </div>
-                    {!n.read && <div className="w-2 h-2 rounded-full bg-indigo-500 flex-shrink-0 mt-2" />}
+                    {!n.read && <div className="w-2 h-2 rounded-full bg-[hsl(var(--foreground))] flex-shrink-0 mt-2" />}
                   </div>
                 );
               })}

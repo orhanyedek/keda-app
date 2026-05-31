@@ -4,51 +4,45 @@
 @tailwind utilities;
 
 /* ============================================================
-   KEDA Design System — Zinc/Neutral dark theme (Linear style)
+   KEDA Design System — Vercel tarzı siyah/beyaz nötr
    ============================================================ */
 
 @layer base {
   :root {
-    /* Zinc-based dark palette */
-    --background: 240 10% 3.9%;       /* zinc-950 #09090b */
-    --foreground: 0 0% 98%;            /* zinc-50  #fafafa */
-
-    --card: 240 10% 6%;                /* zinc-900ish #111113 */
-    --card-foreground: 0 0% 98%;
-
-    --popover: 240 10% 6%;
+    --background:     240 10% 3.9%;
+    --foreground:     0 0% 98%;
+    --card:           240 6% 7%;
+    --card-foreground:0 0% 98%;
+    --popover:        240 6% 7%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 238 84% 67%;            /* indigo-500 #6366f1 */
-    --primary-foreground: 0 0% 100%;
+    /* Primary artık MAVİ değil — saf beyaz/siyah */
+    --primary:        0 0% 98%;
+    --primary-foreground: 240 10% 3.9%;
 
-    --secondary: 240 4% 16%;           /* zinc-800 */
+    --secondary:      240 4% 13%;
     --secondary-foreground: 0 0% 98%;
-
-    --muted: 240 4% 12%;               /* zinc-850 */
-    --muted-foreground: 240 5% 55%;    /* zinc-500 */
-
-    --accent: 240 4% 14%;
+    --muted:          240 4% 10%;
+    --muted-foreground: 240 5% 50%;
+    --accent:         240 4% 13%;
     --accent-foreground: 0 0% 98%;
-
-    --destructive: 0 72% 51%;
+    --destructive:    0 72% 51%;
     --destructive-foreground: 0 0% 98%;
+    --border:         240 4% 13%;
+    --input:          240 4% 13%;
+    --ring:           0 0% 70%;
+    --radius:         0.625rem;
 
-    --border: 240 4% 14%;              /* zinc-800 — renksiz kenarlık */
-    --input: 240 4% 14%;
-    --ring: 238 84% 67%;
-
-    --radius: 0.75rem;                 /* 12px — daha sade */
-
-    /* Spacing scale */
-    --sidebar-width: 240px;
+    /* Semantic renkler — sadece işlevsel */
+    --success:        142 72% 50%;
+    --warning:        38 92% 50%;
+    --danger:         0 72% 51%;
   }
 }
 
 @layer base {
   * { box-sizing: border-box; padding: 0; margin: 0; }
   html { scroll-behavior: smooth; }
-
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
@@ -56,52 +50,42 @@
     -webkit-font-smoothing: antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
-
-  /* Scrollbar */
   ::-webkit-scrollbar { width: 5px; height: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: hsl(240 4% 20%); border-radius: 99px; }
-  ::-webkit-scrollbar-thumb:hover { background: hsl(238 84% 67% / 0.5); }
-
-  ::selection { background: hsl(238 84% 67% / 0.25); }
+  ::selection { background: hsl(0 0% 100% / 0.15); }
 }
-
-/* ============================================================
-   Core Component Classes
-   ============================================================ */
 
 @layer components {
 
-  /* ---- CARD ---- */
+  /* CARD */
   .keda-card {
     background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
     border-radius: var(--radius);
-    transition: border-color 0.2s ease;
+    transition: border-color 0.15s ease;
   }
-  .keda-card:hover {
-    border-color: hsl(240 4% 20%);
-  }
+  .keda-card:hover { border-color: hsl(240 4% 18%); }
 
-  /* ---- BUTTON ---- */
+  /* BUTTON — Vercel tarzı: siyah buton, beyaz yazı */
   .btn-primary {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: hsl(var(--primary));
-    color: white;
+    background: hsl(var(--foreground));
+    color: hsl(var(--background));
     border: none;
-    border-radius: calc(var(--radius) - 2px);
+    border-radius: calc(var(--radius) - 1px);
     padding: 10px 18px;
     font-weight: 500;
     font-size: 0.875rem;
     cursor: pointer;
-    transition: background 0.15s ease, opacity 0.15s ease;
+    transition: opacity 0.15s ease;
     gap: 6px;
   }
-  .btn-primary:hover { background: hsl(238 84% 62%); }
-  .btn-primary:active { opacity: 0.9; }
-  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-primary:hover { opacity: 0.85; }
+  .btn-primary:active { opacity: 0.75; }
+  .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
 
   .btn-secondary {
     display: inline-flex;
@@ -110,7 +94,7 @@
     background: hsl(var(--secondary));
     color: hsl(var(--foreground));
     border: 1px solid hsl(var(--border));
-    border-radius: calc(var(--radius) - 2px);
+    border-radius: calc(var(--radius) - 1px);
     padding: 10px 18px;
     font-weight: 500;
     font-size: 0.875rem;
@@ -118,7 +102,7 @@
     transition: background 0.15s ease;
     gap: 6px;
   }
-  .btn-secondary:hover { background: hsl(240 4% 20%); }
+  .btn-secondary:hover { background: hsl(240 4% 18%); }
 
   .btn-ghost {
     display: inline-flex;
@@ -127,7 +111,7 @@
     background: transparent;
     color: hsl(var(--muted-foreground));
     border: none;
-    border-radius: calc(var(--radius) - 2px);
+    border-radius: calc(var(--radius) - 1px);
     padding: 10px 18px;
     font-weight: 500;
     font-size: 0.875rem;
@@ -137,12 +121,12 @@
   }
   .btn-ghost:hover { background: hsl(var(--accent)); color: hsl(var(--foreground)); }
 
-  /* ---- INPUT ---- */
+  /* INPUT */
   .keda-input {
     width: 100%;
     background: hsl(var(--input));
     border: 1px solid hsl(var(--border));
-    border-radius: calc(var(--radius) - 2px);
+    border-radius: calc(var(--radius) - 1px);
     color: hsl(var(--foreground));
     padding: 9px 14px;
     font-size: 0.875rem;
@@ -150,13 +134,13 @@
     outline: none;
   }
   .keda-input:focus {
-    border-color: hsl(var(--primary));
-    box-shadow: 0 0 0 3px hsl(var(--primary) / 0.12);
+    border-color: hsl(0 0% 40%);
+    box-shadow: 0 0 0 3px hsl(0 0% 100% / 0.06);
   }
   .keda-input::placeholder { color: hsl(var(--muted-foreground)); }
   .keda-input:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  /* ---- BADGE ---- */
+  /* BADGE */
   .badge {
     display: inline-flex;
     align-items: center;
@@ -166,13 +150,13 @@
     font-weight: 500;
     letter-spacing: 0.02em;
   }
-  .badge-default { background: hsl(var(--secondary)); color: hsl(var(--muted-foreground)); border: 1px solid hsl(var(--border)); }
-  .badge-primary { background: hsl(var(--primary) / 0.15); color: hsl(var(--primary)); border: 1px solid hsl(var(--primary) / 0.25); }
-  .badge-success { background: hsl(142 72% 29% / 0.15); color: hsl(142 72% 55%); border: 1px solid hsl(142 72% 29% / 0.3); }
-  .badge-warning { background: hsl(38 92% 50% / 0.15); color: hsl(38 92% 60%); border: 1px solid hsl(38 92% 50% / 0.3); }
-  .badge-danger  { background: hsl(0 72% 51% / 0.15); color: hsl(0 84% 65%); border: 1px solid hsl(0 72% 51% / 0.3); }
+  .badge-default  { background: hsl(var(--secondary)); color: hsl(var(--muted-foreground)); border: 1px solid hsl(var(--border)); }
+  .badge-primary  { background: hsl(0 0% 15%); color: hsl(0 0% 90%); border: 1px solid hsl(0 0% 20%); }
+  .badge-success  { background: hsl(142 72% 29% / 0.15); color: hsl(142 72% 55%); border: 1px solid hsl(142 72% 29% / 0.3); }
+  .badge-warning  { background: hsl(38 92% 50% / 0.15); color: hsl(38 92% 60%); border: 1px solid hsl(38 92% 50% / 0.3); }
+  .badge-danger   { background: hsl(0 72% 51% / 0.15); color: hsl(0 84% 65%); border: 1px solid hsl(0 72% 51% / 0.3); }
 
-  /* ---- GLASS (sadece overlay'ler için) ---- */
+  /* GLASS */
   .glass {
     background: hsl(var(--card) / 0.85);
     backdrop-filter: blur(12px);
@@ -180,7 +164,7 @@
     border: 1px solid hsl(var(--border));
   }
 
-  /* ---- SECTION DIVIDER ---- */
+  /* SECTION LABEL */
   .section-label {
     font-size: 0.7rem;
     font-weight: 500;
@@ -189,15 +173,15 @@
     letter-spacing: 0.08em;
   }
 
-  /* ---- GRADIENT TEXT (sadece hero'da kullan) ---- */
+  /* GRADIENT TEXT — sadece landing hero'da */
   .gradient-text {
-    background: linear-gradient(135deg, #a5b4fc 0%, #818cf8 50%, #6366f1 100%);
+    background: linear-gradient(135deg, #e2e8f0 0%, #94a3b8 50%, #64748b 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  /* ---- PROGRESS BAR ---- */
+  /* PROGRESS BAR */
   .progress-bar {
     height: 3px;
     background: hsl(var(--border));
@@ -206,29 +190,27 @@
   }
   .progress-bar-fill {
     height: 100%;
-    background: hsl(var(--primary));
+    background: hsl(var(--foreground));
     border-radius: 99px;
     transition: width 0.4s ease;
   }
 
-  /* ---- LOADING DOTS ---- */
+  /* LOADING DOTS */
   .loading-dots { display: inline-flex; gap: 4px; align-items: center; }
   .loading-dots span {
-    display: block;
-    width: 6px; height: 6px;
+    display: block; width: 6px; height: 6px;
     border-radius: 50%;
-    background: hsl(var(--primary));
+    background: hsl(var(--muted-foreground));
     animation: dot-pulse 1.4s ease-in-out infinite;
   }
   .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
   .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
-
   @keyframes dot-pulse {
     0%, 80%, 100% { transform: scale(0.6); opacity: 0.3; }
     40%            { transform: scale(1);   opacity: 1; }
   }
 
-  /* ---- FLASHCARD 3D ---- */
+  /* FLASHCARD 3D */
   .flashcard-container { perspective: 1000px; }
   .flashcard-inner {
     position: relative; width: 100%; height: 100%;
@@ -243,15 +225,13 @@
   .flashcard-back { transform: rotateY(180deg); }
 }
 
-/* ============================================================
-   Light theme support
-   ============================================================ */
+/* Light theme */
 .light-theme {
   --background: 0 0% 100%;
   --foreground: 240 10% 3.9%;
   --card: 0 0% 98%;
   --card-foreground: 240 10% 3.9%;
-  --border: 240 5% 90%;
+  --border: 240 5% 88%;
   --input: 240 5% 90%;
   --muted: 240 5% 96%;
   --muted-foreground: 240 4% 46%;
@@ -259,9 +239,6 @@
   --secondary-foreground: 240 6% 10%;
   --accent: 240 5% 94%;
   --accent-foreground: 240 6% 10%;
-}
-
-.light-theme body {
-  background-color: hsl(var(--background));
-  color: hsl(var(--foreground));
+  --primary: 240 10% 3.9%;
+  --primary-foreground: 0 0% 98%;
 }

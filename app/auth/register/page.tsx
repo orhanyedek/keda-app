@@ -91,7 +91,7 @@ export default function RegisterPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <svg width="32" height="32" viewBox="0 0 60 60" fill="none"><defs><linearGradient id="kgr" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#a855f7"/><stop offset="55%" stopColor="#7c3aed"/><stop offset="100%" stopColor="#60a5fa"/></linearGradient></defs><rect x="4" y="4" width="12" height="52" rx="6" fill="url(#kgr)"/><path d="M16 30 L44 8 Q51 3 54 10 L26 30Z" fill="url(#kgr)" opacity="0.95"/><path d="M16 30 L44 52 Q51 57 54 50 L26 30Z" fill="url(#kgr)" opacity="0.82"/></svg>
+            <svg width="32" height="32" viewBox="0 0 60 60" fill="none"><defs><linearGradient id="kgr" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="hsl(0 0% 70%)"/><stop offset="55%" stopColor="hsl(0 0% 70%)"/><stop offset="100%" stopColor="hsl(0 0% 65%)"/></linearGradient></defs><rect x="4" y="4" width="12" height="52" rx="6" fill="url(#kgr)"/><path d="M16 30 L44 8 Q51 3 54 10 L26 30Z" fill="url(#kgr)" opacity="0.95"/><path d="M16 30 L44 52 Q51 57 54 50 L26 30Z" fill="url(#kgr)" opacity="0.82"/></svg>
             <span className="font-semibold" style={{ color: "hsl(var(--foreground))" }}>KEDA</span>
           </Link>
           <h1 className="text-xl font-semibold" style={{ color: "hsl(var(--foreground))", letterSpacing: "-0.01em" }}>
@@ -188,7 +188,7 @@ export default function RegisterPage() {
             <motion.div key="verify" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
               <div className="keda-card p-8 text-center">
                 <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5"
-                  style={{ background: "hsl(var(--primary)/0.1)", border: "1px solid hsl(var(--primary)/0.2)" }}>
+                  style={{ background: "hsl(0 0% 100% / 0.04)", border: "1px solid hsl(0 0% 100% / 0.07)" }}>
                   <Mail className="w-8 h-8" style={{ color: "hsl(var(--primary))" }} />
                 </div>
                 <h2 className="text-lg font-semibold mb-2" style={{ color: "hsl(var(--foreground))" }}>E-postanı kontrol et</h2>

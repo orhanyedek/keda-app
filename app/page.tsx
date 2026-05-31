@@ -27,7 +27,7 @@ function Nav() {
     <header className="fixed top-0 inset-x-0 z-50 border-b border-[hsl(var(--border))]" style={{ background: "hsl(var(--background)/0.85)", backdropFilter: "blur(12px)" }}>
       <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2.5">
-          <svg width="26" height="26" viewBox="0 0 60 60" fill="none"><defs><linearGradient id="kgnav" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#a855f7"/><stop offset="55%" stopColor="#7c3aed"/><stop offset="100%" stopColor="#60a5fa"/></linearGradient></defs><rect x="4" y="4" width="12" height="52" rx="6" fill="url(#kgnav)"/><path d="M16 30 L44 8 Q51 3 54 10 L26 30Z" fill="url(#kgnav)" opacity="0.95"/><path d="M16 30 L44 52 Q51 57 54 50 L26 30Z" fill="url(#kgnav)" opacity="0.82"/></svg>
+          <svg width="26" height="26" viewBox="0 0 60 60" fill="none"><defs><linearGradient id="kgnav" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="hsl(0 0% 70%)"/><stop offset="55%" stopColor="hsl(0 0% 70%)"/><stop offset="100%" stopColor="hsl(0 0% 65%)"/></linearGradient></defs><rect x="4" y="4" width="12" height="52" rx="6" fill="url(#kgnav)"/><path d="M16 30 L44 8 Q51 3 54 10 L26 30Z" fill="url(#kgnav)" opacity="0.95"/><path d="M16 30 L44 52 Q51 57 54 50 L26 30Z" fill="url(#kgnav)" opacity="0.82"/></svg>
           <span className="font-semibold text-[hsl(var(--foreground))] text-sm">KEDA</span>
         </Link>
         <nav className="hidden md:flex items-center gap-6">
@@ -60,7 +60,7 @@ function Hero() {
         maskImage: "radial-gradient(ellipse 80% 80% at 30% 50%, black 30%, transparent 100%)",
         opacity: 0.3,
       }} />
-      <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[140px] pointer-events-none" style={{ background: "hsl(var(--primary)/0.07)" }} />
+      <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[140px] pointer-events-none" style={{ background: "hsl(0 0% 100% / 0.03)" }} />
       <div className="max-w-6xl mx-auto w-full grid lg:grid-cols-2 gap-12 items-center relative">
         <motion.div variants={stagger} initial="hidden" animate="show">
           <motion.h1 variants={fade} className="text-4xl md:text-5xl font-bold leading-tight mb-5" style={{ color: "hsl(var(--foreground))", letterSpacing: "-0.02em" }}>
@@ -142,7 +142,7 @@ function Features() {
                   style={{ background: "linear-gradient(90deg, hsl(var(--primary)), transparent)" }}
                 />
                 <div className="w-10 h-10 rounded-xl mb-4 flex items-center justify-center relative"
-                  style={{ background:"hsl(var(--primary)/0.1)", border:"1px solid hsl(var(--primary)/0.2)" }}>
+                  style={{ background:"hsl(0 0% 100% / 0.04)", border:"1px solid hsl(0 0% 100% / 0.07)" }}>
                   <f.icon className="w-5 h-5" style={{ color:"hsl(var(--primary))" }} />
                   {/* Pulse ring on hover */}
                   <motion.div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100"
@@ -150,7 +150,7 @@ function Features() {
                     transition={{ duration: 1.5, repeat: Infinity }}
                     style={{ background:"hsl(var(--primary))" }} />
                 </div>
-                <h3 className="text-sm font-semibold mb-1.5 group-hover:text-[hsl(var(--primary))] transition-colors" style={{ color:"hsl(var(--foreground))" }}>{f.title}</h3>
+                <h3 className="text-sm font-semibold mb-1.5 group-hover:text-[hsl(var(--foreground))] transition-colors" style={{ color:"hsl(var(--foreground))" }}>{f.title}</h3>
                 <p className="text-sm leading-relaxed mb-3" style={{ color:"hsl(var(--muted-foreground))" }}>{f.desc}</p>
                 <span className="text-xs font-mono" style={{ color:"hsl(var(--muted-foreground)/0.5)" }}>{f.module}</span>
               </motion.div>
@@ -188,7 +188,7 @@ function HowItWorks() {
               animate={inView ? { scaleY: 1 } : {}}
               transition={{ duration: 1, delay: 0.3, ease: [0.25,0.1,0.25,1] }}
               className="absolute left-5 top-6 bottom-6 w-px origin-top hidden md:block"
-              style={{ background: "linear-gradient(to bottom, hsl(var(--primary)/0.6), hsl(var(--primary)/0.1))" }}
+              style={{ background: "linear-gradient(to bottom, hsl(0 0% 100% / 0.25), hsl(0 0% 100% / 0.04))" }}
             />
 
             <div className="space-y-4">
@@ -208,7 +208,7 @@ function HowItWorks() {
                       transition={{ duration: 0.4, delay: 0.3 + i * 0.12 }}
                       viewport={{ once: true }}
                       className="w-10 h-10 rounded-xl flex items-center justify-center text-xs font-bold z-10 relative"
-                      style={{ background:"hsl(var(--primary)/0.12)", border:"1px solid hsl(var(--primary)/0.3)", color:"hsl(var(--primary))" }}
+                      style={{ background:"hsl(0 0% 100% / 0.05)", border:"1px solid hsl(0 0% 100% / 0.12)", color:"hsl(var(--primary))" }}
                     >
                       {s.n}
                     </motion.div>
@@ -236,10 +236,10 @@ function HowItWorks() {
 function LeitnerSection() {
   const { ref, inView } = useSection();
   const boxes = [
-    { n:1, label:"Her oturum", color:"hsl(var(--foreground))", bar:"hsl(var(--primary)/0.6)" },
-    { n:2, label:"1 gün",      color:"hsl(var(--foreground))", bar:"hsl(var(--primary)/0.7)" },
+    { n:1, label:"Her oturum", color:"hsl(var(--foreground))", bar:"hsl(0 0% 100% / 0.25)" },
+    { n:2, label:"1 gün",      color:"hsl(var(--foreground))", bar:"hsl(0 0% 70%)" },
     { n:3, label:"3 gün",      color:"hsl(var(--foreground))", bar:"hsl(var(--primary)/0.8)" },
-    { n:4, label:"7 gün",      color:"hsl(var(--foreground))", bar:"hsl(var(--primary)/0.9)" },
+    { n:4, label:"7 gün",      color:"hsl(var(--foreground))", bar:"hsl(0 0% 85%)" },
     { n:5, label:"14 gün",     color:"hsl(var(--foreground))", bar:"hsl(var(--primary))" },
   ];
   return (
@@ -277,7 +277,7 @@ function LeitnerSection() {
                         animate={inView ? { width: `${100 - i * 20}%` } : { width: 0 }}
                         transition={{ duration: 0.7, delay: 0.3 + i * 0.1, ease: [0.25,0.1,0.25,1] }}
                         className="h-full rounded-full"
-                        style={{ background: box.bar }}
+                        style={{ background: "hsl(0 0% 50%)" }}
                       />
                     </div>
                   </div>
@@ -351,7 +351,7 @@ function CTA() {
       <div className="max-w-2xl mx-auto">
         <motion.div ref={ref} initial={{ opacity:0, y:30 }} animate={inView?{ opacity:1, y:0 }:{}} transition={{ duration:0.6 }}
           className="keda-card p-12 text-center relative overflow-hidden">
-          <div className="absolute inset-0 pointer-events-none" style={{ background:"radial-gradient(ellipse at 50% 0%, hsl(var(--primary)/0.06), transparent 70%)" }} />
+          <div className="absolute inset-0 pointer-events-none" style={{ background:"radial-gradient(ellipse at 50% 0%, hsl(0 0% 100% / 0.03), transparent 70%)" }} />
           <h2 className="text-2xl font-bold mb-2 relative" style={{ color:"hsl(var(--foreground))", letterSpacing:"-0.01em" }}>Hemen başla</h2>
           <p className="text-sm mb-6 relative" style={{ color:"hsl(var(--muted-foreground))" }}>Ücretsiz kayıt ol, PDF'lerini yükle, çalışmayı hızlandır.</p>
           <Link href="/auth/register" className="btn-primary px-8 py-2.5 relative">Hesap Oluştur</Link>
@@ -367,7 +367,7 @@ function Footer() {
     <footer className="border-t border-[hsl(var(--border))] py-8 px-6">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-2">
-          <svg width="20" height="20" viewBox="0 0 60 60" fill="none"><defs><linearGradient id="kgf" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#a855f7"/><stop offset="55%" stopColor="#7c3aed"/><stop offset="100%" stopColor="#60a5fa"/></linearGradient></defs><rect x="4" y="4" width="12" height="52" rx="6" fill="url(#kgf)"/><path d="M16 30 L44 8 Q51 3 54 10 L26 30Z" fill="url(#kgf)" opacity="0.95"/><path d="M16 30 L44 52 Q51 57 54 50 L26 30Z" fill="url(#kgf)" opacity="0.82"/></svg>
+          <svg width="20" height="20" viewBox="0 0 60 60" fill="none"><defs><linearGradient id="kgf" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="hsl(0 0% 70%)"/><stop offset="55%" stopColor="hsl(0 0% 70%)"/><stop offset="100%" stopColor="hsl(0 0% 65%)"/></linearGradient></defs><rect x="4" y="4" width="12" height="52" rx="6" fill="url(#kgf)"/><path d="M16 30 L44 8 Q51 3 54 10 L26 30Z" fill="url(#kgf)" opacity="0.95"/><path d="M16 30 L44 52 Q51 57 54 50 L26 30Z" fill="url(#kgf)" opacity="0.82"/></svg>
           <span className="text-sm" style={{ color:"hsl(var(--muted-foreground))" }}>KEDA 2026</span>
         </div>
         <p className="text-xs text-center" style={{ color:"hsl(var(--muted-foreground)/0.5)" }}>Yazılım Mühendisliği Dersi Projesi — Sezin, Kerem, Mustafa, Orhan, Serdar</p>

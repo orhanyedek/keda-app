@@ -40,12 +40,12 @@ export default function UserAvatar({ userId, userName, size = 36, className = ""
 
   // Gradient arka plan rengi — kullanıcı adından deterministik
   const colors = [
-    ["#7c3aed", "#a855f7"],
-    ["#2563eb", "#60a5fa"],
+    ["hsl(0 0% 70%)", "hsl(0 0% 70%)"],
+    ["#2563eb", "hsl(0 0% 65%)"],
     ["#059669", "#34d399"],
     ["#d97706", "#fbbf24"],
     ["#dc2626", "#f87171"],
-    ["#7c3aed", "#60a5fa"],
+    ["hsl(0 0% 70%)", "hsl(0 0% 65%)"],
   ];
   const colorIndex = userName.charCodeAt(0) % colors.length;
   const [from, to] = colors[colorIndex];

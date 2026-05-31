@@ -20,9 +20,9 @@ export default function Logo({ size = 32, className = "" }: LogoProps) {
     >
       <defs>
         <linearGradient id="keda-grad" x1="20" y1="10" x2="80" y2="90" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#a855f7" />
-          <stop offset="55%" stopColor="#7c3aed" />
-          <stop offset="100%" stopColor="#60a5fa" />
+          <stop offset="0%" stopColor="hsl(0 0% 70%)" />
+          <stop offset="55%" stopColor="hsl(0 0% 70%)" />
+          <stop offset="100%" stopColor="hsl(0 0% 65%)" />
         </linearGradient>
       </defs>
       {/* Sol dikey çubuk */}
