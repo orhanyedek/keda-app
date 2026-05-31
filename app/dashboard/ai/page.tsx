@@ -261,7 +261,7 @@ export default function AIPage() {
           )}
           {sessions.map(s => (
             <div key={s.id} onClick={() => setActiveId(s.id)}
-              className={`group flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer transition-all text-sm ${activeId === s.id ? "bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary)/0.85)]" : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]"}`}>
+              className={`group flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer transition-all text-sm ${activeId === s.id ? "bg-[hsl(var(--foreground)/0.06)] text-[hsl(var(--primary)/0.85)]" : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]"}`}>
               <span className="truncate flex-1">{s.title}</span>
               <button onClick={(e) => deleteSession(s.id, e)}
                 className="opacity-0 group-hover:opacity-100 p-1 rounded-lg hover:text-red-400 transition-all ml-1 flex-shrink-0">
@@ -278,7 +278,7 @@ export default function AIPage() {
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[hsl(var(--border))]">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-[hsl(var(--primary)/0.1)] border border-[hsl(var(--primary)/0.25)] flex items-center justify-center">
+            <div className="w-7 h-7 rounded-lg bg-[hsl(var(--foreground)/0.06)] border border-[hsl(var(--border))] flex items-center justify-center">
               <svg width="16" height="16" viewBox="0 0 60 60" fill="none"><defs><linearGradient id="kgai1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#a855f7"/><stop offset="55%" stopColor="#7c3aed"/><stop offset="100%" stopColor="#60a5fa"/></linearGradient></defs><rect x="4" y="4" width="12" height="52" rx="6" fill="url(#kgai1)"/><path d="M16 30 L44 8 Q51 3 54 10 L26 30Z" fill="url(#kgai1)" opacity="0.95"/><path d="M16 30 L44 52 Q51 57 54 50 L26 30Z" fill="url(#kgai1)" opacity="0.82"/></svg>
             </div>
             <span className="text-[hsl(var(--foreground))] font-semibold text-sm">KEDA AI</span>
@@ -293,7 +293,7 @@ export default function AIPage() {
             {/* Boş ekran */}
             {!activeSession || activeSession.messages.length === 0 ? (
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center pt-12">
-                <div className="w-14 h-14 rounded-2xl bg-[hsl(var(--primary)/0.08)] border border-[hsl(var(--primary)/0.2)] flex items-center justify-center mx-auto mb-4">
+                <div className="w-14 h-14 rounded-2xl bg-[hsl(var(--foreground)/0.05)] border border-[hsl(var(--border))] flex items-center justify-center mx-auto mb-4">
                   <svg width="28" height="28" viewBox="0 0 60 60" fill="none"><defs><linearGradient id="kgai2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#a855f7"/><stop offset="55%" stopColor="#7c3aed"/><stop offset="100%" stopColor="#60a5fa"/></linearGradient></defs><rect x="4" y="4" width="12" height="52" rx="6" fill="url(#kgai2)"/><path d="M16 30 L44 8 Q51 3 54 10 L26 30Z" fill="url(#kgai2)" opacity="0.95"/><path d="M16 30 L44 52 Q51 57 54 50 L26 30Z" fill="url(#kgai2)" opacity="0.82"/></svg>
                 </div>
                 <h2 className="text-xl font-semibold text-[hsl(var(--foreground))] mb-2">Merhaba, {userName}</h2>
@@ -301,7 +301,7 @@ export default function AIPage() {
                 <div className="grid grid-cols-2 gap-3 max-w-lg mx-auto">
                   {STARTER_PROMPTS.map((p) => (
                     <button key={p.text} onClick={() => sendMessage(p.text)}
-                      className="keda-card p-4 text-left hover:border-[hsl(var(--primary)/0.25)] transition-colors group">
+                      className="keda-card p-4 text-left hover:border-[hsl(var(--border))] transition-colors group">
                       <span className="text-lg mb-2 block">{p.icon}</span>
                       <span className="text-[hsl(var(--foreground)/0.85)] text-sm group-hover:text-[hsl(var(--foreground))] transition-colors">{p.text}</span>
                     </button>
@@ -316,7 +316,7 @@ export default function AIPage() {
 
                     {/* AI avatar */}
                     {msg.role === "assistant" && (
-                      <div className="w-8 h-8 rounded-xl bg-[hsl(var(--primary)/0.1)] border border-[hsl(var(--primary)/0.2)] flex items-center justify-center flex-shrink-0 mt-1">
+                      <div className="w-8 h-8 rounded-xl bg-[hsl(var(--foreground)/0.06)] border border-[hsl(var(--border))] flex items-center justify-center flex-shrink-0 mt-1">
                         <svg width="16" height="16" viewBox="0 0 60 60" fill="none"><defs><linearGradient id="kgai1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#a855f7"/><stop offset="55%" stopColor="#7c3aed"/><stop offset="100%" stopColor="#60a5fa"/></linearGradient></defs><rect x="4" y="4" width="12" height="52" rx="6" fill="url(#kgai1)"/><path d="M16 30 L44 8 Q51 3 54 10 L26 30Z" fill="url(#kgai1)" opacity="0.95"/><path d="M16 30 L44 52 Q51 57 54 50 L26 30Z" fill="url(#kgai1)" opacity="0.82"/></svg>
                       </div>
                     )}
@@ -324,7 +324,7 @@ export default function AIPage() {
                     <div className={`max-w-[80%] ${msg.role === "user" ? "items-end" : "items-start"} flex flex-col gap-1`}>
                       <div className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${
                         msg.role === "user"
-                          ? "bg-[hsl(var(--primary)/0.1)] border border-[hsl(var(--primary)/0.2)] text-[hsl(var(--foreground))] rounded-br-sm"
+                          ? "bg-[hsl(var(--foreground)/0.06)] border border-[hsl(var(--border))] text-[hsl(var(--foreground))] rounded-br-sm"
                           : "text-[hsl(var(--foreground)/0.85)] rounded-bl-sm"
                       }`}>
                         {msg.role === "assistant" ? (
@@ -350,7 +350,7 @@ export default function AIPage() {
             {/* Yükleniyor */}
             {loading && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-3 justify-start">
-                <div className="w-8 h-8 rounded-xl bg-[hsl(var(--primary)/0.1)] border border-[hsl(var(--primary)/0.2)] flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 rounded-xl bg-[hsl(var(--foreground)/0.06)] border border-[hsl(var(--border))] flex items-center justify-center flex-shrink-0">
                   <svg width="16" height="16" viewBox="0 0 60 60" fill="none"><defs><linearGradient id="kgai1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#a855f7"/><stop offset="55%" stopColor="#7c3aed"/><stop offset="100%" stopColor="#60a5fa"/></linearGradient></defs><rect x="4" y="4" width="12" height="52" rx="6" fill="url(#kgai1)"/><path d="M16 30 L44 8 Q51 3 54 10 L26 30Z" fill="url(#kgai1)" opacity="0.95"/><path d="M16 30 L44 52 Q51 57 54 50 L26 30Z" fill="url(#kgai1)" opacity="0.82"/></svg>
                 </div>
                 <div className="px-4 py-3 rounded-2xl rounded-bl-sm">
@@ -366,7 +366,7 @@ export default function AIPage() {
         {/* Input */}
         <div className="px-6 pb-6 pt-2">
           <div className="max-w-3xl mx-auto">
-            <div className="flex items-end gap-3 bg-[hsl(var(--secondary))]/60 border border-[hsl(var(--border))] rounded-2xl px-4 py-3 focus-within:border-[hsl(var(--primary)/0.3)] transition-colors">
+            <div className="flex items-end gap-3 bg-[hsl(var(--secondary))]/60 border border-[hsl(var(--border))] rounded-2xl px-4 py-3 focus-within:border-[hsl(var(--border))] transition-colors">
               <textarea
                 ref={inputRef}
                 value={input}

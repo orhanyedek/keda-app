@@ -176,7 +176,7 @@ export default function AgendaPage() {
       <div className="flex gap-2 mb-6">
         {[{ key: "new", label: "Yeni Plan" }, { key: "saved", label: "Planlarım" }].map((t) => (
           <button key={t.key} onClick={() => setTab(t.key as "new" | "saved")}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${tab === t.key ? "bg-indigo-600/30 border border-[hsl(var(--primary)/0.3)] text-[hsl(var(--primary)/0.85)]" : "glass text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"}`}>
+            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${tab === t.key ? "bg-indigo-600/30 border border-[hsl(var(--border))] text-[hsl(var(--primary)/0.85)]" : "glass text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"}`}>
             {t.label}
           </button>
         ))}
@@ -245,7 +245,7 @@ export default function AgendaPage() {
                   <div className="flex items-center gap-4 flex-wrap">
                     {[7, 14, 21, 30].map((days) => (
                       <button key={days} onClick={() => setTargetDays(days)}
-                        className={`px-5 py-3 rounded-xl text-sm font-medium transition-all ${targetDays === days ? "bg-[hsl(var(--primary)/0.1)] border border-[hsl(var(--primary)/0.3)] text-[hsl(var(--primary)/0.85)]" : "glass text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"}`}>
+                        className={`px-5 py-3 rounded-xl text-sm font-medium transition-all ${targetDays === days ? "bg-[hsl(var(--foreground)/0.06)] border border-[hsl(var(--border))] text-[hsl(var(--primary)/0.85)]" : "glass text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"}`}>
                         {days} Gün
                       </button>
                     ))}
@@ -277,7 +277,7 @@ export default function AgendaPage() {
             {step === 3 && plan.length > 0 && (
               <motion.div key="step3" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
                 {planSummary && (
-                  <div className="keda-card p-5 border border-[hsl(var(--primary)/0.2)] bg-indigo-600/5">
+                  <div className="keda-card p-5 border border-[hsl(var(--border))] bg-indigo-600/5">
                     <p className="text-[hsl(var(--foreground)/0.85)] text-sm">{planSummary}</p>
                   </div>
                 )}
@@ -317,7 +317,7 @@ export default function AgendaPage() {
             <div className="text-center py-12 text-[hsl(var(--muted-foreground))]">Yükleniyor...</div>
           ) : savedPlans.length === 0 ? (
             <div className="keda-card p-8 text-center">
-              <div className="w-12 h-12 rounded-2xl bg-[hsl(var(--primary)/0.08)] border border-[hsl(var(--primary)/0.2)] flex items-center justify-center mx-auto mb-3">
+              <div className="w-12 h-12 rounded-2xl bg-[hsl(var(--foreground)/0.05)] border border-[hsl(var(--border))] flex items-center justify-center mx-auto mb-3">
                 <CalendarDays className="w-5 h-5 text-[hsl(var(--primary))]" />
               </div>
               <p className="text-[hsl(var(--muted-foreground))] text-sm">Henüz kayıtlı plan yok. Yeni Plan sekmesinden oluştur.</p>
@@ -386,9 +386,9 @@ export default function AgendaPage() {
                         <div key={dayNum} className="text-center group relative">
                           <div className="text-xs text-[hsl(var(--muted-foreground)/0.6)] mb-1">{dayNames[dayDate.getDay()]}</div>
                           <div className={`w-full aspect-square rounded-xl flex flex-col items-center justify-center text-xs font-medium transition-all cursor-default
-                            ${isToday ? "bg-[hsl(var(--primary)/0.2)] border border-[hsl(var(--primary)/0.4)] text-[hsl(var(--primary))]" :
-                              allDone ? "bg-[hsl(var(--primary)/0.1)] border border-[hsl(var(--primary)/0.2)] text-[hsl(var(--primary)/0.7)] opacity-60" :
-                              someDone ? "bg-[hsl(var(--primary)/0.08)] border border-[hsl(var(--primary)/0.15)] text-[hsl(var(--muted-foreground))]" :
+                            ${isToday ? "bg-[hsl(var(--foreground)/0.1)] border border-[hsl(var(--foreground)/0.25)] text-[hsl(var(--foreground))]" :
+                              allDone ? "bg-[hsl(var(--foreground)/0.06)] border border-[hsl(var(--border))] text-[hsl(var(--primary)/0.7)] opacity-60" :
+                              someDone ? "bg-[hsl(var(--foreground)/0.05)] border border-[hsl(var(--border))] text-[hsl(var(--muted-foreground))]" :
                               dayTopics.length > 0 ? (isPast ? "bg-[hsl(var(--muted))] border border-[hsl(var(--border))] text-[hsl(var(--muted-foreground)/0.5)] opacity-50" : "bg-[hsl(var(--muted))] border border-[hsl(var(--border))] text-[hsl(var(--foreground))]") :
                               "border border-[hsl(var(--border))] text-[hsl(var(--muted-foreground)/0.3)]"
                             }`}>

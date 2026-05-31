@@ -11,7 +11,7 @@ const STEPS = [
     title: "KEDA'ya Hoş Geldin!",
     desc: "Yapay zeka destekli çalışma asistanın hazır. 3 adımda nasıl kullanacağını gösterelim.",
     color: "text-[hsl(var(--primary))]",
-    bg: "bg-[hsl(var(--primary)/0.08)] border-[hsl(var(--primary)/0.2)]",
+    bg: "bg-[hsl(var(--foreground)/0.05)] border-[hsl(var(--border))]",
   },
   {
     icon: Layers,

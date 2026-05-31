@@ -22,7 +22,7 @@ const stagger = { visible: { transition: { staggerChildren: 0.08 } } };
 function StatCard({ icon: Icon, label, value, sub }: { icon: React.ElementType; label: string; value: string | number; sub?: string }) {
   return (
     <motion.div variants={fadeUp} className="keda-card p-5">
-      <div className="w-9 h-9 rounded-xl bg-[hsl(var(--primary)/0.08)] border border-[hsl(var(--primary)/0.2)] flex items-center justify-center mb-4">
+      <div className="w-9 h-9 rounded-xl bg-[hsl(var(--foreground)/0.05)] border border-[hsl(var(--border))] flex items-center justify-center mb-4">
         <Icon className="w-4 h-4 text-[hsl(var(--primary))]" />
       </div>
       <div className="text-2xl font-bold text-[hsl(var(--foreground))] mb-1">{value}</div>
@@ -37,8 +37,8 @@ function ModuleCard({ href, icon: Icon, title, desc, module }: {
 }) {
   return (
     <motion.div variants={fadeUp}>
-      <Link href={href} className="keda-card block p-6 hover:border-[hsl(var(--primary)/0.25)] transition-colors group">
-        <div className="w-10 h-10 rounded-xl bg-[hsl(var(--primary)/0.08)] border border-[hsl(var(--primary)/0.2)] flex items-center justify-center mb-4">
+      <Link href={href} className="keda-card block p-6 hover:border-[hsl(var(--border))] transition-colors group">
+        <div className="w-10 h-10 rounded-xl bg-[hsl(var(--foreground)/0.05)] border border-[hsl(var(--border))] flex items-center justify-center mb-4">
           <Icon className="w-5 h-5 text-[hsl(var(--primary))]" />
         </div>
         <h3 className="text-base font-semibold text-[hsl(var(--foreground))] mb-1 group-hover:text-[hsl(var(--primary)/0.85)] transition-colors">{title}</h3>
@@ -260,7 +260,7 @@ export default function DashboardPage() {
               ))}
             </div>
           )}
-          <Link href="/dashboard/agenda" className="mt-4 w-full flex items-center justify-center gap-2 py-2 text-sm text-[hsl(var(--primary))] hover:text-[hsl(var(--primary)/0.85)] border border-[hsl(var(--primary)/0.2)] rounded-xl transition-colors">
+          <Link href="/dashboard/agenda" className="mt-4 w-full flex items-center justify-center gap-2 py-2 text-sm text-[hsl(var(--primary))] hover:text-[hsl(var(--primary)/0.85)] border border-[hsl(var(--border))] rounded-xl transition-colors">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
             Yeni Plan Oluştur
           </Link>
@@ -299,7 +299,7 @@ export default function DashboardPage() {
               <div className="text-center py-4 text-[hsl(var(--muted-foreground)/0.6)] text-sm">Yükleniyor...</div>
             ) : stats?.son_podcast ? (
               <div className="flex items-center gap-3 p-3 rounded-xl bg-[hsl(var(--muted))]">
-                <div className="w-9 h-9 rounded-xl bg-[hsl(var(--primary)/0.08)] border border-[hsl(var(--primary)/0.2)] flex items-center justify-center shrink-0">
+                <div className="w-9 h-9 rounded-xl bg-[hsl(var(--foreground)/0.05)] border border-[hsl(var(--border))] flex items-center justify-center shrink-0">
                   <BookOpen className="w-4 h-4 text-[hsl(var(--primary))]" />
                 </div>
                 <div className="flex-1 min-w-0">

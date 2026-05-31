@@ -222,7 +222,7 @@ export default function PodcastPage() {
         {[{ key: "new", label: "Yeni Podcast" }, { key: "history", label: `Geçmiş${history.length > 0 ? ` (${history.length})` : ""}` }].map(t => (
           <button key={t.key} onClick={() => setTab(t.key as "new" | "history")}
             className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${tab === t.key
-              ? "bg-[hsl(var(--primary)/0.15)] border border-[hsl(var(--primary)/0.3)] text-[hsl(var(--primary))]"
+              ? "bg-[hsl(var(--foreground)/0.08)] border border-[hsl(var(--border))] text-[hsl(var(--primary))]"
               : "glass text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"}`}>
             {t.label}
           </button>
@@ -264,7 +264,7 @@ export default function PodcastPage() {
                   {STYLES.map(s => (
                     <button key={s.key} onClick={() => setStyle(s.key)}
                       className={`p-3 rounded-xl text-left transition-all ${style === s.key
-                        ? "bg-[hsl(var(--primary)/0.12)] border border-[hsl(var(--primary)/0.3)]"
+                        ? "bg-[hsl(var(--foreground)/0.07)] border border-[hsl(var(--foreground)/0.15)]"
                         : "keda-card"}`}>
                       <div className="text-sm font-medium" style={{ color: style === s.key ? "hsl(var(--primary))" : "hsl(var(--foreground))" }}>{s.label}</div>
                       <div className="text-xs mt-0.5" style={{ color: "hsl(var(--muted-foreground))" }}>{s.desc}</div>
@@ -280,7 +280,7 @@ export default function PodcastPage() {
                   {LENGTHS.map(l => (
                     <button key={l.key} onClick={() => setLength(l.key)}
                       className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all text-center ${length === l.key
-                        ? "bg-[hsl(var(--primary)/0.12)] border border-[hsl(var(--primary)/0.3)] text-[hsl(var(--primary))]"
+                        ? "bg-[hsl(var(--foreground)/0.07)] border border-[hsl(var(--foreground)/0.15)] text-[hsl(var(--foreground))]"
                         : "keda-card text-[hsl(var(--muted-foreground))]"}`}>
                       <div>{l.label}</div>
                       <div className="text-xs opacity-60 mt-0.5">{l.desc}</div>
@@ -442,7 +442,7 @@ export default function PodcastPage() {
                   <button onClick={() => handlePlayHistory(podcast)}
                     className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-all ${isPlaying
                       ? "bg-red-500/15 border border-red-500/25"
-                      : "bg-[hsl(var(--primary)/0.1)] border border-[hsl(var(--primary)/0.2)]"}`}>
+                      : "bg-[hsl(var(--foreground)/0.06)] border border-[hsl(var(--border))]"}`}>
                     {isPlaying ? <Pause className="w-4 h-4 text-red-400" /> : <Play className="w-4 h-4 ml-0.5" style={{ color: "hsl(var(--primary))" }} />}
                   </button>
 

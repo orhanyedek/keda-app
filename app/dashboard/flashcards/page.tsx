@@ -48,7 +48,7 @@ function CardFlip({ card, onKnow, onDontKnow }: {
     <div className="max-w-lg mx-auto">
       <div className="flashcard-container" style={{ height: 280 }}>
         <div className={`flashcard-inner ${flipped ? "flipped" : ""}`} onClick={() => setFlipped(!flipped)}>
-          <div className="flashcard-front keda-card border border-[hsl(var(--primary)/0.2)] p-8 flex flex-col items-center justify-center cursor-pointer hover:border-[hsl(var(--primary)/0.3)] transition-colors" style={{ height: 280, borderRadius: 16 }}>
+          <div className="flashcard-front keda-card border border-[hsl(var(--border))] p-8 flex flex-col items-center justify-center cursor-pointer hover:border-[hsl(var(--border))] transition-colors" style={{ height: 280, borderRadius: 16 }}>
             <div className="text-xs text-[hsl(var(--primary))] font-mono mb-4 uppercase tracking-wider">Soru</div>
             <p className="text-[hsl(var(--foreground))] text-xl font-medium text-center leading-relaxed">{card.soru}</p>
             <div className="mt-6 text-[hsl(var(--muted-foreground)/0.6)] text-xs">Cevabı görmek için tıkla</div>
@@ -75,8 +75,8 @@ function SessionSummary({ correct, wrong, total, onRestart }: { correct: number;
   const rate = total > 0 ? Math.round((correct / total) * 100) : 0;
   return (
     <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="max-w-md mx-auto text-center">
-      <div className="keda-card p-8 border border-[hsl(var(--primary)/0.2)]">
-        <div className="flex items-center justify-center w-12 h-12 rounded-2xl mx-auto mb-4 bg-[hsl(var(--primary)/0.08)] border border-[hsl(var(--primary)/0.2)]">
+      <div className="keda-card p-8 border border-[hsl(var(--border))]">
+        <div className="flex items-center justify-center w-12 h-12 rounded-2xl mx-auto mb-4 bg-[hsl(var(--foreground)/0.05)] border border-[hsl(var(--border))]">
           {rate >= 80 ? <CheckCircle2 className="w-6 h-6 text-emerald-400" /> : rate >= 50 ? <CheckCircle2 className="w-6 h-6 text-[hsl(var(--primary))]" /> : <XCircle className="w-6 h-6 text-amber-400" />}
         </div>
         <h3 className="text-xl font-bold text-[hsl(var(--foreground))] mb-1 text-center">Oturum Tamamlandı</h3>
@@ -84,7 +84,7 @@ function SessionSummary({ correct, wrong, total, onRestart }: { correct: number;
         <div className="grid grid-cols-3 gap-4 mb-6">
           <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4"><div className="text-3xl font-bold text-emerald-400">{correct}</div><div className="text-xs text-[hsl(var(--muted-foreground))] mt-1">Doğru</div></div>
           <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4"><div className="text-3xl font-bold text-red-400">{wrong}</div><div className="text-xs text-[hsl(var(--muted-foreground))] mt-1">Yanlış</div></div>
-          <div className="bg-indigo-500/10 border border-[hsl(var(--primary)/0.2)] rounded-xl p-4"><div className="text-3xl font-bold text-[hsl(var(--primary))]">{rate}%</div><div className="text-xs text-[hsl(var(--muted-foreground))] mt-1">Oran</div></div>
+          <div className="bg-indigo-500/10 border border-[hsl(var(--border))] rounded-xl p-4"><div className="text-3xl font-bold text-[hsl(var(--primary))]">{rate}%</div><div className="text-xs text-[hsl(var(--muted-foreground))] mt-1">Oran</div></div>
         </div>
         <div className="progress-bar mb-6"><div className="progress-bar-fill" style={{ width: `${rate}%` }} /></div>
         <button onClick={onRestart} className="btn-primary w-full py-3">Yeni Oturum</button>
@@ -278,7 +278,7 @@ export default function FlashcardsPage() {
           <div className="flex gap-2 mb-6">
             {[{ key: "new", label: "Yeni Oluştur" }, { key: "sets", label: "Setlerim" }, { key: "due", label: "Tekrar Zamanı" }, { key: "history", label: "Geçmiş" }].map((t) => (
               <button key={t.key} onClick={() => setTab(t.key as "new" | "sets" | "due")}
-                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${tab === t.key ? "bg-indigo-600/30 border border-[hsl(var(--primary)/0.3)] text-[hsl(var(--primary)/0.85)]" : "glass text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"}`}>
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${tab === t.key ? "bg-indigo-600/30 border border-[hsl(var(--border))] text-[hsl(var(--primary)/0.85)]" : "glass text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"}`}>
                 {t.label}
               </button>
             ))}
@@ -312,7 +312,7 @@ export default function FlashcardsPage() {
                   <label className="text-sm text-[hsl(var(--muted-foreground))]">Kart sayısı:</label>
                   {[5, 10, 15, 20].map((count) => (
                     <button key={count} onClick={() => setCardCount(count)}
-                      className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${cardCount === count ? "bg-[hsl(var(--primary)/0.1)] border border-[hsl(var(--primary)/0.3)] text-[hsl(var(--primary)/0.85)]" : "glass text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"}`}>
+                      className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${cardCount === count ? "bg-[hsl(var(--foreground)/0.06)] border border-[hsl(var(--border))] text-[hsl(var(--primary)/0.85)]" : "glass text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"}`}>
                       {count}
                     </button>
                   ))}
@@ -331,18 +331,18 @@ export default function FlashcardsPage() {
                 <div className="text-center py-12 text-[hsl(var(--muted-foreground))]">Yükleniyor...</div>
               ) : sets.length === 0 ? (
                 <div className="keda-card p-8 text-center">
-                <div className="w-12 h-12 rounded-2xl bg-[hsl(var(--primary)/0.08)] border border-[hsl(var(--primary)/0.2)] flex items-center justify-center mx-auto mb-3">
+                <div className="w-12 h-12 rounded-2xl bg-[hsl(var(--foreground)/0.05)] border border-[hsl(var(--border))] flex items-center justify-center mx-auto mb-3">
                   <Layers className="w-5 h-5 text-[hsl(var(--primary))]" />
                 </div>
                 <p className="text-[hsl(var(--muted-foreground))] text-sm">Henüz kart seti yok. Yeni oluştur sekmesinden başla.</p>
               </div>
               ) : sets.map((set) => (
-                <div key={set.id} onClick={() => openSet(set)} className="keda-card p-5 flex items-center justify-between cursor-pointer hover:border-[hsl(var(--primary)/0.25)] transition-colors">
+                <div key={set.id} onClick={() => openSet(set)} className="keda-card p-5 flex items-center justify-between cursor-pointer hover:border-[hsl(var(--border))] transition-colors">
                   <div>
                     <h3 className="text-[hsl(var(--foreground))] font-medium">{set.baslik}</h3>
                     <p className="text-[hsl(var(--muted-foreground))] text-sm mt-1">{set.flashcards?.[0]?.count || 0} kart · {new Date(set.created_at).toLocaleDateString("tr-TR")}</p>
                   </div>
-                  <div className="w-10 h-10 rounded-xl bg-[hsl(var(--primary)/0.08)] border border-[hsl(var(--primary)/0.2)] flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-[hsl(var(--foreground)/0.05)] border border-[hsl(var(--border))] flex items-center justify-center">
                     <Layers className="w-4 h-4 text-[hsl(var(--primary))]" />
                   </div>
                 </div>
@@ -439,7 +439,7 @@ export default function FlashcardsPage() {
 
           {tab === "due" && (
             <div className="keda-card p-8 text-center">
-              <div className="w-12 h-12 rounded-2xl bg-[hsl(var(--primary)/0.08)] border border-[hsl(var(--primary)/0.2)] flex items-center justify-center mx-auto mb-3">
+              <div className="w-12 h-12 rounded-2xl bg-[hsl(var(--foreground)/0.05)] border border-[hsl(var(--border))] flex items-center justify-center mx-auto mb-3">
                 <Clock className="w-5 h-5 text-[hsl(var(--primary))]" />
               </div>
               <p className="text-[hsl(var(--foreground))] font-medium mb-1 text-sm">Tekrar Zamanı Gelen Kartlar</p>
@@ -452,7 +452,7 @@ export default function FlashcardsPage() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
               {sessionHistory.length === 0 ? (
                 <div className="keda-card p-8 text-center">
-                  <div className="w-12 h-12 rounded-2xl bg-[hsl(var(--primary)/0.08)] border border-[hsl(var(--primary)/0.2)] flex items-center justify-center mx-auto mb-3">
+                  <div className="w-12 h-12 rounded-2xl bg-[hsl(var(--foreground)/0.05)] border border-[hsl(var(--border))] flex items-center justify-center mx-auto mb-3">
                     <Clock className="w-5 h-5 text-[hsl(var(--primary))]" />
                   </div>
                   <p className="text-[hsl(var(--muted-foreground))] text-sm">Henüz tamamlanmış oturum yok.</p>

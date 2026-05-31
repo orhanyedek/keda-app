@@ -130,7 +130,7 @@ export default function NotesPage() {
           {notes.length === 0 && <p className="text-xs text-center py-6" style={{ color: "hsl(var(--muted-foreground))" }}>Not yok</p>}
           {notes.map(n => (
             <div key={n.id} onClick={() => selectNote(n)}
-              className={`group flex items-start justify-between p-3 rounded-xl cursor-pointer transition-all ${activeId === n.id ? "bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))]" : "hover:bg-[hsl(var(--accent))]"}`}
+              className={`group flex items-start justify-between p-3 rounded-xl cursor-pointer transition-all ${activeId === n.id ? "bg-[hsl(var(--foreground)/0.06)] text-[hsl(var(--foreground))]" : "hover:bg-[hsl(var(--accent))]"}`}
               style={{ color: activeId === n.id ? "hsl(var(--primary))" : "hsl(var(--muted-foreground))" }}>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">{n.title}</p>
@@ -149,7 +149,7 @@ export default function NotesPage() {
         {!activeId ? (
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
-              <div className="w-14 h-14 rounded-2xl bg-[hsl(var(--primary)/0.1)] border border-[hsl(var(--primary)/0.2)] flex items-center justify-center mx-auto mb-4">
+              <div className="w-14 h-14 rounded-2xl bg-[hsl(var(--foreground)/0.06)] border border-[hsl(var(--border))] flex items-center justify-center mx-auto mb-4">
                 <FileText className="w-7 h-7" style={{ color: "hsl(var(--primary))" }} />
               </div>
               <p className="text-sm" style={{ color: "hsl(var(--muted-foreground))" }}>Bir not seç veya yeni oluştur</p>

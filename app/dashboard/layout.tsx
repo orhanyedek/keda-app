@@ -59,7 +59,7 @@ function SettingsMenu({ userName, onSignOut }: { userName: string; onSignOut: ()
               {settingsItems.map(item => (
                 <Link key={item.href} href={item.href} onClick={() => setOpen(false)}
                   className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
-                    pathname.startsWith(item.href) ? "bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))]" : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]"
+                    pathname.startsWith(item.href) ? "bg-[hsl(var(--foreground)/0.08)] text-[hsl(var(--foreground))]" : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]"
                   }`}>
                   <span className={pathname.startsWith(item.href) ? "text-[hsl(var(--primary))]" : "text-[hsl(var(--muted-foreground)/0.6)]"}>{item.icon}</span>
                   {item.label}
@@ -293,7 +293,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               href={item.href}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group ${
                 isActive(item.href, item.exact)
-                  ? "bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))] border border-indigo-500/20"
+                  ? "bg-[hsl(var(--foreground)/0.08)] text-[hsl(var(--foreground))] border border-indigo-500/20"
                   : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]"
               }`}
             >
@@ -360,7 +360,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 {navItems.map((item) => (
                   <Link key={item.href} href={item.href} onClick={() => setSidebarOpen(false)}
                     className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                      isActive(item.href, item.exact) ? "bg-[hsl(var(--primary)/0.1)] text-[hsl(var(--primary))]" : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]"
+                      isActive(item.href, item.exact) ? "bg-[hsl(var(--foreground)/0.08)] text-[hsl(var(--foreground))]" : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]"
                     }`}
                   >
                     {item.icon}
