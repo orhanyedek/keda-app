@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, XCircle, Sparkles, RotateCcw, ChevronRight } from "lucide-react";
@@ -12,6 +14,7 @@ const groq = new Groq({ apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY!, dangerous
 interface Question { question: string; options: string[]; correct: number; explanation: string; }
 
 export default function QuizPage() {
+  const router = useRouter();
   const [input, setInput] = useState("");
   const [count, setCount] = useState(5);
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -95,7 +98,11 @@ correct = doğru seçeneğin index'i (0-3). Türkçe olsun.`;
 
   return (
     <div className="p-6 lg:p-8 max-w-2xl mx-auto pb-24 lg:pb-8">
-      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+            <button onClick={() => router.back()} className="flex items-center gap-1.5 text-sm mb-6 transition-colors hover:text-[hsl(var(--foreground))]" style={{ color: "hsl(var(--muted-foreground))" }}>
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+        Geri
+      </button>
+<motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
         <h1 className="text-2xl font-bold text-white mb-1">Quiz Modu</h1>
         <p className="text-slate-400 text-sm">Metinden çoktan seçmeli sınav oluştur</p>
       </motion.div>

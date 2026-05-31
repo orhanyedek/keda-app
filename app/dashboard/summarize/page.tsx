@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, Copy, Download } from "lucide-react";
@@ -19,6 +21,7 @@ const TYPES: { key: SummaryType; label: string; desc: string }[] = [
 ];
 
 export default function SummarizePage() {
+  const router = useRouter();
   const [input, setInput] = useState("");
   const [type, setType] = useState<SummaryType>("short");
   const [result, setResult] = useState("");
@@ -58,7 +61,11 @@ export default function SummarizePage() {
 
   return (
     <div className="p-6 lg:p-8 max-w-4xl mx-auto pb-24 lg:pb-8">
-      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+            <button onClick={() => router.back()} className="flex items-center gap-1.5 text-sm mb-6 transition-colors hover:text-[hsl(var(--foreground))]" style={{ color: "hsl(var(--muted-foreground))" }}>
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+        Geri
+      </button>
+<motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
         <h1 className="text-2xl font-bold text-white mb-1">Metin Özetleme</h1>
         <p className="text-slate-400 text-sm">PDF veya metin yapıştır, AI ile özetle</p>
       </motion.div>

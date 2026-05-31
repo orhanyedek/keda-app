@@ -16,11 +16,11 @@ import { CheckCircle2, XCircle, Clock, Layers, Trash2, Pencil } from "lucide-rea
 import toast from "react-hot-toast";
 
 const leitnerBoxes = [
-  { no: 1, label: "Her Oturum", color: "bg-red-500", textColor: "text-red-400" },
+  { no: 1, label: "Her Oturum", color: "bg-[hsl(var(--primary)/0.7)]", textColor: "text-[hsl(var(--primary))]" },
   { no: 2, label: "1 Gün", color: "bg-orange-500", textColor: "text-orange-400" },
-  { no: 3, label: "3 Gün", color: "bg-yellow-500", textColor: "text-yellow-400" },
-  { no: 4, label: "7 Gün", color: "bg-green-500", textColor: "text-green-400" },
-  { no: 5, label: "14 Gün", color: "bg-emerald-500", textColor: "text-emerald-400" },
+  { no: 3, label: "3 Gün", color: "bg-[hsl(var(--primary)/0.85)]", textColor: "text-[hsl(var(--primary))]" },
+  { no: 4, label: "7 Gün", color: "bg-[hsl(var(--primary))]", textColor: "text-[hsl(var(--primary))]" },
+  { no: 5, label: "14 Gün", color: "bg-[hsl(var(--primary))]", textColor: "text-[hsl(var(--primary))]" },
 ];
 
 interface FlashcardData {
