@@ -7,6 +7,7 @@ import { savePodcast, getPodcasts, deletePodcast } from "@/lib/db";
 import { useAuth } from "@/hooks/useAuth";
 import PDFUploader from "@/components/PDFUploader";
 import { Mic, Play, Pause, SkipBack, SkipForward, Trash2, Download, Search, ChevronDown } from "lucide-react";
+import KeremAssistant from "@/components/KeremAssistant";
 import toast from "react-hot-toast";
 
 interface Podcast {
@@ -523,6 +524,7 @@ export default function PodcastPage() {
           })}
         </motion.div>
       )}
+      <KeremAssistant />
     </div>
   );
 }
