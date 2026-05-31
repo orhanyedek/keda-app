@@ -442,6 +442,71 @@ const faqs = [
   { q:"Şifremi unutursam ne olur?", a:"Şifre sıfırlama linki e-posta adresinize Supabase Auth aracılığıyla gönderilir." },
 ];
 
+/* ─── MODÜL EKRANLARI ─── */
+
+const screens = [
+  { src: "/screen-dashboard.png", label: "Dashboard", tag: "Genel Bakış", desc: "Tüm modülleri tek ekrandan yönet, istatistikleri takip et." },
+  { src: "/screen-flashcard.png", label: "Flashcard",  tag: "M-03",        desc: "Leitner algoritmasıyla akıllı tekrar sistemi." },
+  { src: "/screen-podcast.png",   label: "Podcast",    tag: "M-02",        desc: "PDF'ten sesli özet üret, Spotify tarzı dinle." },
+  { src: "/screen-agenda.png",    label: "Ajanda",     tag: "M-01",        desc: "AI destekli kişisel çalışma planı oluştur." },
+];
+
+function MockupFrame({ src, label, tag, desc }: { src: string; label: string; tag: string; desc: string }) {
+  const { ref, inView } = useSection();
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 32 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+    >
+      <div className="flex items-center gap-3 mb-4 flex-wrap">
+        <span className="text-xs font-mono px-2 py-1 rounded" style={{ background: "hsl(var(--secondary))", color: "hsl(var(--muted-foreground))", border: "1px solid hsl(var(--border))" }}>{tag}</span>
+        <h3 className="text-sm font-semibold" style={{ color: "hsl(var(--foreground))" }}>{label}</h3>
+        <span className="text-sm" style={{ color: "hsl(var(--muted-foreground))" }}>— {desc}</span>
+      </div>
+      <div className="rounded-xl overflow-hidden border border-[hsl(var(--border))]"
+        style={{ boxShadow: "0 20px 60px rgba(0,0,0,0.25)" }}>
+        <div className="flex items-center gap-1.5 px-4 py-2.5 border-b border-[hsl(var(--border))]"
+          style={{ background: "hsl(var(--card))" }}>
+          <div className="w-2.5 h-2.5 rounded-full" style={{ background: "rgba(255,90,90,0.6)" }} />
+          <div className="w-2.5 h-2.5 rounded-full" style={{ background: "rgba(255,190,50,0.6)" }} />
+          <div className="w-2.5 h-2.5 rounded-full" style={{ background: "rgba(50,200,100,0.6)" }} />
+          <div className="flex-1 mx-3 h-5 rounded text-xs flex items-center justify-center"
+            style={{ background: "hsl(var(--secondary))", color: "hsl(var(--muted-foreground))" }}>
+            keda-app-five.vercel.app/{label.toLowerCase()}
+          </div>
+        </div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={src} alt={label} className="w-full block" />
+      </div>
+    </motion.div>
+  );
+}
+
+function ModuleScreens() {
+  const { ref, inView } = useSection();
+  return (
+    <section className="py-24 px-6">
+      <div className="max-w-5xl mx-auto">
+        <motion.div ref={ref} initial="hidden" animate={inView ? "show" : "hidden"} variants={stagger} className="mb-14">
+          <motion.div variants={fade}>
+            <span className="section-label">Ekranlar</span>
+            <h2 className="text-2xl font-bold mt-2" style={{ color: "hsl(var(--foreground))", letterSpacing: "-0.01em" }}>
+              Her modül, amacına uygun tasarlandı
+            </h2>
+          </motion.div>
+        </motion.div>
+        <div className="space-y-16">
+          {screens.map((s) => (
+            <MockupFrame key={s.label} {...s} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function FAQ() {
   const [openIndex, setOpenIndex] = useState<number|null>(null);
   const { ref, inView } = useSection();
@@ -523,10 +588,9 @@ export default function HomePage() {
       <Nav />
       <Hero />
       <Features />
-      <Screenshots />
       <HowItWorks />
       <LeitnerSection />
-      <FullMockup />
+      <ModuleScreens />
       <FAQ />
       <CTA />
       <Footer />
