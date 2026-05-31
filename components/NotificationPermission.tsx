@@ -54,7 +54,7 @@ export default function NotificationPermission() {
       )}
       {permission === "granted" && (
         <span className="text-xs px-2 py-1 rounded-full" style={{ background: "hsl(142 72% 29% / 0.15)", color: "hsl(142 72% 55%)", border: "1px solid hsl(142 72% 29% / 0.3)" }}>
-          ✓ Aktif
+           Aktif
         </span>
       )}
     </div>

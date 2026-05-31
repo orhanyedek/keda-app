@@ -285,8 +285,8 @@ function LeitnerSection() {
               ))}
             </div>
             <div className="flex items-center justify-between mt-6 pt-4 border-t border-[hsl(var(--border))] text-xs" style={{ color:"hsl(var(--muted-foreground))" }}>
-              <span>✓ Doğru cevap → bir üst kutu</span>
-              <span>✗ Yanlış cevap → Kutu 1</span>
+              <span> Doğru cevap → bir üst kutu</span>
+              <span> Yanlış cevap → Kutu 1</span>
             </div>
           </motion.div>
         </motion.div>

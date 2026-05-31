@@ -94,6 +94,9 @@ function SessionSummary({ correct, wrong, total, onRestart }: { correct: number;
 }
 
 export default function FlashcardsPage() {
+  // Sayfa başlığı
+  useEffect(() => { document.title = "Flashcard | KEDA"; }, []);
+
   const { user } = useAuth();
   const [tab, setTab] = useState<"new" | "sets" | "due" | "history">("new");
   const [inputText, setInputText] = useState("");
@@ -196,7 +199,7 @@ export default function FlashcardsPage() {
         const { data: setData } = await createFlashcardSet(user.id, title);
         if (setData) {
           await saveFlashcards(user.id, setData.id, result.flashcards);
-          toast.success("Kartlar kaydedildi ✓");
+          toast.success("Kartlar kaydedildi ");
         }
         setSaving(false);
       }

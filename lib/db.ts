@@ -177,36 +177,32 @@ export async function savePodcast(
 // ==================== DASHBOARD İSTATİSTİKLERİ ====================
 
 export async function getDashboardStats(userId: string) {
-  const [flashcardsRes, plansRes, podcastsRes] = await Promise.all([
-    supabase
-      .from("flashcards")
-      .select("id, kutu_no, sonraki_gosterim")
-      .eq("kullanici_id", userId),
-    supabase
-      .from("study_plans")
-      .select("*, topics(*)")
-      .eq("kullanici_id", userId)
-      .eq("durum", "aktif")
-      .order("created_at", { ascending: false })
-      .limit(1),
-    supabase
-      .from("podcasts")
-      .select("*")
-      .eq("kullanici_id", userId)
-      .order("created_at", { ascending: false })
-      .limit(1),
+  const [flashcardsRes, setsRes, plansRes, podcastsRes, pdfRes] = await Promise.all([
+    supabase.from("flashcards").select("id, kutu_no, sonraki_gosterim").eq("kullanici_id", userId),
+    supabase.from("flashcard_sets").select("id, baslik, created_at").eq("kullanici_id", userId).order("created_at", { ascending: false }).limit(3),
+    supabase.from("study_plans").select("*, topics(*)").eq("kullanici_id", userId).eq("durum", "aktif").order("created_at", { ascending: false }).limit(1),
+    supabase.from("podcasts").select("id, baslik, created_at").eq("kullanici_id", userId).order("created_at", { ascending: false }).limit(3),
+    supabase.from("pdf_documents").select("id").eq("kullanici_id", userId),
   ]);
 
   const now = new Date().toISOString();
-  const dueCards = (flashcardsRes.data || []).filter(
-    (c) => c.sonraki_gosterim <= now
-  );
+  const dueCards = (flashcardsRes.data || []).filter(c => c.sonraki_gosterim <= now);
+
+  // Leitner kutu dağılımı
+  const leitnerDist = [1,2,3,4,5].map(n => ({
+    kutu: n,
+    sayi: (flashcardsRes.data || []).filter(c => c.kutu_no === n).length
+  }));
 
   return {
     toplam_flashcard: flashcardsRes.data?.length || 0,
     bugun_tekrar_edilecek: dueCards.length,
     aktif_plan: plansRes.data?.[0] || null,
     son_podcast: podcastsRes.data?.[0] || null,
+    son_setler: setsRes.data || [],
+    son_podcastler: podcastsRes.data || [],
+    toplam_pdf: pdfRes.data?.length || 0,
+    leitner_dagilim: leitnerDist,
   };
 }
 

@@ -21,6 +21,9 @@ const NOTIF_KEYS = [
 ];
 
 export default function ProfilePage() {
+  // Sayfa başlığı
+  useEffect(() => { document.title = "Profil | KEDA"; }, []);
+
   const { user } = useAuth();
   const router = useRouter();
   const [fullName, setFullName] = useState(user?.user_metadata?.full_name || "");

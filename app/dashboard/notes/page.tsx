@@ -22,6 +22,9 @@ const TEXT_COLORS = [
 ];
 
 export default function NotesPage() {
+  // Sayfa başlığı
+  useEffect(() => { document.title = "Not Defteri | KEDA"; }, []);
+
   const router = useRouter();
   const [notes, setNotes] = useState<Note[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -182,7 +185,7 @@ export default function NotesPage() {
                               className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-all ${textColor === c.value ? "bg-[hsl(var(--accent))]" : "hover:bg-[hsl(var(--accent))]"}`}>
                               <span className="w-3.5 h-3.5 rounded-full flex-shrink-0" style={{ background: c.value, border: "1px solid rgba(255,255,255,0.15)" }} />
                               <span style={{ color: c.value }}>{c.label}</span>
-                              {textColor === c.value && <span className="ml-auto" style={{ color: "hsl(var(--primary))" }}>✓</span>}
+                              {textColor === c.value && <span className="ml-auto" style={{ color: "hsl(var(--primary))" }}></span>}
                             </button>
                           ))}
                         </div>

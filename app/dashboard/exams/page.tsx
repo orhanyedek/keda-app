@@ -36,6 +36,9 @@ function getUrgencyBg(days: number) {
 }
 
 export default function ExamsPage() {
+  // Sayfa başlığı
+  useEffect(() => { document.title = "Sınav Takvimi | KEDA"; }, []);
+
   const router = useRouter();
   const [exams, setExams] = useState<Exam[]>([]);
   const [showForm, setShowForm] = useState(false);
@@ -139,7 +142,7 @@ export default function ExamsPage() {
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-start gap-4">
                       <div className={`w-10 h-10 rounded-xl ${exam.color} flex items-center justify-center text-white font-bold text-lg flex-shrink-0`}>
-                        {days === 0 ? "!" : days <= 3 ? "🔥" : <CalendarDays className="w-5 h-5" />}
+                        {days === 0 ? "!" : days <= 3 ? "" : <CalendarDays className="w-5 h-5" />}
                       </div>
                       <div>
                         <h3 className="text-white font-semibold">{exam.name}</h3>

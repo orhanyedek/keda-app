@@ -26,6 +26,9 @@ const MODE_BG: Record<Mode, string> = {
 interface Session { mode: Mode; duration: number; date: string; }
 
 export default function PomodoroPage() {
+  // Sayfa başlığı
+  useEffect(() => { document.title = "Pomodoro | KEDA"; }, []);
+
   const router = useRouter();
   const [mode, setMode] = useState<Mode>("work");
   const [minutes, setMinutes] = useState(DEFAULTS.work);
@@ -76,7 +79,7 @@ export default function PomodoroPage() {
 
     if (mode === "work") {
       const next = cycle % 4 === 0 ? "long" : "short";
-      toast.success(`🎉 ${durations[mode]} dk tamamlandı! ${next === "long" ? "Uzun mola zamanı." : "Kısa mola zamanı."}`, { duration: 5000 });
+      toast.success(` ${durations[mode]} dk tamamlandı! ${next === "long" ? "Uzun mola zamanı." : "Kısa mola zamanı."}`, { duration: 5000 });
       setCycle(c => c + 1);
       switchMode(next);
     } else {

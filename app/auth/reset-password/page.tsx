@@ -46,7 +46,7 @@ export default function ResetPasswordPage() {
         <div className="keda-card p-8">
           {sent ? (
             <div className="text-center py-4">
-              <div className="text-4xl mb-4">📬</div>
+              <div className="text-4xl mb-4"></div>
               <h3 className="text-white font-semibold mb-2">E-posta Gönderildi</h3>
               <p className="text-slate-400 text-sm mb-6">{email} adresine sıfırlama linki gönderildi. Spam klasörünü de kontrol et.</p>
               <Link href="/auth/login" className="btn-primary px-6 py-2.5 text-sm inline-block">Giriş Sayfasına Dön</Link>

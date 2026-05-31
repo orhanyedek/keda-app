@@ -66,7 +66,7 @@ export default function UserAvatar({ userId, userName, size = 36, className = ""
   }
 
   // Fotoğraf yoksa: gradient + emoji/ikon
-  const emojis = ["🎓", "📚", "🧠", "✨", "🚀", "💡"];
+  const emojis = ["", "", "", "", "", ""];
   const emoji = emojis[userName.charCodeAt(0) % emojis.length];
 
   return (

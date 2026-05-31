@@ -26,6 +26,9 @@ interface Stats {
 }
 
 export default function StatsPage() {
+  // Sayfa başlığı
+  useEffect(() => { document.title = "İstatistik | KEDA"; }, []);
+
   const router = useRouter();
   const { user } = useAuth();
   const [stats, setStats] = useState<Stats | null>(null);

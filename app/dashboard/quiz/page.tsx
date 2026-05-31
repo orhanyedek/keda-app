@@ -14,6 +14,9 @@ const groq = new Groq({ apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY!, dangerous
 interface Question { question: string; options: string[]; correct: number; explanation: string; }
 
 export default function QuizPage() {
+  // Sayfa başlığı
+  useEffect(() => { document.title = "Quiz | KEDA"; }, []);
+
   const router = useRouter();
   const [input, setInput] = useState("");
   const [count, setCount] = useState(5);

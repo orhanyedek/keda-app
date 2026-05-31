@@ -19,6 +19,9 @@ interface PdfDoc {
 }
 
 export default function DepotPage() {
+  // Sayfa başlığı
+  useEffect(() => { document.title = "PDF Deposu | KEDA"; }, []);
+
   const router = useRouter();
   const { user } = useAuth();
   const [docs, setDocs] = useState<PdfDoc[]>([]);

@@ -21,6 +21,9 @@ const TYPES: { key: SummaryType; label: string; desc: string }[] = [
 ];
 
 export default function SummarizePage() {
+  // Sayfa başlığı
+  useEffect(() => { document.title = "Özetleme | KEDA"; }, []);
+
   const router = useRouter();
   const [input, setInput] = useState("");
   const [type, setType] = useState<SummaryType>("short");

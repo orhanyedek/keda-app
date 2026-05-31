@@ -38,6 +38,9 @@ interface SavedPlan {
 }
 
 export default function AgendaPage() {
+  // Sayfa başlığı
+  useEffect(() => { document.title = "Ajanda | KEDA"; }, []);
+
   const { user } = useAuth();
   const [tab, setTab] = useState<"new" | "saved">("new");
   const [step, setStep] = useState(1);
@@ -130,7 +133,7 @@ export default function AgendaPage() {
         topics: generatedTopics,
       });
       if (error) throw error;
-      toast.success("Plan kaydedildi! ✓");
+      toast.success("Plan kaydedildi! ");
       if (data) loadPlans();
     } catch {
       toast.error("Plan kaydedilemedi");
@@ -299,7 +302,7 @@ export default function AgendaPage() {
                 <div className="flex gap-3 mt-4">
                   <button onClick={() => { setStep(1); setInputText(""); }} className="flex-1 glass py-3 rounded-2xl text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] transition-colors">Yeni Plan</button>
                   <button onClick={handleSavePlan} disabled={saving} className="flex-1 btn-primary py-3 disabled:opacity-50">
-                    {saving ? "Kaydediliyor..." : "Planı Kaydet ✓"}
+                    {saving ? "Kaydediliyor..." : "Planı Kaydet "}
                   </button>
                 </div>
               </motion.div>
@@ -383,11 +386,11 @@ export default function AgendaPage() {
                         <div key={dayNum} className="text-center group relative">
                           <div className="text-xs text-[hsl(var(--muted-foreground)/0.6)] mb-1">{dayNames[dayDate.getDay()]}</div>
                           <div className={`w-full aspect-square rounded-xl flex flex-col items-center justify-center text-xs font-medium transition-all cursor-default
-                            ${isToday ? "bg-indigo-600/30 border border-indigo-500/50 text-[hsl(var(--primary)/0.85)]" :
-                              allDone ? "bg-emerald-500/20 border border-emerald-500/30 text-emerald-400" :
-                              someDone ? "bg-amber-500/15 border border-amber-500/25 text-amber-400" :
-                              dayTopics.length > 0 ? (isPast ? "bg-red-500/10 border border-red-500/20 text-red-400" : "bg-[hsl(var(--muted))] border border-[hsl(var(--border))] text-[hsl(var(--muted-foreground))]") :
-                              "bg-white/3 border border-[hsl(var(--border))] text-[hsl(var(--muted-foreground)/0.4)]"
+                            ${isToday ? "bg-[hsl(var(--primary)/0.2)] border border-[hsl(var(--primary)/0.4)] text-[hsl(var(--primary))]" :
+                              allDone ? "bg-[hsl(var(--primary)/0.1)] border border-[hsl(var(--primary)/0.2)] text-[hsl(var(--primary)/0.7)] opacity-60" :
+                              someDone ? "bg-[hsl(var(--primary)/0.08)] border border-[hsl(var(--primary)/0.15)] text-[hsl(var(--muted-foreground))]" :
+                              dayTopics.length > 0 ? (isPast ? "bg-[hsl(var(--muted))] border border-[hsl(var(--border))] text-[hsl(var(--muted-foreground)/0.5)] opacity-50" : "bg-[hsl(var(--muted))] border border-[hsl(var(--border))] text-[hsl(var(--foreground))]") :
+                              "border border-[hsl(var(--border))] text-[hsl(var(--muted-foreground)/0.3)]"
                             }`}>
                             <span>{dayDate.getDate()}</span>
                             {dayTopics.length > 0 && (
@@ -400,7 +403,7 @@ export default function AgendaPage() {
                             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-40 bg-[hsl(var(--secondary))] border border-[hsl(var(--border))] rounded-xl p-2 text-left z-10 hidden group-hover:block shadow-xl">
                               <p className="text-xs text-[hsl(var(--muted-foreground))] mb-1">Gün {dayNum}</p>
                               {dayTopics.slice(0, 3).map(t => (
-                                <p key={t.id} className={`text-xs truncate ${t.tamamlandi_mi ? "text-emerald-400 line-through" : "text-[hsl(var(--foreground)/0.85)]"}`}>
+                                <p key={t.id} className={`text-xs truncate ${t.tamamlandi_mi ? "line-through text-[hsl(var(--muted-foreground))]" : "text-[hsl(var(--foreground)/0.85)]"}`}>
                                   {t.baslik}
                                 </p>
                               ))}

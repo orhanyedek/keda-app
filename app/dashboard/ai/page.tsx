@@ -22,10 +22,10 @@ Kullanıcılara ders çalışma, konu anlama, sınav hazırlığı ve akademik s
 Türkçe konuş. Açık, anlaşılır ve öğretici ol. Gerektiğinde örnekler ver. Markdown formatını kullan.`;
 
 const STARTER_PROMPTS = [
-  { icon: "📚", text: "Türev konusunu basitçe anlat" },
-  { icon: "🧠", text: "Etkili çalışma teknikleri nelerdir?" },
-  { icon: "📝", text: "Sınav stresini nasıl yönetebilirim?" },
-  { icon: "🔬", text: "Newton'un hareket yasalarını özetle" },
+  { icon: "", text: "Türev konusunu basitçe anlat" },
+  { icon: "", text: "Etkili çalışma teknikleri nelerdir?" },
+  { icon: "", text: "Sınav stresini nasıl yönetebilirim?" },
+  { icon: "", text: "Newton'un hareket yasalarını özetle" },
 ];
 
 interface Message {
@@ -61,6 +61,9 @@ function renderMarkdown(text: string) {
 }
 
 export default function AIPage() {
+  // Sayfa başlığı
+  useEffect(() => { document.title = "KEDA AI"; }, []);
+
   const { user } = useAuth();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);

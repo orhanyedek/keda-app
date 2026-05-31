@@ -63,9 +63,16 @@ interface DashboardStats {
     topics: { tamamlandi_mi: boolean; baslik: string; hedef_gun: number }[];
   } | null;
   son_podcast: { baslik: string; created_at: string } | null;
+  son_setler: { id: string; baslik: string; created_at: string }[];
+  son_podcastler: { id: string; baslik: string; created_at: string }[];
+  toplam_pdf: number;
+  leitner_dagilim: { kutu: number; sayi: number }[];
 }
 
 export default function DashboardPage() {
+  // Sayfa başlığı
+  useEffect(() => { document.title = "Dashboard"; }, []);
+
   const { user } = useAuth();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -132,11 +139,89 @@ export default function DashboardPage() {
 
       {/* İstatistik kartları */}
       <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <StatCard icon={Layers} label="Toplam Flashcard" value={loadingStats ? "..." : stats?.toplam_flashcard || 0} sub="Gemini ile üretildi" />
-        <StatCard icon={Clock} label="Bugün Tekrar" value={loadingStats ? "..." : stats?.bugun_tekrar_edilecek || 0} sub="Kart bekliyor" />
+        <StatCard icon={Layers} label="Toplam Flashcard" value={loadingStats ? "..." : stats?.toplam_flashcard || 0} sub="Tüm setlerdeki kart sayısı" />
+        <StatCard icon={Clock} label="Bugün Tekrar" value={loadingStats ? "..." : stats?.bugun_tekrar_edilecek || 0} sub="Kart seni bekliyor" />
         <StatCard icon={CalendarDays} label="Aktif Plan" value={loadingStats ? "..." : stats?.aktif_plan ? getKalanGun() + " gün" : "—"} sub={stats?.aktif_plan?.baslik || "Plan yok"} />
-        <StatCard icon={Mic} label="Son Podcast" value={loadingStats ? "..." : stats?.son_podcast ? "✓" : "—"} sub={stats?.son_podcast?.baslik || "Henüz yok"} />
+        <StatCard icon={Mic} label="Toplam Podcast" value={loadingStats ? "..." : stats?.son_podcastler?.length || 0} sub={stats?.son_podcast?.baslik || "Henüz yok"} />
       </motion.div>
+
+      {/* Son aktiviteler + Leitner */}
+      {!loadingStats && (stats?.son_setler?.length || stats?.son_podcastler?.length || stats?.leitner_dagilim?.some(d => d.sayi > 0)) && (
+        <div className="grid lg:grid-cols-3 gap-4 mb-8">
+          {/* Son flashcard setleri */}
+          {(stats?.son_setler?.length || 0) > 0 && (
+            <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.1 }} className="keda-card p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold" style={{ color:"hsl(var(--foreground))" }}>Son Flashcard Setleri</h3>
+                <Link href="/dashboard/flashcards" className="text-xs" style={{ color:"hsl(var(--primary))" }}>Tümü</Link>
+              </div>
+              <div className="space-y-2">
+                {stats!.son_setler.map(set => (
+                  <Link key={set.id} href="/dashboard/flashcards"
+                    className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-[hsl(var(--accent))] transition-colors">
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+                      style={{ background:"hsl(var(--primary)/0.1)", border:"1px solid hsl(var(--primary)/0.2)" }}>
+                      <Layers className="w-3.5 h-3.5" style={{ color:"hsl(var(--primary))" }} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium truncate" style={{ color:"hsl(var(--foreground))" }}>{set.baslik}</p>
+                      <p className="text-xs" style={{ color:"hsl(var(--muted-foreground))" }}>{new Date(set.created_at).toLocaleDateString("tr-TR")}</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {/* Son podcastler */}
+          {(stats?.son_podcastler?.length || 0) > 0 && (
+            <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.15 }} className="keda-card p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold" style={{ color:"hsl(var(--foreground))" }}>Son Podcastler</h3>
+                <Link href="/dashboard/podcast" className="text-xs" style={{ color:"hsl(var(--primary))" }}>Tümü</Link>
+              </div>
+              <div className="space-y-2">
+                {stats!.son_podcastler.map(p => (
+                  <Link key={p.id} href="/dashboard/podcast"
+                    className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-[hsl(var(--accent))] transition-colors">
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+                      style={{ background:"hsl(var(--primary)/0.1)", border:"1px solid hsl(var(--primary)/0.2)" }}>
+                      <Mic className="w-3.5 h-3.5" style={{ color:"hsl(var(--primary))" }} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium truncate" style={{ color:"hsl(var(--foreground))" }}>{p.baslik}</p>
+                      <p className="text-xs" style={{ color:"hsl(var(--muted-foreground))" }}>{new Date(p.created_at).toLocaleDateString("tr-TR")}</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {/* Leitner kutu dağılımı */}
+          {stats?.leitner_dagilim?.some(d => d.sayi > 0) && (
+            <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.2 }} className="keda-card p-5">
+              <h3 className="text-sm font-semibold mb-4" style={{ color:"hsl(var(--foreground))" }}>Leitner Dağılımı</h3>
+              <div className="space-y-2.5">
+                {stats!.leitner_dagilim.map(d => {
+                  const total = stats!.toplam_flashcard || 1;
+                  const pct = Math.round((d.sayi / total) * 100);
+                  return (
+                    <div key={d.kutu} className="flex items-center gap-3">
+                      <span className="text-xs font-mono w-12 flex-shrink-0" style={{ color:"hsl(var(--muted-foreground))" }}>Kutu {d.kutu}</span>
+                      <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background:"hsl(var(--border))" }}>
+                        <div className="h-full rounded-full transition-all" style={{ width:`${pct}%`, background:"hsl(var(--primary))" }} />
+                      </div>
+                      <span className="text-xs w-6 text-right" style={{ color:"hsl(var(--muted-foreground))" }}>{d.sayi}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
+        </div>
+      )}
+
 
       {/* Modüller */}
       <div className="mb-8">

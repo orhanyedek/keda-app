@@ -65,9 +65,9 @@ export async function scheduleFlashcardReminder(dueCount: number) {
 // Pomodoro bitti bildirimi
 export async function sendPomodoroNotification(mode: "work" | "short" | "long") {
   const messages = {
-    work: { title: "Pomodoro Tamamlandı! ✅", body: "Harika iş! Mola zamanı." },
-    short: { title: "Kısa Mola Bitti ☕", body: "Çalışmaya devam edelim!" },
-    long: { title: "Uzun Mola Bitti 🎯", body: "Yeni bir pomodoro başlatalım!" },
+    work: { title: "Pomodoro Tamamlandı! ", body: "Harika iş! Mola zamanı." },
+    short: { title: "Kısa Mola Bitti ", body: "Çalışmaya devam edelim!" },
+    long: { title: "Uzun Mola Bitti ", body: "Yeni bir pomodoro başlatalım!" },
   };
   const { title, body } = messages[mode];
   await sendLocalNotification(title, body, "/dashboard/pomodoro", "pomodoro");
@@ -86,7 +86,7 @@ export async function scheduleDailyReminder() {
   const delay = target.getTime() - now.getTime();
   setTimeout(() => {
     sendLocalNotification(
-      "Günlük Çalışma Zamanı 📚",
+      "Günlük Çalışma Zamanı ",
       "Bugün çalışma hedefini tamamladın mı?",
       "/dashboard",
       "daily-reminder"
@@ -94,7 +94,7 @@ export async function scheduleDailyReminder() {
     // Her 24 saatte tekrar et
     setInterval(() => {
       sendLocalNotification(
-        "Günlük Çalışma Zamanı 📚",
+        "Günlük Çalışma Zamanı ",
         "Bugün çalışma hedefini tamamladın mı?",
         "/dashboard",
         "daily-reminder"

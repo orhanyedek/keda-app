@@ -30,6 +30,9 @@ const LENGTHS = [
 ];
 
 export default function PodcastPage() {
+  // Sayfa başlığı
+  useEffect(() => { document.title = "Podcast | KEDA"; }, []);
+
   const { user } = useAuth();
   const [tab, setTab] = useState<"new" | "history">("new");
 
