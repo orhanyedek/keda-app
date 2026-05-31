@@ -21,6 +21,7 @@ import { signOut } from "@/lib/supabase";
 import ThemeToggle from "@/components/ThemeToggle";
 import Notifications from "@/components/Notifications";
 import Search from "@/components/Search";
+import UserAvatar from "@/components/UserAvatar";
 import { registerServiceWorker, scheduleDailyReminder } from "@/lib/notifications";
 import toast from "react-hot-toast";
 
@@ -275,9 +276,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Kullanici bilgisi */}
         <div className="p-4 border-b border-[hsl(var(--border))]">
           <div className="flex items-center gap-3 p-3 rounded-xl bg-[hsl(var(--muted))] mb-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500/30 to-purple-600/30 flex items-center justify-center text-indigo-300 font-semibold">
-              {userName.charAt(0).toUpperCase()}
-            </div>
+            <UserAvatar userId={user.id} userName={userName} size={36} />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-[hsl(var(--foreground))] truncate">{userName}</p>
               <p className="text-xs text-[hsl(var(--muted-foreground))] truncate">{user.email}</p>

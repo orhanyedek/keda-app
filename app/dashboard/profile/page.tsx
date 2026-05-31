@@ -5,9 +5,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 import { getDetailedStats } from "@/lib/db";
-import { Layers, Mic, CalendarDays, TrendingUp, Eye, EyeOff, Trash2, Bell, ChevronDown } from "lucide-react";
+import { Layers, Mic, CalendarDays, TrendingUp, Eye, EyeOff, Trash2, Bell, ChevronDown, Camera } from "lucide-react";
 import { useRouter } from "next/navigation";
 import NotificationPermission from "@/components/NotificationPermission";
+import UserAvatar from "@/components/UserAvatar";
 import toast from "react-hot-toast";
 
 interface Stats { toplam_flashcard: number; toplam_plan: number; toplam_podcast: number; basari_orani: number; }
@@ -56,6 +57,24 @@ export default function ProfilePage() {
       if (saved) setNotifs(JSON.parse(saved));
     } catch { /* ignore */ }
   }, [user]);
+
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [avatarKey, setAvatarKey] = useState(0);
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    if (!file.type.startsWith("image/")) { toast.error("Sadece resim dosyası yüklenebilir"); return; }
+    if (file.size > 2 * 1024 * 1024) { toast.error("Dosya 2MB'dan küçük olmalı"); return; }
+    setUploadingAvatar(true);
+    try {
+      const { error } = await supabase.storage.from("avatars").upload(`${user.id}/avatar`, file, { upsert: true });
+      if (error) throw error;
+      setAvatarKey(k => k + 1); // cache'i temizle
+      toast.success("Profil fotoğrafı güncellendi!");
+    } catch { toast.error("Yükleme başarısız"); }
+    finally { setUploadingAvatar(false); }
+  };
 
   const handleSaveProfile = async () => {
     setSaving(true);
@@ -116,13 +135,20 @@ export default function ProfilePage() {
 
       {/* Profil kartı */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="keda-card p-8 text-center">
-        <div className="w-20 h-20 rounded-2xl flex items-center justify-center text-white text-3xl font-bold mx-auto mb-4"
-          style={{ background: "hsl(var(--primary)/0.2)", border: "1px solid hsl(var(--primary)/0.3)", color: "hsl(var(--primary))" }}>
-          {userName.charAt(0).toUpperCase()}
+        <div className="relative w-20 h-20 mx-auto mb-4">
+          <UserAvatar key={avatarKey} userId={user?.id || ""} userName={userName} size={80} />
+          <label className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center cursor-pointer transition-all hover:scale-110"
+            style={{ background: "hsl(var(--primary))", border: "2px solid hsl(var(--background))" }}>
+            {uploadingAvatar
+              ? <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              : <Camera className="w-3.5 h-3.5 text-white" />}
+            <input type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} disabled={uploadingAvatar} />
+          </label>
         </div>
         <h2 className="text-xl font-bold mb-1" style={{ color: "hsl(var(--foreground))" }}>{userName}</h2>
         <p className="text-sm" style={{ color: "hsl(var(--muted-foreground))" }}>{user?.email}</p>
         {joinDate && <p className="text-xs mt-2" style={{ color: "hsl(var(--muted-foreground)/0.6)" }}>{joinDate} tarihinde katıldı</p>}
+        <p className="text-xs mt-2" style={{ color: "hsl(var(--muted-foreground)/0.5)" }}>Fotoğrafı değiştirmek için kamera ikonuna tıkla</p>
       </motion.div>
 
       {/* İstatistikler */}
