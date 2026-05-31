@@ -159,8 +159,8 @@ export default function SezinAssistant() {
                     height: 180,
                     width: "auto",
                     objectFit: "contain",
-                    filter: "drop-shadow(0 4px 24px rgba(0,0,0,0.3))",
                     mixBlendMode: "screen",
+                    filter: "contrast(1.1) brightness(1.1)",
                   }}
                   animate={{ y: [0, -5, 0] }}
                   transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
