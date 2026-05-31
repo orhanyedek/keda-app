@@ -143,7 +143,7 @@ export default function SezinAssistant() {
                   className="absolute bottom-full right-0 mb-2 whitespace-nowrap px-3 py-1.5 rounded-xl text-xs shadow-lg"
                   style={{ background: "hsl(var(--card))", color: "hsl(var(--foreground))", border: "1px solid hsl(var(--border))" }}
                 >
-                  Bana danisabilirsin, buradayim.
+                  Bana danilabilirsin, buradayim.
                   <div className="absolute bottom-0 right-4 translate-y-full w-0 h-0"
                     style={{ borderLeft: "5px solid transparent", borderRight: "5px solid transparent", borderTop: "5px solid hsl(var(--border))" }} />
                 </motion.div>
