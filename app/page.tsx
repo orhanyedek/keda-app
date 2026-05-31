@@ -358,7 +358,7 @@ function Screenshots() {
             </div>
 
             {/* Animasyonlu görsel geçişi */}
-            <div className="relative overflow-hidden" style={{ aspectRatio: "16/9" }}>
+            <div className="relative overflow-hidden" style={{ aspectRatio: "16/10" }}>
               <AnimatePresence mode="wait">
                 <motion.img
                   key={active}
@@ -368,7 +368,8 @@ function Screenshots() {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: direction * -40 }}
                   transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-                  className="w-full h-full object-cover object-top"
+                  className="w-full h-full object-cover object-top block"
+                  style={{ display: "block" }}
                 />
               </AnimatePresence>
             </div>
