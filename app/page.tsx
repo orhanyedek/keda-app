@@ -162,7 +162,72 @@ function Features() {
   );
 }
 
-/* ─── HOW IT WORKS ─── */
+/* ─── KEDA AI SHOWCASE ─── */
+function AIShowcase() {
+  const { ref, inView } = useSection();
+  return (
+    <section className="py-24 px-6 overflow-hidden">
+      <div className="max-w-5xl mx-auto">
+        <motion.div ref={ref} initial="hidden" animate={inView ? "show" : "hidden"} variants={stagger}>
+          <motion.div variants={fade} className="mb-12">
+            <span className="section-label">Yapay Zeka</span>
+            <h2 className="text-2xl font-bold mt-2" style={{ color: "hsl(var(--foreground))", letterSpacing: "-0.01em" }}>
+              KEDA AI — Kişisel akademik asistanın
+            </h2>
+            <p className="text-sm mt-2 max-w-lg" style={{ color: "hsl(var(--muted-foreground))" }}>
+              Flashcard verilerini analiz eder, çalışma planını bilir, güncel bilgilere erişir. Sadece sohbet et.
+            </p>
+          </motion.div>
+
+          <motion.div variants={fade} className="grid lg:grid-cols-2 gap-10 items-center">
+            {/* Sol: özellik listesi */}
+            <div className="space-y-5 order-2 lg:order-1">
+              {[
+                { title: "Kişisel veri bağlamı", desc: "Flashcard setlerin, aktif planın, podcast geçmişin — AI her şeyi biliyor ve ona göre öneri yapıyor." },
+                { title: "5 farklı AI modeli", desc: "Llama 3.3 70B'den DeepSeek R1'e kadar. Matematik için farklı, hızlı cevap için farklı model seç." },
+                { title: "Güncel web araması", desc: "YKS tarihleri, burs programları, güncel haberler — AI bilmediği şeyleri web'den buluyor." },
+                { title: "Modül yönlendirmesi", desc: "\"Flashcard oluştur\" dersen direkt flashcard sayfasına yönlendirir, işi halleder." },
+              ].map((item, i) => (
+                <motion.div
+                  key={item.title}
+                  variants={{ hidden: { opacity: 0, x: -20 }, show: { opacity: 1, x: 0, transition: { delay: i * 0.08, duration: 0.4 } } }}
+                  className="flex gap-4"
+                >
+                  <div className="w-1.5 h-1.5 rounded-full mt-2 flex-shrink-0" style={{ background: "hsl(var(--foreground)/0.3)" }} />
+                  <div>
+                    <p className="text-sm font-semibold mb-0.5" style={{ color: "hsl(var(--foreground))" }}>{item.title}</p>
+                    <p className="text-sm leading-relaxed" style={{ color: "hsl(var(--muted-foreground))" }}>{item.desc}</p>
+                  </div>
+                </motion.div>
+              ))}
+              <motion.div variants={fade} className="pt-2">
+                <Link href="/auth/register" className="btn-primary px-5 py-2.5 text-sm inline-flex items-center gap-2">
+                  Dene <ArrowRight className="w-4 h-4" />
+                </Link>
+              </motion.div>
+            </div>
+
+            {/* Sağ: ekran görüntüsü */}
+            <motion.div
+              variants={{ hidden: { opacity: 0, x: 30 }, show: { opacity: 1, x: 0, transition: { duration: 0.6, ease: [0.25,0.1,0.25,1] } } }}
+              className="relative order-1 lg:order-2"
+            >
+              <div className="absolute inset-0 rounded-2xl blur-3xl opacity-10 pointer-events-none"
+                style={{ background: "hsl(var(--foreground))", transform: "scale(0.9) translateY(16px)" }} />
+              <div className="relative rounded-xl overflow-hidden border border-[hsl(var(--border))]"
+                style={{ boxShadow: "0 24px 60px rgba(0,0,0,0.4)" }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/screen-ai.png" alt="KEDA AI" className="w-full block" />
+              </div>
+            </motion.div>
+          </motion.div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+
 function HowItWorks() {
   const { ref, inView } = useSection();
   const steps = [
@@ -672,6 +737,7 @@ export default function HomePage() {
       <Nav />
       <Hero />
       <Features />
+      <AIShowcase />
       <HowItWorks />
       <LeitnerSection />
       <ModuleScreens />
