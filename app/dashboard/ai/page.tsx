@@ -108,6 +108,65 @@ const ALL_PROMPTS = [
   "Bu hafta için bana bir çalışma planı yap",
 ];
 
+
+const THINKING_MESSAGES = [
+  "Düşünüyor...",
+  "Analiz ediyor...",
+  "Verilerini inceliyor...",
+  "Yanıt hazırlanıyor...",
+  "Kaynaklar taranıyor...",
+  "İşleniyor...",
+  "Hesaplanıyor...",
+  "Yorumlanıyor...",
+];
+
+function ThinkingIndicator() {
+  const [msgIndex, setMsgIndex] = useState(0);
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setVisible(false);
+      setTimeout(() => {
+        setMsgIndex(i => (i + 1) % THINKING_MESSAGES.length);
+        setVisible(true);
+      }, 200);
+    }, 1800);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="flex items-center gap-2.5 min-w-32">
+      <div className="flex gap-1">
+        {[0, 1, 2].map(i => (
+          <motion.div
+            key={i}
+            className="w-1.5 h-1.5 rounded-full"
+            style={{ background: "hsl(var(--muted-foreground))" }}
+            animate={{ y: [0, -5, 0], opacity: [0.4, 1, 0.4] }}
+            transition={{ duration: 0.8, delay: i * 0.15, repeat: Infinity, ease: "easeInOut" }}
+          />
+        ))}
+      </div>
+      <AnimatePresence mode="wait">
+        {visible && (
+          <motion.span
+            key={msgIndex}
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.18 }}
+            className="text-sm"
+            style={{ color: "hsl(var(--muted-foreground))" }}
+          >
+            {THINKING_MESSAGES[msgIndex]}
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 function shuffle<T>(arr: T[]): T[] {
   return [...arr].sort(() => Math.random() - 0.5);
 }
@@ -630,12 +689,12 @@ export default function AIPage() {
 
             {/* Yükleniyor */}
             {loading && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-3 justify-start">
-                <div className="w-8 h-8 rounded-xl bg-[hsl(var(--foreground)/0.06)] border border-[hsl(var(--border))] flex items-center justify-center flex-shrink-0">
+              <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex gap-3 justify-start">
+                <div className="w-8 h-8 rounded-xl bg-[hsl(var(--foreground)/0.06)] border border-[hsl(var(--border))] flex items-center justify-center flex-shrink-0 mt-1">
                   <svg width="16" height="16" viewBox="0 0 60 60" fill="none"><defs><linearGradient id="kgai1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="hsl(0 0% 70%)"/><stop offset="55%" stopColor="hsl(0 0% 70%)"/><stop offset="100%" stopColor="hsl(0 0% 65%)"/></linearGradient></defs><rect x="4" y="4" width="12" height="52" rx="6" fill="url(#kgai1)"/><path d="M16 30 L44 8 Q51 3 54 10 L26 30Z" fill="url(#kgai1)" opacity="0.95"/><path d="M16 30 L44 52 Q51 57 54 50 L26 30Z" fill="url(#kgai1)" opacity="0.82"/></svg>
                 </div>
-                <div className="px-4 py-3 rounded-2xl rounded-bl-sm">
-                  <div className="loading-dots"><span /><span /><span /></div>
+                <div className="px-4 py-3 rounded-2xl rounded-bl-sm" style={{ background: "hsl(var(--secondary))" }}>
+                  <ThinkingIndicator />
                 </div>
               </motion.div>
             )}
