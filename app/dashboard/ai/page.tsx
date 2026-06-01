@@ -56,6 +56,119 @@ const STARTER_PROMPTS = [
   { text: "Leitner sistemini açıkla" },
 ];
 
+// Tüm prompt havuzu — yenileme butonu bunlardan rastgele seçer
+const ALL_PROMPTS = [
+  "Bugün ne çalışmalıyım?",
+  "Flashcard setlerimi analiz et",
+  "2026 YKS sınav tarihleri nedir?",
+  "Verimli çalışma teknikleri nelerdir?",
+  "Pomodoro tekniğini anlat",
+  "Leitner sistemini açıkla",
+  "Sınav stresini nasıl yönetirim?",
+  "Matematikte türevi nasıl anlayabilirim?",
+  "Aktif öğrenme nedir?",
+  "Spaced repetition nasıl çalışır?",
+  "Özet çıkarmanın en iyi yolu nedir?",
+  "Ders çalışırken dikkat dağınıklığı nasıl önlenir?",
+  "Flashcard yaparken nelere dikkat etmeliyim?",
+  "Kısa sürede çok şey öğrenmek mümkün mü?",
+  "Sınav sabahı ne yapmalıyım?",
+  "Hangi konulardan başlamalıyım?",
+  "Günlük çalışma programı nasıl yapılır?",
+  "Uyku ile öğrenme arasındaki ilişki nedir?",
+];
+
+function shuffle<T>(arr: T[]): T[] {
+  return [...arr].sort(() => Math.random() - 0.5);
+}
+
+function StarterGrid({ onSelect }: { onSelect: (text: string) => void }) {
+  const [prompts, setPrompts] = useState(() => STARTER_PROMPTS.map(p => p.text));
+  const [phase, setPhase] = useState<"idle" | "collecting" | "spinning" | "distributing">("idle");
+  const [spinDeg, setSpinDeg] = useState(0);
+
+  const refresh = async () => {
+    if (phase !== "idle") return;
+
+    // 1. Kartlar ortaya toplanır (collecting)
+    setPhase("collecting");
+    await new Promise(r => setTimeout(r, 400));
+
+    // 2. Buton döner (spinning)
+    setPhase("spinning");
+    setSpinDeg(d => d + 360);
+    await new Promise(r => setTimeout(r, 450));
+
+    // 3. Yeni kartlar seçilir
+    const next = shuffle(ALL_PROMPTS).slice(0, 6);
+    setPrompts(next);
+
+    // 4. Kartlar dağıtılır (distributing)
+    setPhase("distributing");
+    await new Promise(r => setTimeout(r, 400));
+
+    setPhase("idle");
+  };
+
+  return (
+    <div className="relative max-w-lg mx-auto">
+      {/* Kart grid */}
+      <div className="grid grid-cols-2 gap-3 mb-4">
+        {prompts.map((text, i) => (
+          <motion.button
+            key={text + i}
+            onClick={() => phase === "idle" && onSelect(text)}
+            className="keda-card p-3 text-left text-sm"
+            style={{ color: "hsl(var(--muted-foreground))", cursor: phase === "idle" ? "pointer" : "default" }}
+            animate={
+              phase === "collecting"
+                ? { opacity: 0, scale: 0.4, x: i % 2 === 0 ? 60 : -60, y: i < 2 ? 40 : i < 4 ? 0 : -40 }
+                : phase === "spinning"
+                ? { opacity: 0, scale: 0, x: 0, y: 0 }
+                : phase === "distributing"
+                ? { opacity: 1, scale: 1, x: 0, y: 0 }
+                : { opacity: 1, scale: 1, x: 0, y: 0 }
+            }
+            transition={{
+              duration: phase === "collecting" ? 0.35 : phase === "distributing" ? 0.35 : 0.1,
+              delay: phase === "distributing" ? i * 0.05 : 0,
+              ease: phase === "distributing" ? [0.34, 1.56, 0.64, 1] : [0.4, 0, 0.2, 1],
+            }}
+            whileHover={phase === "idle" ? { borderColor: "hsl(0 0% 25%)" } : {}}
+          >
+            {text}
+          </motion.button>
+        ))}
+      </div>
+
+      {/* Yenileme butonu — ortada */}
+      <div className="flex justify-center">
+        <motion.button
+          onClick={refresh}
+          disabled={phase !== "idle"}
+          className="w-9 h-9 rounded-full flex items-center justify-center transition-colors disabled:cursor-not-allowed"
+          style={{
+            background: "hsl(var(--secondary))",
+            border: "1px solid hsl(var(--border))",
+            color: "hsl(var(--muted-foreground))",
+          }}
+          animate={{ rotate: spinDeg }}
+          transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
+          whileHover={{ scale: 1.1 }}
+          title="Farklı öneriler"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </motion.button>
+      </div>
+    </div>
+  );
+}
+
+
+
 interface Message {
   id: string;
   role: "user" | "assistant";
@@ -407,15 +520,7 @@ export default function AIPage() {
                 </div>
                 <h2 className="text-xl font-semibold text-[hsl(var(--foreground))] mb-2">Merhaba, {userName}</h2>
                 <p className="text-[hsl(var(--muted-foreground))] text-sm mb-10">Sana nasıl yardımcı olabilirim?</p>
-                <div className="grid grid-cols-2 gap-3 max-w-lg mx-auto">
-                  {STARTER_PROMPTS.map((p) => (
-                    <button key={p.text} onClick={() => sendMessage(p.text)}
-                      className="keda-card p-3 text-left hover:border-[hsl(0_0%_25%)] transition-all group text-sm"
-                      style={{ color: "hsl(var(--muted-foreground))" }}>
-                      {p.text}
-                    </button>
-                  ))}
-                </div>
+                <StarterGrid onSelect={sendMessage} />
               </motion.div>
             ) : (
               <AnimatePresence initial={false}>
