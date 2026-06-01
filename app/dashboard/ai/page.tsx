@@ -368,6 +368,7 @@ export default function AIPage() {
   const [userContext, setUserContext] = useState("");
   const [selectedModel, setSelectedModel] = useState("llama-3.3-70b-versatile");
   const [listening, setListening] = useState(false);
+  const [showModelPicker, setShowModelPicker] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
@@ -733,28 +734,8 @@ export default function AIPage() {
 
         {/* Input */}
         <div className="px-6 pb-6 pt-2">
-          {/* Model seçici */}
-          <div className="flex items-center gap-2 mb-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-            {MODELS.map(m => (
-              <button
-                key={m.id}
-                onClick={() => setSelectedModel(m.id)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all flex-shrink-0"
-                style={{
-                  background: selectedModel === m.id ? "hsl(var(--foreground))" : "hsl(var(--secondary))",
-                  color: selectedModel === m.id ? "hsl(var(--background))" : "hsl(var(--muted-foreground))",
-                  border: "1px solid hsl(var(--border))",
-                }}
-              >
-                {m.name}
-                {m.badge && selectedModel !== m.id && (
-                  <span className="text-[10px] px-1 py-0.5 rounded" style={{ background: "hsl(var(--accent))", color: "hsl(var(--muted-foreground))" }}>{m.badge}</span>
-                )}
-              </button>
-            ))}
-          </div>
           <div className="max-w-3xl mx-auto">
-            <div className="flex items-end gap-3 bg-[hsl(var(--secondary))]/60 border border-[hsl(var(--border))] rounded-2xl px-4 py-3 focus-within:border-[hsl(var(--border))] transition-colors">
+            <div className="relative flex items-end gap-3 bg-[hsl(var(--secondary))]/60 border border-[hsl(var(--border))] rounded-2xl px-4 py-3 focus-within:border-[hsl(var(--border))] transition-colors">
               <textarea
                 ref={inputRef}
                 value={input}
@@ -765,6 +746,65 @@ export default function AIPage() {
                 className="flex-1 bg-transparent text-[hsl(var(--foreground))] text-sm outline-none resize-none placeholder-slate-600 leading-relaxed"
                 style={{ maxHeight: "120px" }}
               />
+
+              {/* Model seçici butonu */}
+              <div className="relative flex-shrink-0">
+                <button
+                  onClick={() => setShowModelPicker(v => !v)}
+                  className="w-9 h-9 rounded-xl glass flex items-center justify-center transition-all"
+                  style={{ color: showModelPicker ? "hsl(var(--foreground))" : "hsl(var(--muted-foreground))" }}
+                  title={MODELS.find(m => m.id === selectedModel)?.name}
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </button>
+
+                {/* Dropdown */}
+                <AnimatePresence>
+                  {showModelPicker && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 8, scale: 0.96 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute bottom-full right-0 mb-2 w-64 rounded-xl border border-[hsl(var(--border))] overflow-hidden shadow-2xl z-50"
+                      style={{ background: "hsl(var(--card))" }}
+                    >
+                      <div className="p-2 border-b border-[hsl(var(--border))]">
+                        <p className="text-xs px-2 py-1" style={{ color: "hsl(var(--muted-foreground))" }}>Model Seç</p>
+                      </div>
+                      <div className="p-1.5 space-y-0.5">
+                        {MODELS.map(m => (
+                          <button
+                            key={m.id}
+                            onClick={() => { setSelectedModel(m.id); setShowModelPicker(false); }}
+                            className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-left transition-all"
+                            style={{
+                              background: selectedModel === m.id ? "hsl(var(--accent))" : "transparent",
+                              color: selectedModel === m.id ? "hsl(var(--foreground))" : "hsl(var(--muted-foreground))",
+                            }}
+                          >
+                            <div>
+                              <div className="text-sm font-medium flex items-center gap-2">
+                                {m.name}
+                                {m.badge && <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: "hsl(var(--secondary))", color: "hsl(var(--muted-foreground))" }}>{m.badge}</span>}
+                              </div>
+                              <div className="text-xs mt-0.5" style={{ color: "hsl(var(--muted-foreground)/0.6)" }}>{m.desc}</div>
+                            </div>
+                            {selectedModel === m.id && (
+                              <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
               <button onClick={listening ? stopListening : startListening}
                 className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all ${listening ? "bg-red-500/20 border border-red-500/30 animate-pulse" : "glass text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"}`}>
                 {listening ? <MicOff className="w-4 h-4 text-red-400" /> : <Mic className="w-4 h-4" />}
