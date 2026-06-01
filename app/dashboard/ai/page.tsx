@@ -369,6 +369,19 @@ export default function AIPage() {
   const [selectedModel, setSelectedModel] = useState("llama-3.3-70b-versatile");
   const [listening, setListening] = useState(false);
   const [showModelPicker, setShowModelPicker] = useState(false);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+
+  const shareSession = (s: Session, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const text = s.messages.map(m => `${m.role === "user" ? "Sen" : "KEDA AI"}: ${m.content}`).join("\n\n");
+    const blob = new Blob([`KEDA AI Sohbeti — ${s.title}\n${s.createdAt}\n\n${text}`], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = `${s.title.slice(0, 30)}.txt`; a.click();
+    URL.revokeObjectURL(url);
+    setOpenMenuId(null);
+    toast.success("Sohbet indirildi");
+  };
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
@@ -425,6 +438,14 @@ export default function AIPage() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [activeSession?.messages, loading]);
+
+  // Menü dışına tıklayınca kapat
+  useEffect(() => {
+    if (!openMenuId) return;
+    const handler = () => setOpenMenuId(null);
+    document.addEventListener("click", handler);
+    return () => document.removeEventListener("click", handler);
+  }, [openMenuId]);
 
   useEffect(() => {
     // LocalStorage'dan geçmiş yükle
@@ -637,13 +658,55 @@ export default function AIPage() {
             <p className="text-[hsl(var(--muted-foreground)/0.6)] text-xs text-center py-6">Henüz sohbet yok</p>
           )}
           {sessions.map(s => (
-            <div key={s.id} onClick={() => setActiveId(s.id)}
-              className={`group flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer transition-all text-sm ${activeId === s.id ? "bg-[hsl(var(--foreground)/0.06)] text-[hsl(0 0% 80%)]" : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]"}`}>
+            <div key={s.id} onClick={() => { setActiveId(s.id); setOpenMenuId(null); }}
+              className={`group relative flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer transition-all text-sm ${activeId === s.id ? "bg-[hsl(var(--foreground)/0.06)] text-[hsl(0 0% 80%)]" : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]"}`}>
               <span className="truncate flex-1">{s.title}</span>
-              <button onClick={(e) => deleteSession(s.id, e)}
-                className="opacity-0 group-hover:opacity-100 p-1 rounded-lg hover:text-red-400 transition-all ml-1 flex-shrink-0">
-                <Trash2 className="w-3 h-3" />
+
+              {/* "..." menü butonu */}
+              <button
+                onClick={(e) => { e.stopPropagation(); setOpenMenuId(openMenuId === s.id ? null : s.id); }}
+                className="opacity-0 group-hover:opacity-100 p-1 rounded-lg transition-all ml-1 flex-shrink-0 hover:bg-[hsl(var(--accent))]"
+                style={{ color: "hsl(var(--muted-foreground))" }}
+              >
+                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                  <circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/>
+                </svg>
               </button>
+
+              {/* Açılan mini menü */}
+              <AnimatePresence>
+                {openMenuId === s.id && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9, y: -4 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9, y: -4 }}
+                    transition={{ duration: 0.12 }}
+                    onClick={e => e.stopPropagation()}
+                    className="absolute right-0 top-8 z-50 flex items-center gap-1 px-2 py-1.5 rounded-xl shadow-xl border border-[hsl(var(--border))]"
+                    style={{ background: "hsl(var(--card))" }}
+                  >
+                    {/* Paylaş/İndir */}
+                    <button
+                      onClick={(e) => shareSession(s, e)}
+                      className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-[hsl(var(--accent))] transition-colors"
+                      style={{ color: "hsl(var(--muted-foreground))" }}
+                      title="İndir"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                      </svg>
+                    </button>
+                    {/* Sil */}
+                    <button
+                      onClick={(e) => { deleteSession(s.id, e); setOpenMenuId(null); }}
+                      className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-red-500/10 transition-colors text-red-400"
+                      title="Sil"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           ))}
         </div>
