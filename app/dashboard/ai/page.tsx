@@ -735,6 +735,19 @@ export default function AIPage() {
         {/* Input */}
         <div className="px-6 pb-6 pt-2">
           <div className="max-w-3xl mx-auto">
+            {/* Seçili model göstergesi */}
+            <div className="flex items-center gap-1.5 mb-1.5 px-1">
+              <button
+                onClick={() => setShowModelPicker(v => !v)}
+                className="flex items-center gap-1 text-xs transition-colors hover:opacity-80"
+                style={{ color: "hsl(var(--muted-foreground))" }}
+              >
+                <span style={{ color: "hsl(var(--foreground)/0.7)" }}>{MODELS.find(m => m.id === selectedModel)?.name}</span>
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            </div>
             <div className="relative flex items-end gap-3 bg-[hsl(var(--secondary))]/60 border border-[hsl(var(--border))] rounded-2xl px-4 py-3 focus-within:border-[hsl(var(--border))] transition-colors">
               <textarea
                 ref={inputRef}
