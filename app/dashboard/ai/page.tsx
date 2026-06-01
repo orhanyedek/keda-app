@@ -17,15 +17,43 @@ const groq = new Groq({
   dangerouslyAllowBrowser: true,
 });
 
-const BASE_SYSTEM_PROMPT = `Sen KEDA'nın AI asistanısın. KEDA, öğrencilere yardımcı olan akıllı bir çalışma platformudur.
-Kullanıcılara ders çalışma, konu anlama, sınav hazırlığı ve akademik sorularda yardım ediyorsun.
-Türkçe konuş. Açık, anlaşılır ve öğretici ol. Gerektiğinde örnekler ver. Markdown formatını kullan.`;
+const BASE_SYSTEM_PROMPT = `Sen KEDA'nın kişisel AI asistanısın. KEDA, Türk üniversite öğrencileri için geliştirilmiş akıllı bir çalışma platformudur.
+
+GÖREVIN:
+- Öğrenciye ders çalışma, konu anlama ve sınav hazırlığında yardım et
+- Kullanıcının KEDA'daki verilerini (flashcard, plan, podcast) bilerek kişisel öneriler sun
+- Modüller arasında yönlendirme yap
+
+KEDA MODÜLLERİ:
+- Ajanda (/dashboard/agenda): AI destekli çalışma planı oluşturma
+- Flashcard (/dashboard/flashcards): Leitner algoritmasıyla spaced repetition
+- Podcast (/dashboard/podcast): PDF'ten sesli özet üretme
+- KEDA AI (/dashboard/ai): Sen
+
+YÖNLENDİRME KURALLARI:
+- Kullanıcı "flashcard oluştur" derse: "Flashcard modülüne git: /dashboard/flashcards" de
+- Kullanıcı "plan yap" veya "program oluştur" derse: "Ajanda modülüne git: /dashboard/agenda" de
+- Kullanıcı "podcast oluştur" derse: "Podcast modülüne git: /dashboard/podcast" de
+- Kullanıcı "istatistiklerimi göster" derse: "/dashboard/stats" yönlendir
+
+KULLANICI VERİLERİ:
+Sohbet başında kullanıcının KEDA verileri sana verilecek. Bu verileri kullanarak kişisel önerilerde bulun.
+Örnek: "3 flashcard setin var, Veri Yapıları setinde düşük performans görüyorum, önce oradan başlamanı öneririm."
+
+KURAL:
+- Türkçe konuş, samimi ve motive edici ol
+- Markdown formatı kullan (kalın, liste, başlık)
+- Kısa ve öz cevap ver, gerektiğinde detaylandır
+- Akademik konularda somut örnekler ver
+- Kullanıcının motivasyonunu yüksek tut`;
 
 const STARTER_PROMPTS = [
-  { icon: "", text: "Türev konusunu basitçe anlat" },
-  { icon: "", text: "Etkili çalışma teknikleri nelerdir?" },
-  { icon: "", text: "Sınav stresini nasıl yönetebilirim?" },
-  { icon: "", text: "Newton'un hareket yasalarını özetle" },
+  { text: "Bugün ne çalışmalıyım?" },
+  { text: "Flashcard setlerimi analiz et" },
+  { text: "Verimli çalışma teknikleri nelerdir?" },
+  { text: "Sınav stresini nasıl yönetirim?" },
+  { text: "Pomodoro tekniğini anlat" },
+  { text: "Leitner sistemini açıkla" },
 ];
 
 interface Message {
@@ -52,10 +80,12 @@ function renderMarkdown(text: string) {
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.+?)\*/g, "<em>$1</em>")
     .replace(/`(.+?)`/g, "<code style='background:rgba(255,255,255,0.1);padding:2px 6px;border-radius:4px;font-family:monospace;font-size:0.9em'>$1</code>")
-    .replace(/^### (.+)$/gm, "<h3 style='font-size:1rem;font-weight:600;color:#e2e8f0;margin:12px 0 6px'>$1</h3>")
-    .replace(/^## (.+)$/gm, "<h2 style='font-size:1.1rem;font-weight:700;color:#e2e8f0;margin:14px 0 8px'>$1</h2>")
+    .replace(/^### (.+)$/gm, "<h3 style='font-size:1rem;font-weight:600;margin:12px 0 6px'>$1</h3>")
+    .replace(/^## (.+)$/gm, "<h2 style='font-size:1.1rem;font-weight:700;margin:14px 0 8px'>$1</h2>")
     .replace(/^- (.+)$/gm, "<li style='margin:4px 0;padding-left:4px'>$1</li>")
     .replace(/(<li.*<\/li>)/s, "<ul style='padding-left:20px;margin:8px 0'>$1</ul>")
+    // Dashboard linkleri tıklanabilir yap
+    .replace(/\/(dashboard\/[a-z]+)/g, "<a href='/$1' onclick=\"window.location.href='/$1';return false;\" style='text-decoration:underline;cursor:pointer;opacity:0.8'>/$1</a>")
     .replace(/\n\n/g, "</p><p style='margin:8px 0'>")
     .replace(/\n/g, "<br>");
 }
@@ -100,12 +130,25 @@ export default function AIPage() {
   useEffect(() => {
     if (!user) return;
     getDashboardStats(user.id).then(stats => {
-      const parts = [];
-      if (stats.toplam_flashcard > 0) parts.push(`${stats.toplam_flashcard} flashcard'ı var`);
-      if (stats.bugun_tekrar_edilecek > 0) parts.push(`bugün ${stats.bugun_tekrar_edilecek} kart tekrar zamanı`);
-      if (stats.aktif_plan) parts.push(`aktif çalışma planı: "${stats.aktif_plan.baslik}"`);
-      if (stats.son_podcast) parts.push(`son podcast: "${stats.son_podcast.baslik}"`);
-      if (parts.length > 0) setUserContext(`\n\nKullanıcı bilgileri: ${parts.join(", ")}.`);
+      const userName = user.user_metadata?.full_name || user.email?.split("@")[0] || "Kullanıcı";
+      const parts: string[] = [];
+      parts.push(`Kullanıcı adı: ${userName}`);
+      parts.push(`Toplam flashcard sayısı: ${stats.toplam_flashcard}`);
+      if (stats.bugun_tekrar_edilecek > 0) parts.push(`Bugün tekrar edilecek kart: ${stats.bugun_tekrar_edilecek} (acil!)`);
+      else parts.push("Bugün bekleyen kart yok");
+      if (stats.aktif_plan) {
+        const topics = stats.aktif_plan.topics || [];
+        const done = topics.filter((t: {tamamlandi_mi: boolean}) => t.tamamlandi_mi).length;
+        parts.push(`Aktif çalışma planı: "${stats.aktif_plan.baslik}" (${done}/${topics.length} konu tamamlandı)`);
+      } else parts.push("Aktif çalışma planı yok");
+      if (stats.son_podcastler?.length > 0) parts.push(`Son podcast: "${stats.son_podcastler[0].baslik}"`);
+      if (stats.son_setler?.length > 0) parts.push(`Son flashcard setleri: ${stats.son_setler.map((s: {baslik: string}) => s.baslik).join(", ")}`);
+      if (stats.leitner_dagilim) {
+        const dist = stats.leitner_dagilim.map((d: {kutu: number; sayi: number}) => `Kutu${d.kutu}:${d.sayi}`).join(", ");
+        parts.push(`Leitner dağılımı: ${dist}`);
+      }
+      if (stats.toplam_pdf > 0) parts.push(`PDF deposunda ${stats.toplam_pdf} dosya var`);
+      setUserContext(`\n\n=== KULLANICI KEDA VERİLERİ ===\n${parts.join("\n")}\n=== SON ===`);
     });
   }, [user]);
 
@@ -316,9 +359,9 @@ export default function AIPage() {
                 <div className="grid grid-cols-2 gap-3 max-w-lg mx-auto">
                   {STARTER_PROMPTS.map((p) => (
                     <button key={p.text} onClick={() => sendMessage(p.text)}
-                      className="keda-card p-4 text-left hover:border-[hsl(var(--border))] transition-colors group">
-                      <span className="text-lg mb-2 block">{p.icon}</span>
-                      <span className="text-[hsl(var(--foreground)/0.85)] text-sm group-hover:text-[hsl(var(--foreground))] transition-colors">{p.text}</span>
+                      className="keda-card p-3 text-left hover:border-[hsl(0_0%_25%)] transition-all group text-sm"
+                      style={{ color: "hsl(var(--muted-foreground))" }}>
+                      {p.text}
                     </button>
                   ))}
                 </div>
