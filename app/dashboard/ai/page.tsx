@@ -84,77 +84,114 @@ function shuffle<T>(arr: T[]): T[] {
 
 function StarterGrid({ onSelect }: { onSelect: (text: string) => void }) {
   const [prompts, setPrompts] = useState(() => STARTER_PROMPTS.map(p => p.text));
-  const [phase, setPhase] = useState<"idle" | "collecting" | "spinning" | "distributing">("idle");
+  const [nextPrompts, setNextPrompts] = useState<string[]>([]);
+  const [phase, setPhase] = useState<"idle" | "close" | "spin" | "open">("idle");
   const [spinDeg, setSpinDeg] = useState(0);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const [btnPos, setBtnPos] = useState({ x: 0, y: 0 });
 
   const refresh = async () => {
     if (phase !== "idle") return;
 
-    // 1. Kartlar ortaya toplanır (collecting)
-    setPhase("collecting");
-    await new Promise(r => setTimeout(r, 400));
+    // Butonun pozisyonunu al
+    if (buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const parent = buttonRef.current.closest(".relative")?.getBoundingClientRect();
+      if (parent) {
+        setBtnPos({
+          x: rect.left - parent.left + rect.width / 2,
+          y: rect.top - parent.top + rect.height / 2,
+        });
+      }
+    }
 
-    // 2. Buton döner (spinning)
-    setPhase("spinning");
-    setSpinDeg(d => d + 360);
+    const next = shuffle(ALL_PROMPTS).slice(0, 6);
+    setNextPrompts(next);
+
+    // 1. Kartlar butona doğru uçar (close)
+    setPhase("close");
+    await new Promise(r => setTimeout(r, 380));
+
+    // 2. Buton döner + yeni promptlar set edilir
+    setPhase("spin");
+    setSpinDeg(d => d + 720);
+    setPrompts(next);
+    await new Promise(r => setTimeout(r, 500));
+
+    // 3. Yeni kartlar butondan çıkar (open)
+    setPhase("open");
     await new Promise(r => setTimeout(r, 450));
 
-    // 3. Yeni kartlar seçilir
-    const next = shuffle(ALL_PROMPTS).slice(0, 6);
-    setPrompts(next);
-
-    // 4. Kartlar dağıtılır (distributing)
-    setPhase("distributing");
-    await new Promise(r => setTimeout(r, 400));
-
     setPhase("idle");
+  };
+
+  // Her kart için hedef offset hesapla (butonun merkezine göre)
+  const getCardTarget = (i: number) => {
+    const cols = 2;
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    const cardW = 200;
+    const cardH = 56;
+    const gapX = 12;
+    const gapY = 12;
+    const gridW = cols * cardW + (cols - 1) * gapX;
+    const gridH = 3 * cardH + 2 * gapY;
+    const cardCX = col * (cardW + gapX) + cardW / 2 - gridW / 2;
+    const cardCY = row * (cardH + gapY) + cardH / 2 - gridH / 2;
+    return { x: -cardCX, y: (btnPos.y || 0) - (cardCY + gridH / 2) };
   };
 
   return (
     <div className="relative max-w-lg mx-auto">
       {/* Kart grid */}
       <div className="grid grid-cols-2 gap-3 mb-4">
-        {prompts.map((text, i) => (
-          <motion.button
-            key={text + i}
-            onClick={() => phase === "idle" && onSelect(text)}
-            className="keda-card p-3 text-left text-sm"
-            style={{ color: "hsl(var(--muted-foreground))", cursor: phase === "idle" ? "pointer" : "default" }}
-            animate={
-              phase === "collecting"
-                ? { opacity: 0, scale: 0.4, x: i % 2 === 0 ? 60 : -60, y: i < 2 ? 40 : i < 4 ? 0 : -40 }
-                : phase === "spinning"
-                ? { opacity: 0, scale: 0, x: 0, y: 0 }
-                : phase === "distributing"
-                ? { opacity: 1, scale: 1, x: 0, y: 0 }
-                : { opacity: 1, scale: 1, x: 0, y: 0 }
-            }
-            transition={{
-              duration: phase === "collecting" ? 0.35 : phase === "distributing" ? 0.35 : 0.1,
-              delay: phase === "distributing" ? i * 0.05 : 0,
-              ease: phase === "distributing" ? [0.34, 1.56, 0.64, 1] : [0.4, 0, 0.2, 1],
-            }}
-            whileHover={phase === "idle" ? { borderColor: "hsl(0 0% 25%)" } : {}}
-          >
-            {text}
-          </motion.button>
-        ))}
+        {prompts.map((text, i) => {
+          const target = getCardTarget(i);
+          return (
+            <motion.button
+              key={phase === "open" || phase === "idle" ? text + "-new-" + i : text + "-" + i}
+              onClick={() => phase === "idle" && onSelect(text)}
+              className="keda-card p-3 text-left text-sm"
+              style={{ color: "hsl(var(--muted-foreground))", cursor: phase === "idle" ? "pointer" : "default", position: "relative" }}
+              initial={phase === "open" ? { opacity: 0, scale: 0.1, x: -target.x * 0.6, y: target.y } : false}
+              animate={
+                phase === "close"
+                  ? { opacity: 0, scale: 0.05, x: target.x, y: target.y, transition: { duration: 0.32, delay: i * 0.03, ease: [0.4, 0, 1, 1] } }
+                  : phase === "spin"
+                  ? { opacity: 0, scale: 0, x: target.x, y: target.y, transition: { duration: 0.05 } }
+                  : phase === "open"
+                  ? { opacity: 1, scale: 1, x: 0, y: 0, transition: { duration: 0.38, delay: i * 0.05, ease: [0.34, 1.56, 0.64, 1] } }
+                  : { opacity: 1, scale: 1, x: 0, y: 0, transition: { duration: 0.2 } }
+              }
+              whileHover={phase === "idle" ? { borderColor: "hsl(0 0% 25%)" } : {}}
+            >
+              {text}
+            </motion.button>
+          );
+        })}
       </div>
 
-      {/* Yenileme butonu — ortada */}
+      {/* Yenileme butonu */}
       <div className="flex justify-center">
         <motion.button
+          ref={buttonRef}
           onClick={refresh}
           disabled={phase !== "idle"}
-          className="w-9 h-9 rounded-full flex items-center justify-center transition-colors disabled:cursor-not-allowed"
+          className="w-9 h-9 rounded-full flex items-center justify-center disabled:cursor-not-allowed relative"
           style={{
             background: "hsl(var(--secondary))",
             border: "1px solid hsl(var(--border))",
             color: "hsl(var(--muted-foreground))",
           }}
-          animate={{ rotate: spinDeg }}
-          transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
-          whileHover={{ scale: 1.1 }}
+          animate={{
+            rotate: spinDeg,
+            scale: phase === "spin" ? 1.4 : phase === "close" ? 1.15 : 1,
+          }}
+          transition={{
+            rotate: { duration: 0.5, ease: [0.4, 0, 0.2, 1] },
+            scale: { duration: 0.2 },
+          }}
+          whileHover={phase === "idle" ? { scale: 1.1 } : {}}
           title="Farklı öneriler"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
