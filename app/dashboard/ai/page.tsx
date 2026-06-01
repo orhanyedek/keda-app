@@ -17,6 +17,14 @@ const groq = new Groq({
   dangerouslyAllowBrowser: true,
 });
 
+const MODELS = [
+  { id: "llama-3.3-70b-versatile", name: "Llama 3.3 70B", desc: "Güçlü · Varsayılan", badge: "Önerilen" },
+  { id: "llama-3.1-8b-instant",    name: "Llama 3.1 8B",  desc: "Hızlı · Hafif" },
+  { id: "mixtral-8x7b-32768",      name: "Mixtral 8x7B",  desc: "Uzun bağlam · 32K token" },
+  { id: "gemma2-9b-it",            name: "Gemma 2 9B",    desc: "Google · Verimli" },
+  { id: "deepseek-r1-distill-llama-70b", name: "DeepSeek R1", desc: "Akıl yürütme · Matematik" },
+];
+
 const BASE_SYSTEM_PROMPT = `Sen KEDA'nın kişisel AI asistanısın. KEDA, Türk üniversite öğrencileri için geliştirilmiş akıllı bir çalışma platformudur.
 
 GÖREVIN:
@@ -315,18 +323,37 @@ function getTime() {
 
 // Markdown'ı basit HTML'e çevir
 function renderMarkdown(text: string) {
-  return text
+  // Önce çok satırlı kod bloklarını işle
+  let result = text.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
+    const langLabel = lang ? `<span style='font-size:0.65rem;color:rgba(255,255,255,0.35);float:right;margin-top:2px'>${lang}</span>` : '';
+    return `<pre style='background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:12px 14px;margin:10px 0;overflow-x:auto;position:relative'>${langLabel}<code style='font-family:monospace;font-size:0.82rem;color:#e2e8f0;white-space:pre'>${code.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</code></pre>`;
+  });
+
+  result = result
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.+?)\*/g, "<em>$1</em>")
-    .replace(/`(.+?)`/g, "<code style='background:rgba(255,255,255,0.1);padding:2px 6px;border-radius:4px;font-family:monospace;font-size:0.9em'>$1</code>")
-    .replace(/^### (.+)$/gm, "<h3 style='font-size:1rem;font-weight:600;margin:12px 0 6px'>$1</h3>")
-    .replace(/^## (.+)$/gm, "<h2 style='font-size:1.1rem;font-weight:700;margin:14px 0 8px'>$1</h2>")
-    .replace(/^- (.+)$/gm, "<li style='margin:4px 0;padding-left:4px'>$1</li>")
-    .replace(/(<li.*<\/li>)/s, "<ul style='padding-left:20px;margin:8px 0'>$1</ul>")
-    // Dashboard linkleri tıklanabilir yap
-    .replace(/\/(dashboard\/[a-z]+)/g, "<a href='/$1' onclick=\"window.location.href='/$1';return false;\" style='text-decoration:underline;cursor:pointer;opacity:0.8'>/$1</a>")
+    // Satır içi kod
+    .replace(/`([^`]+)`/g, "<code style='background:rgba(255,255,255,0.08);padding:2px 7px;border-radius:5px;font-family:monospace;font-size:0.85em;color:#e2e8f0'>$1</code>")
+    // Başlıklar
+    .replace(/^### (.+)$/gm, "<h3 style='font-size:1rem;font-weight:600;margin:14px 0 6px;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:4px'>$1</h3>")
+    .replace(/^## (.+)$/gm, "<h2 style='font-size:1.1rem;font-weight:700;margin:16px 0 8px'>$1</h2>")
+    // Numaralı liste
+    .replace(/^\d+\. (.+)$/gm, "<li style='margin:5px 0;padding-left:4px;list-style-type:decimal'>$1</li>")
+    // Madde işareti
+    .replace(/^[-•] (.+)$/gm, "<li style='margin:5px 0;padding-left:4px'>$1</li>")
+    // Liste container
+    .replace(/((?:<li[^>]*>.*<\/li>\n?)+)/g, "<ul style='padding-left:22px;margin:8px 0'>$1</ul>")
+    // Yatay çizgi
+    .replace(/^---$/gm, "<hr style='border:none;border-top:1px solid rgba(255,255,255,0.08);margin:12px 0'>")
+    // Alıntı
+    .replace(/^> (.+)$/gm, "<blockquote style='border-left:2px solid rgba(255,255,255,0.2);padding-left:12px;margin:8px 0;color:rgba(255,255,255,0.6)'>$1</blockquote>")
+    // Dashboard linkleri
+    .replace(/\/(dashboard\/[a-z]+)/g, "<a href='/$1' onclick=\"window.location.href='/$1';return false;\" style='text-decoration:underline;cursor:pointer;opacity:0.75'>/$1</a>")
+    // Paragraflar
     .replace(/\n\n/g, "</p><p style='margin:8px 0'>")
     .replace(/\n/g, "<br>");
+
+  return result;
 }
 
 export default function AIPage() {
@@ -339,6 +366,7 @@ export default function AIPage() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [userContext, setUserContext] = useState("");
+  const [selectedModel, setSelectedModel] = useState("llama-3.3-70b-versatile");
   const [listening, setListening] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -496,7 +524,7 @@ export default function AIPage() {
       const needsSearch = /güncel|son dakika|2025|2026|bugün|bu yıl|haber|yks|lgs|sınav tarihi|üniversite|burs|kpss|ales|dgs/i.test(content);
 
       const completion = await (groq as any).chat.completions.create({
-        model: "llama-3.3-70b-versatile",
+        model: selectedModel,
         messages: [
           { role: "system", content: BASE_SYSTEM_PROMPT + userContext },
           ...history,
@@ -533,7 +561,7 @@ export default function AIPage() {
 
         // Serper veya DuckDuckGo API yerine Groq'a aramanın sonucunu simüle ettir
         const searchCompletion = await (groq as any).chat.completions.create({
-          model: "llama-3.3-70b-versatile",
+          model: selectedModel,
           messages: [
             { role: "system", content: BASE_SYSTEM_PROMPT + userContext },
             ...history,
@@ -705,6 +733,26 @@ export default function AIPage() {
 
         {/* Input */}
         <div className="px-6 pb-6 pt-2">
+          {/* Model seçici */}
+          <div className="flex items-center gap-2 mb-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+            {MODELS.map(m => (
+              <button
+                key={m.id}
+                onClick={() => setSelectedModel(m.id)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all flex-shrink-0"
+                style={{
+                  background: selectedModel === m.id ? "hsl(var(--foreground))" : "hsl(var(--secondary))",
+                  color: selectedModel === m.id ? "hsl(var(--background))" : "hsl(var(--muted-foreground))",
+                  border: "1px solid hsl(var(--border))",
+                }}
+              >
+                {m.name}
+                {m.badge && selectedModel !== m.id && (
+                  <span className="text-[10px] px-1 py-0.5 rounded" style={{ background: "hsl(var(--accent))", color: "hsl(var(--muted-foreground))" }}>{m.badge}</span>
+                )}
+              </button>
+            ))}
+          </div>
           <div className="max-w-3xl mx-auto">
             <div className="flex items-end gap-3 bg-[hsl(var(--secondary))]/60 border border-[hsl(var(--border))] rounded-2xl px-4 py-3 focus-within:border-[hsl(var(--border))] transition-colors">
               <textarea
