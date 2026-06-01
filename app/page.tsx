@@ -210,12 +210,12 @@ function AIShowcase() {
             {/* Sağ: ekran görüntüsü */}
             <motion.div
               variants={{ hidden: { opacity: 0, x: 30 }, show: { opacity: 1, x: 0, transition: { duration: 0.6, ease: [0.25,0.1,0.25,1] } } }}
-              className="relative order-1 lg:order-2"
+              className="relative order-1 lg:order-2 lg:-mt-16"
             >
               <div className="absolute inset-0 rounded-2xl blur-3xl opacity-10 pointer-events-none"
                 style={{ background: "hsl(var(--foreground))", transform: "scale(0.9) translateY(16px)" }} />
               <div className="relative rounded-xl overflow-hidden border border-[hsl(var(--border))]"
-                style={{ boxShadow: "0 24px 60px rgba(0,0,0,0.4)" }}>
+                style={{ boxShadow: "0 24px 60px rgba(0,0,0,0.4)", transform: "scale(1.06)" }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/screen-ai.png" alt="KEDA AI" className="w-full block" />
               </div>
