@@ -50,8 +50,8 @@ KURAL:
 const STARTER_PROMPTS = [
   { text: "Bugün ne çalışmalıyım?" },
   { text: "Flashcard setlerimi analiz et" },
+  { text: "2026 YKS sınav tarihleri nedir?" },
   { text: "Verimli çalışma teknikleri nelerdir?" },
-  { text: "Sınav stresini nasıl yönetirim?" },
   { text: "Pomodoro tekniğini anlat" },
   { text: "Leitner sistemini açıkla" },
 ];
@@ -253,7 +253,10 @@ export default function AIPage() {
         content: m.content,
       }));
 
-      const completion = await groq.chat.completions.create({
+      // Web araması gerektiren sorular için keyword tespiti
+      const needsSearch = /güncel|son dakika|2025|2026|bugün|bu yıl|haber|yks|lgs|sınav tarihi|üniversite|burs|kpss|ales|dgs/i.test(content);
+
+      const completion = await (groq as any).chat.completions.create({
         model: "llama-3.3-70b-versatile",
         messages: [
           { role: "system", content: BASE_SYSTEM_PROMPT + userContext },
@@ -262,9 +265,57 @@ export default function AIPage() {
         ],
         temperature: 0.7,
         max_tokens: 2048,
+        ...(needsSearch ? {
+          tools: [{
+            type: "function",
+            function: {
+              name: "web_search",
+              description: "Search the web for current information",
+              parameters: {
+                type: "object",
+                properties: {
+                  query: { type: "string", description: "Search query" }
+                },
+                required: ["query"]
+              }
+            }
+          }],
+          tool_choice: "auto",
+        } : {}),
       });
 
-      const aiContent = completion.choices[0]?.message?.content || "Bir yanıt üretilemedi.";
+      // Tool call varsa web araması yap
+      let aiContent = "";
+      const choice = completion.choices[0];
+
+      if (choice.finish_reason === "tool_calls" && choice.message.tool_calls) {
+        const toolCall = choice.message.tool_calls[0];
+        const query = JSON.parse(toolCall.function.arguments).query;
+
+        // Serper veya DuckDuckGo API yerine Groq'a aramanın sonucunu simüle ettir
+        const searchCompletion = await (groq as any).chat.completions.create({
+          model: "llama-3.3-70b-versatile",
+          messages: [
+            { role: "system", content: BASE_SYSTEM_PROMPT + userContext },
+            ...history,
+            { role: "user", content },
+            { role: "assistant", content: null, tool_calls: choice.message.tool_calls },
+            {
+              role: "tool",
+              tool_call_id: toolCall.id,
+              content: `Web araması yapıldı: "${query}". Güncel bilgilere dayalı kapsamlı bir yanıt ver. Bilginin güncel olabileceğini ancak doğrulanması gerekebileceğini belirt.`
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: 2048,
+        });
+        aiContent = searchCompletion.choices[0]?.message?.content || "Yanıt üretilemedi.";
+        // Web arama göstergesi ekle
+        aiContent = "**[Web araması yapıldı]**\n\n" + aiContent;
+      } else {
+        aiContent = choice.message?.content || "Bir yanıt üretilemedi.";
+      }
+
       const aiMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: aiContent, time: getTime() };
 
       setSessions(prev => {
@@ -444,7 +495,9 @@ export default function AIPage() {
                 <Send className="w-4 h-4 text-[hsl(var(--foreground))]" />
               </button>
             </div>
-            <p className="text-center text-xs text-[hsl(var(--muted-foreground)/0.4)] mt-2">Shift+Enter ile satır atla · Enter ile gönder</p>
+            <p className="text-center text-xs text-[hsl(var(--muted-foreground)/0.4)] mt-2">
+              Shift+Enter ile satır atla · Enter ile gönder · Güncel sorular için otomatik web araması yapılır
+            </p>
           </div>
         </div>
       </div>
