@@ -681,7 +681,7 @@ export default function AIPage() {
               <AnimatePresence initial={false}>
                 {activeSession.messages.map((msg) => (
                   <motion.div key={msg.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
-                    className={`flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                    className={`flex gap-3 group ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
 
                     {/* AI avatar */}
                     {msg.role === "assistant" && (
@@ -702,6 +702,35 @@ export default function AIPage() {
                           msg.content
                         )}
                       </div>
+
+                      {/* Kullanıcı mesajı aksiyonları */}
+                      {msg.role === "user" && (
+                        <div className="flex items-center gap-1 px-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={() => { navigator.clipboard.writeText(msg.content); toast.success("Kopyalandı"); }}
+                            className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs transition-all hover:bg-[hsl(var(--accent))]"
+                            style={{ color: "hsl(var(--muted-foreground))" }}
+                            title="Kopyala"
+                          >
+                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                            Kopyala
+                          </button>
+                          <button
+                            onClick={() => sendMessage(msg.content)}
+                            className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs transition-all hover:bg-[hsl(var(--accent))]"
+                            style={{ color: "hsl(var(--muted-foreground))" }}
+                            title="Yeniden gönder"
+                          >
+                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            Tekrar gönder
+                          </button>
+                        </div>
+                      )}
+
                       <span className="text-xs text-[hsl(var(--muted-foreground)/0.6)] px-1">{msg.time}</span>
                     </div>
 
