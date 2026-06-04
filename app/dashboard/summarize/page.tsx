@@ -63,13 +63,13 @@ export default function SummarizePage() {
   };
 
   return (
-    <div className="p-6 lg:p-8 max-w-4xl mx-auto pb-24 lg:pb-8">
+    <div className="p-4 lg:p-4 lg:p-8 max-w-4xl mx-auto w-full pb-24 lg:pb-8">
             <button onClick={() => router.back()} className="flex items-center gap-1.5 text-sm mb-6 transition-colors hover:text-[hsl(var(--foreground))]" style={{ color: "hsl(var(--muted-foreground))" }}>
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
         Geri
       </button>
 <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-        <h1 className="text-2xl font-bold text-white mb-1">Metin Özetleme</h1>
+        <h1 className="text-xl lg:text-2xl font-bold text-white mb-1">Metin Özetleme</h1>
         <p className="text-slate-400 text-sm">PDF veya metin yapıştır, AI ile özetle</p>
       </motion.div>
 
@@ -124,7 +124,7 @@ export default function SummarizePage() {
 
           <AnimatePresence mode="wait">
             {loading ? (
-              <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="keda-card p-8 text-center min-h-64 flex flex-col items-center justify-center gap-3">
+              <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="keda-card p-4 lg:p-8 text-center min-h-64 flex flex-col items-center justify-center gap-3">
                 <div className="loading-dots"><span /><span /><span /></div>
                 <p className="text-slate-500 text-sm">AI özetliyor...</p>
               </motion.div>
@@ -138,7 +138,7 @@ export default function SummarizePage() {
                 <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">{result}</p>
               </motion.div>
             ) : (
-              <motion.div key="empty" className="keda-card p-8 min-h-64 flex items-center justify-center">
+              <motion.div key="empty" className="keda-card p-4 lg:p-8 min-h-64 flex items-center justify-center">
                 <p className="text-slate-600 text-sm">Özet burada görünecek</p>
               </motion.div>
             )}

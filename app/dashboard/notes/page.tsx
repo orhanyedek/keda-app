@@ -116,8 +116,8 @@ export default function NotesPage() {
 
   return (
     <div className="flex h-screen overflow-hidden pb-16 lg:pb-0" style={{ background: "hsl(var(--background))" }}>
-      {/* Not listesi sidebar */}
-      <div className="w-56 flex-shrink-0 flex flex-col border-r border-[hsl(var(--border))] p-3" style={{ background: "hsl(var(--background))" }}>
+      {/* Not listesi sidebar — mobilde gizli */}
+      <div className="hidden sm:flex w-56 flex-shrink-0 flex-col border-r border-[hsl(var(--border))] p-3" style={{ background: "hsl(var(--background))" }}>
         {/* Geri */}
         <button onClick={() => router.back()} className="flex items-center gap-1.5 text-xs mb-3 transition-colors" style={{ color: "hsl(var(--muted-foreground))" }}>
           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>

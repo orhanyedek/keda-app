@@ -30,8 +30,8 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6" style={{ background: "var(--bg-primary)" }}>
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center px-4 px-6" style={{ background: "var(--bg-primary)" }}>
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md px-4 sm:px-0">
         <div className="text-center mb-8">
           <svg width="44" height="44" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
               <defs><linearGradient id="kg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="hsl(0 0% 70%)"/><stop offset="55%" stopColor="hsl(0 0% 70%)"/><stop offset="100%" stopColor="hsl(0 0% 65%)"/></linearGradient></defs>
@@ -43,7 +43,7 @@ export default function ResetPasswordPage() {
           <p className="text-slate-400 text-sm">E-posta adresine sıfırlama linki göndereceğiz</p>
         </div>
 
-        <div className="keda-card p-8">
+        <div className="keda-card p-6 sm:p-8">
           {sent ? (
             <div className="text-center py-4">
               <div className="text-4xl mb-4"></div>

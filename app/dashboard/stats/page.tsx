@@ -46,7 +46,7 @@ export default function StatsPage() {
   const stagger = { visible: { transition: { staggerChildren: 0.07 } } };
 
   if (loading) return (
-    <div className="p-6 lg:p-8 max-w-5xl mx-auto">
+    <div className="p-4 lg:p-4 lg:p-8 max-w-5xl mx-auto">
       <div className="animate-pulse space-y-4">
         <div className="h-8 bg-slate-800 rounded-xl w-48" />
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -59,13 +59,13 @@ export default function StatsPage() {
   const maxActivity = Math.max(...(stats?.haftalik_aktivite.map(d => d.flashcards) || [1]), 1);
 
   return (
-    <div className="p-6 lg:p-8 max-w-5xl mx-auto pb-24 lg:pb-8">
+    <div className="p-4 lg:p-4 lg:p-8 max-w-5xl mx-auto pb-24 lg:pb-8">
             <button onClick={() => router.back()} className="flex items-center gap-1.5 text-sm mb-6 transition-colors hover:text-[hsl(var(--foreground))]" style={{ color: "hsl(var(--muted-foreground))" }}>
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
         Geri
       </button>
 <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-        <h1 className="text-2xl font-bold text-white mb-1">İstatistikler</h1>
+        <h1 className="text-xl lg:text-2xl font-bold text-white mb-1">İstatistikler</h1>
         <p className="text-slate-400 text-sm">Çalışma performansın ve ilerleme özeti</p>
       </motion.div>
 
@@ -81,7 +81,7 @@ export default function StatsPage() {
             <div className="w-9 h-9 rounded-xl bg-[hsl(var(--foreground))]/15 border border-[hsl(var(--border))]/20 flex items-center justify-center mb-3">
               <Icon className="w-4 h-4 text-[hsl(var(--muted-foreground))]" />
             </div>
-            <div className="text-2xl font-bold text-white mb-1">{value}</div>
+            <div className="text-xl lg:text-2xl font-bold text-white mb-1">{value}</div>
             <div className="text-sm text-slate-400">{label}</div>
             <div className="text-xs text-slate-600 mt-0.5">{sub}</div>
           </motion.div>
@@ -161,16 +161,16 @@ export default function StatsPage() {
             <>
               <div className="flex items-end gap-4 mb-4">
                 <div>
-                  <div className="text-3xl font-bold text-emerald-400">{stats?.dogru_sayisi}</div>
+                  <div className="text-2xl lg:text-3xl font-bold text-emerald-400">{stats?.dogru_sayisi}</div>
                   <div className="text-xs text-slate-500 mt-1">Doğru</div>
                 </div>
                 <div className="text-slate-700 text-2xl mb-1">/</div>
                 <div>
-                  <div className="text-3xl font-bold text-red-400">{stats?.yanlis_sayisi}</div>
+                  <div className="text-2xl lg:text-3xl font-bold text-red-400">{stats?.yanlis_sayisi}</div>
                   <div className="text-xs text-slate-500 mt-1">Yanlış</div>
                 </div>
                 <div className="ml-auto text-right">
-                  <div className="text-3xl font-bold text-[hsl(var(--muted-foreground))]">{stats?.basari_orani}%</div>
+                  <div className="text-2xl lg:text-3xl font-bold text-[hsl(var(--muted-foreground))]">{stats?.basari_orani}%</div>
                   <div className="text-xs text-slate-500 mt-1">Başarı</div>
                 </div>
               </div>

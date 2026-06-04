@@ -133,14 +133,14 @@ export default function PomodoroPage() {
   const dash = circ * (1 - progress);
 
   return (
-    <div className="p-6 lg:p-8 max-w-2xl mx-auto pb-24 lg:pb-8">
+    <div className="p-4 lg:p-4 lg:p-8 max-w-2xl mx-auto pb-24 lg:pb-8">
             <button onClick={() => router.back()} className="flex items-center gap-1.5 text-sm mb-6 transition-colors hover:text-[hsl(var(--foreground))]" style={{ color: "hsl(var(--muted-foreground))" }}>
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
         Geri
       </button>
 <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white mb-1">Pomodoro</h1>
+          <h1 className="text-xl lg:text-2xl font-bold text-white mb-1">Pomodoro</h1>
           <p className="text-slate-400 text-sm">Odaklanma zamanlayıcısı · {cycle}. tur</p>
         </div>
         <div className="flex items-center gap-2">
@@ -230,7 +230,7 @@ export default function PomodoroPage() {
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden mb-6">
             <div className="keda-card p-5">
               <h3 className="text-white font-medium text-sm mb-4">Süreleri Ayarla (dakika)</h3>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {(["work", "short", "long"] as Mode[]).map(m => (
                   <div key={m}>
                     <label className="text-xs text-slate-500 mb-1 block">{MODE_LABELS[m]}</label>
@@ -291,7 +291,7 @@ export default function PomodoroPage() {
       </motion.div>
 
       {/* Bugünkü istatistik */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
         {[
           { label: "Bugün", value: `${todayWork} oturum` },
           { label: "Toplam", value: `${totalMinutes} dk` },

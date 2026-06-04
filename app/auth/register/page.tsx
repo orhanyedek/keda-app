@@ -85,7 +85,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 py-10" style={{ background: "hsl(var(--background))" }}>
+    <div className="min-h-screen flex items-center justify-center px-4 px-6 py-10" style={{ background: "hsl(var(--background))" }}>
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="w-full max-w-sm">
 
         {/* Logo */}
@@ -186,7 +186,7 @@ export default function RegisterPage() {
           {/* ADIM 2: EMAIL DOĞRULAMA BEKLENİYOR */}
           {step === "verify" && (
             <motion.div key="verify" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-              <div className="keda-card p-8 text-center">
+              <div className="keda-card p-6 sm:p-8 text-center">
                 <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5"
                   style={{ background: "hsl(0 0% 100% / 0.04)", border: "1px solid hsl(0 0% 100% / 0.07)" }}>
                   <Mail className="w-8 h-8" style={{ color: "hsl(var(--primary))" }} />

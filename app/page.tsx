@@ -115,7 +115,7 @@ const features = [
 function Features() {
   const { ref, inView } = useSection();
   return (
-    <section id="ozellikler" className="py-24 px-6 overflow-hidden">
+    <section id="ozellikler" className="py-16 lg:py-24 px-6 overflow-hidden">
       <div className="max-w-5xl mx-auto">
         <motion.div ref={ref} initial="hidden" animate={inView?"show":"hidden"} variants={stagger}>
           <motion.div variants={fade} className="mb-14">
@@ -125,7 +125,7 @@ function Features() {
           </motion.div>
 
           {/* Masonry-style stagger grid */}
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {features.map((f, i) => (
               <motion.div
                 key={f.title}
@@ -166,7 +166,7 @@ function Features() {
 function AIShowcase() {
   const { ref, inView } = useSection();
   return (
-    <section className="py-24 px-6 overflow-hidden">
+    <section className="py-16 lg:py-24 px-6 overflow-hidden">
       <div className="max-w-5xl mx-auto">
         <motion.div ref={ref} initial="hidden" animate={inView ? "show" : "hidden"} variants={stagger}>
           <motion.div variants={fade} className="mb-12">
@@ -179,7 +179,7 @@ function AIShowcase() {
             </p>
           </motion.div>
 
-          <motion.div variants={fade} className="grid lg:grid-cols-2 gap-10 items-center">
+          <motion.div variants={fade} className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             {/* Sol: özellik listesi */}
             <div className="space-y-5 order-2 lg:order-1">
               {[
@@ -237,7 +237,7 @@ function HowItWorks() {
     { n:"04", title:"Takip Et", desc:"Dashboard'dan ilerlemenizi takip edin." },
   ];
   return (
-    <section id="moduller" className="py-24 px-6">
+    <section id="moduller" className="py-16 lg:py-24 px-6">
       <div className="max-w-5xl mx-auto">
         <motion.div ref={ref} initial="hidden" animate={inView?"show":"hidden"} variants={stagger}>
           <motion.div variants={fade} className="mb-14">
@@ -308,7 +308,7 @@ function LeitnerSection() {
     { n:5, label:"14 gün",     color:"hsl(var(--foreground))", bar:"hsl(var(--primary))" },
   ];
   return (
-    <section className="py-24 px-6">
+    <section className="py-16 lg:py-24 px-6">
       <div className="max-w-3xl mx-auto">
         <motion.div ref={ref} initial="hidden" animate={inView?"show":"hidden"} variants={stagger}>
           <motion.div variants={fade} className="mb-12">
@@ -382,7 +382,7 @@ function Screenshots() {
   };
 
   return (
-    <section className="py-24 px-6 overflow-hidden">
+    <section className="py-16 lg:py-24 px-6 overflow-hidden">
       <div className="max-w-5xl mx-auto">
         <motion.div ref={ref} initial="hidden" animate={inView ? "show" : "hidden"} variants={stagger}>
           <motion.div variants={fade} className="mb-12">
@@ -528,7 +528,7 @@ function ModuleScreens() {
   };
 
   return (
-    <section className="py-24 px-6">
+    <section className="py-16 lg:py-24 px-6">
       <div className="max-w-5xl mx-auto">
         <motion.div ref={ref} initial="hidden" animate={inView ? "show" : "hidden"} variants={stagger}>
           <motion.div variants={fade} className="mb-10">
@@ -660,7 +660,7 @@ function FAQ() {
   const [openIndex, setOpenIndex] = useState<number|null>(null);
   const { ref, inView } = useSection();
   return (
-    <section id="sss" className="py-24 px-6">
+    <section id="sss" className="py-16 lg:py-24 px-6">
       <div className="max-w-2xl mx-auto">
         <motion.div ref={ref} initial="hidden" animate={inView?"show":"hidden"} variants={stagger}>
           <motion.div variants={fade} className="mb-12">
@@ -698,7 +698,7 @@ function FAQ() {
 function CTA() {
   const { ref, inView } = useSection();
   return (
-    <section className="py-24 px-6">
+    <section className="py-16 lg:py-24 px-6">
       <div className="max-w-2xl mx-auto">
         <motion.div ref={ref} initial={{ opacity:0, y:30 }} animate={inView?{ opacity:1, y:0 }:{}} transition={{ duration:0.6 }}
           className="keda-card p-12 text-center relative overflow-hidden">

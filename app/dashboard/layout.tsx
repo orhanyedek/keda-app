@@ -383,7 +383,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* ====== ANA ICERIK ALANI ====== */}
       <main className="flex-1 lg:ml-64 min-h-screen">
-        <div className="pt-16 lg:pt-0">
+        <div className="pt-16 lg:pt-0 pb-20 lg:pb-0">
           {children}
         </div>
       </main>

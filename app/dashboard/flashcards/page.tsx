@@ -49,12 +49,12 @@ function CardFlip({ card, onKnow, onDontKnow }: {
     <div className="max-w-lg mx-auto">
       <div className="flashcard-container" style={{ height: 280 }}>
         <div className={`flashcard-inner ${flipped ? "flipped" : ""}`} onClick={() => setFlipped(!flipped)}>
-          <div className="flashcard-front keda-card border border-[hsl(var(--border))] p-8 flex flex-col items-center justify-center cursor-pointer hover:border-[hsl(var(--border))] transition-colors" style={{ height: 280, borderRadius: 16 }}>
+          <div className="flashcard-front keda-card border border-[hsl(var(--border))] p-4 lg:p-8 flex flex-col items-center justify-center cursor-pointer hover:border-[hsl(var(--border))] transition-colors" style={{ height: 280, borderRadius: 16 }}>
             <div className="text-xs text-[hsl(var(--foreground))] font-mono mb-4 uppercase tracking-wider">Soru</div>
             <p className="text-[hsl(var(--foreground))] text-xl font-medium text-center leading-relaxed">{card.soru}</p>
             <div className="mt-6 text-[hsl(var(--muted-foreground)/0.6)] text-xs">Cevabı görmek için tıkla</div>
           </div>
-          <div className="flashcard-back keda-card border border-emerald-500/20 bg-gradient-to-br from-emerald-900/20 to-transparent p-8 flex flex-col items-center justify-center" style={{ height: 280, borderRadius: 16 }}>
+          <div className="flashcard-back keda-card border border-emerald-500/20 bg-gradient-to-br from-emerald-900/20 to-transparent p-4 lg:p-8 flex flex-col items-center justify-center" style={{ height: 280, borderRadius: 16 }}>
             <div className="text-xs text-emerald-400 font-mono mb-4 uppercase tracking-wider">Cevap</div>
             <p className="text-[hsl(var(--foreground))] text-xl font-medium text-center leading-relaxed">{card.cevap}</p>
           </div>
@@ -76,16 +76,16 @@ function SessionSummary({ correct, wrong, total, onRestart }: { correct: number;
   const rate = total > 0 ? Math.round((correct / total) * 100) : 0;
   return (
     <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="max-w-md mx-auto text-center">
-      <div className="keda-card p-8 border border-[hsl(var(--border))]">
+      <div className="keda-card p-4 lg:p-8 border border-[hsl(var(--border))]">
         <div className="flex items-center justify-center w-12 h-12 rounded-2xl mx-auto mb-4 bg-[hsl(var(--foreground)/0.05)] border border-[hsl(var(--border))]">
           {rate >= 80 ? <CheckCircle2 className="w-6 h-6 text-emerald-400" /> : rate >= 50 ? <CheckCircle2 className="w-6 h-6 text-[hsl(var(--foreground))]" /> : <XCircle className="w-6 h-6 text-amber-400" />}
         </div>
         <h3 className="text-xl font-bold text-[hsl(var(--foreground))] mb-1 text-center">Oturum Tamamlandı</h3>
         <p className="text-[hsl(var(--muted-foreground))] text-sm mb-6 text-center">{rate >= 80 ? "Harika bir performans." : rate >= 50 ? "İyi gidiyorsun, devam et." : "Tekrar çalışarak gelişebilirsin."}</p>
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4"><div className="text-3xl font-bold text-emerald-400">{correct}</div><div className="text-xs text-[hsl(var(--muted-foreground))] mt-1">Doğru</div></div>
-          <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4"><div className="text-3xl font-bold text-red-400">{wrong}</div><div className="text-xs text-[hsl(var(--muted-foreground))] mt-1">Yanlış</div></div>
-          <div className="bg-[hsl(var(--foreground))]/10 border border-[hsl(var(--border))] rounded-xl p-4"><div className="text-3xl font-bold text-[hsl(var(--foreground))]">{rate}%</div><div className="text-xs text-[hsl(var(--muted-foreground))] mt-1">Oran</div></div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4"><div className="text-2xl lg:text-3xl font-bold text-emerald-400">{correct}</div><div className="text-xs text-[hsl(var(--muted-foreground))] mt-1">Doğru</div></div>
+          <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4"><div className="text-2xl lg:text-3xl font-bold text-red-400">{wrong}</div><div className="text-xs text-[hsl(var(--muted-foreground))] mt-1">Yanlış</div></div>
+          <div className="bg-[hsl(var(--foreground))]/10 border border-[hsl(var(--border))] rounded-xl p-4"><div className="text-2xl lg:text-3xl font-bold text-[hsl(var(--foreground))]">{rate}%</div><div className="text-xs text-[hsl(var(--muted-foreground))] mt-1">Oran</div></div>
         </div>
         <div className="progress-bar mb-6"><div className="progress-bar-fill" style={{ width: `${rate}%` }} /></div>
         <button onClick={onRestart} className="btn-primary w-full py-3">Yeni Oturum</button>
@@ -253,9 +253,9 @@ export default function FlashcardsPage() {
   };
 
   return (
-    <div className="p-6 lg:p-8 max-w-4xl mx-auto pb-24 lg:pb-8">
+    <div className="p-4 lg:p-4 lg:p-8 max-w-4xl mx-auto w-full pb-24 lg:pb-8">
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-        <h1 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-1">Flashcard Oturumu</h1>
+        <h1 className="text-xl lg:text-2xl font-bold text-[hsl(var(--foreground))] mb-1">Flashcard Oturumu</h1>
         <p className="text-[hsl(var(--muted-foreground))] text-sm">M-03 · Sorumlu: Mustafa Çakmak · Leitner Spaced Repetition</p>
       </motion.div>
 
@@ -276,7 +276,7 @@ export default function FlashcardsPage() {
       {/* Sekmeler */}
       {sessionState === "idle" && (
         <>
-          <div className="flex gap-2 mb-6">
+          <div className="flex gap-2 mb-6 overflow-x-auto pb-1 scrollbar-none">
             {[{ key: "new", label: "Yeni Oluştur" }, { key: "sets", label: "Setlerim" }, { key: "due", label: "Tekrar Zamanı" }, { key: "history", label: "Geçmiş" }].map((t) => (
               <button key={t.key} onClick={() => setTab(t.key as "new" | "sets" | "due")}
                 className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${tab === t.key ? "bg-[hsl(var(--foreground))]/30 border border-[hsl(var(--border))] text-[hsl(0 0% 80%)]" : "glass text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"}`}>
@@ -309,7 +309,7 @@ export default function FlashcardsPage() {
                     placeholder="Flashcard oluşturmak istediğiniz metni buraya yapıştırın ya da yukarıdan PDF yükleyin..." rows={6} className="keda-input resize-none font-mono text-sm" />
                   <div className="text-xs text-[hsl(var(--muted-foreground)/0.6)] mt-1 text-right">{inputText.length} karakter</div>
                 </div>
-                <div className="flex items-center gap-4 mb-6">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
                   <label className="text-sm text-[hsl(var(--muted-foreground))]">Kart sayısı:</label>
                   {[5, 10, 15, 20].map((count) => (
                     <button key={count} onClick={() => setCardCount(count)}
@@ -331,7 +331,7 @@ export default function FlashcardsPage() {
               {loadingSets ? (
                 <div className="text-center py-12 text-[hsl(var(--muted-foreground))]">Yükleniyor...</div>
               ) : sets.length === 0 ? (
-                <div className="keda-card p-8 text-center">
+                <div className="keda-card p-4 lg:p-8 text-center">
                 <div className="w-12 h-12 rounded-2xl bg-[hsl(var(--foreground)/0.05)] border border-[hsl(var(--border))] flex items-center justify-center mx-auto mb-3">
                   <Layers className="w-5 h-5 text-[hsl(var(--foreground))]" />
                 </div>
@@ -439,7 +439,7 @@ export default function FlashcardsPage() {
           )}
 
           {tab === "due" && (
-            <div className="keda-card p-8 text-center">
+            <div className="keda-card p-4 lg:p-8 text-center">
               <div className="w-12 h-12 rounded-2xl bg-[hsl(var(--foreground)/0.05)] border border-[hsl(var(--border))] flex items-center justify-center mx-auto mb-3">
                 <Clock className="w-5 h-5 text-[hsl(var(--foreground))]" />
               </div>
@@ -452,7 +452,7 @@ export default function FlashcardsPage() {
           {tab === "history" && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
               {sessionHistory.length === 0 ? (
-                <div className="keda-card p-8 text-center">
+                <div className="keda-card p-4 lg:p-8 text-center">
                   <div className="w-12 h-12 rounded-2xl bg-[hsl(var(--foreground)/0.05)] border border-[hsl(var(--border))] flex items-center justify-center mx-auto mb-3">
                     <Clock className="w-5 h-5 text-[hsl(var(--foreground))]" />
                   </div>

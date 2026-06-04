@@ -77,14 +77,14 @@ export default function ExamsPage() {
   const past = sorted.filter(e => getDaysLeft(e.date) < 0);
 
   return (
-    <div className="p-6 lg:p-8 max-w-3xl mx-auto pb-24 lg:pb-8">
+    <div className="p-4 lg:p-4 lg:p-8 max-w-3xl mx-auto w-full pb-24 lg:pb-8">
             <button onClick={() => router.back()} className="flex items-center gap-1.5 text-sm mb-6 transition-colors hover:text-[hsl(var(--foreground))]" style={{ color: "hsl(var(--muted-foreground))" }}>
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
         Geri
       </button>
 <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white mb-1">Sınav Takvimi</h1>
+          <h1 className="text-xl lg:text-2xl font-bold text-white mb-1">Sınav Takvimi</h1>
           <p className="text-slate-400 text-sm">Sınav tarihlerini takip et, hazırlık sürecini yönet</p>
         </div>
         <button onClick={() => setShowForm(!showForm)} className="btn-primary px-4 py-2.5 text-sm flex items-center gap-2">
@@ -98,7 +98,7 @@ export default function ExamsPage() {
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden mb-6">
             <div className="keda-card p-6">
               <h3 className="text-white font-medium mb-4 text-sm">Yeni Sınav</h3>
-              <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="text-xs text-slate-500 mb-1.5 block">Sınav Adı *</label>
                   <input value={name} onChange={e => setName(e.target.value)} placeholder="Matematik Finali" className="keda-input text-sm" />
@@ -155,7 +155,7 @@ export default function ExamsPage() {
                     </div>
                     <div className="flex items-center gap-3 flex-shrink-0">
                       <div className="text-right">
-                        <div className={`text-2xl font-bold tabular-nums ${getUrgencyColor(days)}`}>{days === 0 ? "Bugün!" : `${days}`}</div>
+                        <div className={`text-xl lg:text-2xl font-bold tabular-nums ${getUrgencyColor(days)}`}>{days === 0 ? "Bugün!" : `${days}`}</div>
                         {days > 0 && <div className="text-slate-600 text-xs">gün kaldı</div>}
                       </div>
                       <button onClick={() => deleteExam(exam.id)} className="p-2 text-slate-700 hover:text-red-400 transition-colors">

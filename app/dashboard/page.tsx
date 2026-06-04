@@ -138,7 +138,7 @@ export default function DashboardPage() {
       </motion.div>
 
       {/* İstatistik kartları */}
-      <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
         <StatCard icon={Layers} label="Toplam Flashcard" value={loadingStats ? "..." : stats?.toplam_flashcard || 0} sub="Tüm setlerdeki kart sayısı" />
         <StatCard icon={Clock} label="Bugün Tekrar" value={loadingStats ? "..." : stats?.bugun_tekrar_edilecek || 0} sub="Kart seni bekliyor" />
         <StatCard icon={CalendarDays} label="Aktif Plan" value={loadingStats ? "..." : stats?.aktif_plan ? getKalanGun() + " gün" : "—"} sub={stats?.aktif_plan?.baslik || "Plan yok"} />
@@ -147,7 +147,7 @@ export default function DashboardPage() {
 
       {/* Son aktiviteler + Leitner */}
       {!loadingStats && (stats?.son_setler?.length || stats?.son_podcastler?.length || stats?.leitner_dagilim?.some(d => d.sayi > 0)) && (
-        <div className="grid lg:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-6">
           {/* Son flashcard setleri */}
           {(stats?.son_setler?.length || 0) > 0 && (
             <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.1 }} className="keda-card p-5">

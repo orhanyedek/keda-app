@@ -167,9 +167,9 @@ export default function AgendaPage() {
   };
 
   return (
-    <div className="p-6 lg:p-8 max-w-4xl mx-auto pb-24 lg:pb-8">
+    <div className="p-4 lg:p-4 lg:p-8 max-w-4xl mx-auto w-full pb-24 lg:pb-8">
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-        <h1 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-1">Akıllı Ajanda & Çalışma Planı</h1>
+        <h1 className="text-xl lg:text-2xl font-bold text-[hsl(var(--foreground))] mb-1">Akıllı Ajanda & Çalışma Planı</h1>
         <p className="text-[hsl(var(--muted-foreground))] text-sm">M-01 · Sorumlu: Sezin Nisa Ataseven · Gemini AI ile konu bazlı planlama</p>
       </motion.div>
 
@@ -317,7 +317,7 @@ export default function AgendaPage() {
           {loadingPlans ? (
             <div className="text-center py-12 text-[hsl(var(--muted-foreground))]">Yükleniyor...</div>
           ) : savedPlans.length === 0 ? (
-            <div className="keda-card p-8 text-center">
+            <div className="keda-card p-4 lg:p-8 text-center">
               <div className="w-12 h-12 rounded-2xl bg-[hsl(var(--foreground)/0.05)] border border-[hsl(var(--border))] flex items-center justify-center mx-auto mb-3">
                 <CalendarDays className="w-5 h-5 text-[hsl(var(--foreground))]" />
               </div>

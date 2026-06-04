@@ -241,7 +241,7 @@ function StarterGrid({ onSelect }: { onSelect: (text: string) => void }) {
   return (
     <div className="relative max-w-lg mx-auto">
       {/* Kart grid */}
-      <div className="grid grid-cols-2 gap-3 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
         {prompts.map((text, i) => {
           const target = getCardTarget(i);
           return (
@@ -645,8 +645,8 @@ export default function AIPage() {
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: "var(--bg-primary)" }}>
 
-      {/* Sidebar */}
-      <div className="w-64 flex-shrink-0 flex flex-col border-r border-[hsl(var(--border))] p-4" style={{ background: "var(--bg-secondary)" }}>
+      {/* Sidebar — mobilde gizli */}
+      <div className="hidden lg:flex w-64 flex-shrink-0 flex-col border-r border-[hsl(var(--border))] p-4" style={{ background: "var(--bg-secondary)" }}>
         <button onClick={newSession}
           className="flex items-center gap-2 w-full px-4 py-2.5 rounded-xl border border-[hsl(var(--border))] text-[hsl(var(--foreground)/0.85)] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))] transition-all text-sm font-medium mb-4">
           <Plus className="w-4 h-4" />
@@ -682,7 +682,7 @@ export default function AIPage() {
                     exit={{ opacity: 0, scale: 0.9, y: -4 }}
                     transition={{ duration: 0.12 }}
                     onClick={e => e.stopPropagation()}
-                    className="absolute right-0 top-8 z-50 flex items-center gap-1 px-2 py-1.5 rounded-xl shadow-xl border border-[hsl(var(--border))]"
+                    className="absolute right-0 top-4 lg:p-8 z-50 flex items-center gap-1 px-2 py-1.5 rounded-xl shadow-xl border border-[hsl(var(--border))]"
                     style={{ background: "hsl(var(--card))" }}
                   >
                     {/* Paylaş/İndir */}
@@ -728,7 +728,7 @@ export default function AIPage() {
 
         {/* Mesajlar */}
         <div className="flex-1 overflow-y-auto px-6 py-6">
-          <div className="max-w-3xl mx-auto space-y-6">
+          <div className="max-w-3xl mx-auto w-full space-y-6">
 
             {/* Boş ekran */}
             {!activeSession || activeSession.messages.length === 0 ? (
@@ -824,7 +824,7 @@ export default function AIPage() {
 
         {/* Input */}
         <div className="px-6 pb-6 pt-2">
-          <div className="max-w-3xl mx-auto">
+          <div className="max-w-3xl mx-auto w-full">
             {/* Seçili model göstergesi */}
             <div className="flex items-center gap-1.5 mb-1.5 px-1">
               <button

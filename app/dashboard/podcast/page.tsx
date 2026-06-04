@@ -212,9 +212,9 @@ export default function PodcastPage() {
     : 0;
 
   return (
-    <div className="p-6 lg:p-8 max-w-3xl mx-auto pb-24 lg:pb-8">
+    <div className="p-4 lg:p-4 lg:p-8 max-w-3xl mx-auto w-full pb-24 lg:pb-8">
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-        <h1 className="text-2xl font-bold mb-1" style={{ color: "hsl(var(--foreground))" }}>Podcast Stüdyosu</h1>
+        <h1 className="text-xl lg:text-2xl font-bold mb-1" style={{ color: "hsl(var(--foreground))" }}>Podcast Stüdyosu</h1>
         <p className="text-sm" style={{ color: "hsl(var(--muted-foreground))" }}>M-02 · PDF'ten sesli özet — dinle ve takip et</p>
       </motion.div>
 
@@ -277,7 +277,7 @@ export default function PodcastPage() {
               {/* Uzunluk */}
               <div>
                 <label className="block text-sm mb-2" style={{ color: "hsl(var(--muted-foreground))" }}>Uzunluk</label>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                   {LENGTHS.map(l => (
                     <button key={l.key} onClick={() => setLength(l.key)}
                       className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all text-center ${length === l.key
@@ -305,7 +305,7 @@ export default function PodcastPage() {
 
               {/* Sticky player bar */}
               <div className="keda-card p-5 sticky top-2 z-20" style={{ borderColor: "hsl(0 0% 100% / 0.1)", backdropFilter: "blur(12px)" }}>
-                <div className="flex items-center gap-4 mb-3">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-3">
                   {/* Albüm kapağı */}
                   <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
                     style={{ background: "hsl(0 0% 100% / 0.05)", border: "1px solid hsl(0 0% 100% / 0.12)" }}>
@@ -420,7 +420,7 @@ export default function PodcastPage() {
           {loadingHistory ? (
             <div className="text-center py-12" style={{ color: "hsl(var(--muted-foreground))" }}>Yükleniyor...</div>
           ) : filteredHistory.length === 0 ? (
-            <div className="keda-card p-8 text-center">
+            <div className="keda-card p-4 lg:p-8 text-center">
               <div className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3"
                 style={{ background: "hsl(0 0% 100% / 0.04)", border: "1px solid hsl(0 0% 100% / 0.07)" }}>
                 <Mic className="w-5 h-5" style={{ color: "hsl(var(--primary))" }} />

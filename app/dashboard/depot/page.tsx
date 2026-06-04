@@ -66,19 +66,19 @@ export default function DepotPage() {
   const totalChars = docs.reduce((s, d) => s + (d.cikarilan_metin?.length || 0), 0);
 
   return (
-    <div className="p-6 lg:p-8 max-w-5xl mx-auto pb-24 lg:pb-8">
+    <div className="p-4 lg:p-4 lg:p-8 max-w-5xl mx-auto pb-24 lg:pb-8">
             <button onClick={() => router.back()} className="flex items-center gap-1.5 text-sm mb-6 transition-colors hover:text-[hsl(var(--foreground))]" style={{ color: "hsl(var(--muted-foreground))" }}>
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
         Geri
       </button>
 <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-        <h1 className="text-2xl font-bold mb-1" style={{ color: "hsl(var(--foreground))" }}>PDF Deposu</h1>
+        <h1 className="text-xl lg:text-2xl font-bold mb-1" style={{ color: "hsl(var(--foreground))" }}>PDF Deposu</h1>
         <p className="text-sm" style={{ color: "hsl(var(--muted-foreground))" }}>Sisteme yüklenen tüm PDF'ler burada saklanır</p>
       </motion.div>
 
       {/* İstatistikler */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-        className="grid grid-cols-3 gap-3 mb-6">
+        className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
         {[
           { label: "Toplam PDF", value: docs.length },
           { label: "Toplam Karakter", value: totalChars.toLocaleString("tr-TR") },

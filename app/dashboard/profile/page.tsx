@@ -130,14 +130,14 @@ export default function ProfilePage() {
   const joinDate = user?.created_at ? new Date(user.created_at).toLocaleDateString("tr-TR", { year: "numeric", month: "long", day: "numeric" }) : "";
 
   return (
-    <div className="p-6 lg:p-8 max-w-2xl mx-auto pb-24 lg:pb-8 space-y-5">
+    <div className="p-4 lg:p-4 lg:p-8 max-w-2xl mx-auto pb-24 lg:pb-8 space-y-5">
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-2xl font-bold mb-1" style={{ color: "hsl(var(--foreground))" }}>Profil</h1>
+        <h1 className="text-xl lg:text-2xl font-bold mb-1" style={{ color: "hsl(var(--foreground))" }}>Profil</h1>
         <p className="text-sm" style={{ color: "hsl(var(--muted-foreground))" }}>Hesap bilgilerinizi yönetin</p>
       </motion.div>
 
       {/* Profil kartı */}
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="keda-card p-8 text-center">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="keda-card p-4 lg:p-8 text-center">
         <div className="relative w-20 h-20 mx-auto mb-4">
           <UserAvatar key={avatarKey} userId={user?.id || ""} userName={userName} size={80} />
           <label className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center cursor-pointer transition-all hover:scale-110"
@@ -156,7 +156,7 @@ export default function ProfilePage() {
 
       {/* İstatistikler */}
       {stats && (
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="grid grid-cols-2 gap-3">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {[
             { icon: Layers, label: "Flashcard", value: stats.toplam_flashcard },
             { icon: CalendarDays, label: "Plan", value: stats.toplam_plan },
