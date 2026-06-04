@@ -10,6 +10,10 @@ import toast from "react-hot-toast";
 
 export default function LoginPage() {
   const router = useRouter();
+  const [inactivityLogout, setInactivityLogout] = useState(false);
+  useEffect(() => {
+    setInactivityLogout(window.location.search.includes("reason=inactivity"));
+  }, []);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);

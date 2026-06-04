@@ -17,12 +17,33 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 // Supabase istemcisi - tüm API çağrıları bu istemci üzerinden yapılır
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    // Oturum bilgilerini localStorage'da saklar (tarayıcı yenilenmesinde oturum kaybolmaz)
     persistSession: true,
-    // Otomatik token yenileme - 15 dk access token, 7 gün refresh token
     autoRefreshToken: true,
   },
 });
+
+// ==================== İNAKTİVİTE KONTROLÜ ====================
+const INACTIVITY_LIMIT = 2 * 60 * 60 * 1000; // 2 saat (ms)
+const LAST_ACTIVE_KEY = "keda_last_active";
+
+export function updateLastActive() {
+  localStorage.setItem(LAST_ACTIVE_KEY, Date.now().toString());
+}
+
+export async function checkInactivityAndLogout() {
+  const lastActive = localStorage.getItem(LAST_ACTIVE_KEY);
+  if (!lastActive) {
+    updateLastActive();
+    return;
+  }
+  const elapsed = Date.now() - parseInt(lastActive);
+  if (elapsed > INACTIVITY_LIMIT) {
+    localStorage.removeItem(LAST_ACTIVE_KEY);
+    await supabase.auth.signOut();
+    window.location.href = "/auth/login?reason=inactivity";
+  }
+}
+
 
 // ==================== AUTH FONKSİYONLARI ====================
 

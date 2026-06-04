@@ -23,6 +23,7 @@ import Notifications from "@/components/Notifications";
 import Search from "@/components/Search";
 import UserAvatar from "@/components/UserAvatar";
 import { registerServiceWorker, scheduleDailyReminder } from "@/lib/notifications";
+import { updateLastActive, checkInactivityAndLogout } from "@/lib/supabase";
 import toast from "react-hot-toast";
 
 // Ayarlar alt menüsü
@@ -225,10 +226,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     if (!user) return;
     registerServiceWorker();
-    // Bildirim izni varsa günlük hatırlatıcı kur
     if ("Notification" in window && Notification.permission === "granted") {
       scheduleDailyReminder();
     }
+  }, [user]);
+
+  // İnaktivite kontrolü — sayfa açılınca ve her 5 dakikada kontrol et
+  useEffect(() => {
+    if (!user) return;
+    checkInactivityAndLogout();
+    const events = ["mousedown", "keydown", "touchstart", "scroll", "click"];
+    const handleActivity = () => updateLastActive();
+    events.forEach(e => document.addEventListener(e, handleActivity, { passive: true }));
+    const interval = setInterval(checkInactivityAndLogout, 5 * 60 * 1000);
+    return () => {
+      events.forEach(e => document.removeEventListener(e, handleActivity));
+      clearInterval(interval);
+    };
   }, [user]);
 
   const handleSignOut = async () => {
