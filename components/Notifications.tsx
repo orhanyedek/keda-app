@@ -37,8 +37,9 @@ export default function Notifications({ userId }: { userId: string }) {
           event: "INSERT",
           schema: "public",
           table: "friendships",
-          filter: `receiver_id=eq.${userId}`,
         }, async (payload: any) => {
+          // Sadece bu kullanıcıya gelen istekleri işle
+          if (payload.new.receiver_id !== userId) return;
           try {
             const { data: senderStats } = await supabase
               .from("user_stats_public")

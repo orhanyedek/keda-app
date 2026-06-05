@@ -419,7 +419,7 @@ export async function removeFriend(friendshipId: string) {
 export async function getFriends(userId: string) {
   const { data, error } = await supabase
     .from("friendships")
-    .select("*, requester:requester_id(*), receiver:receiver_id(*)")
+    .select("id, requester_id, receiver_id, status, created_at")
     .or(`requester_id.eq.${userId},receiver_id.eq.${userId}`)
     .eq("status", "accepted");
   return { data, error };
@@ -428,7 +428,7 @@ export async function getFriends(userId: string) {
 export async function getPendingRequests(userId: string) {
   const { data, error } = await supabase
     .from("friendships")
-    .select("*")
+    .select("id, requester_id, receiver_id, status, created_at")
     .eq("receiver_id", userId)
     .eq("status", "pending");
   return { data, error };
