@@ -31,17 +31,20 @@ export function updateLastActive() {
 }
 
 export async function checkInactivityAndLogout() {
-  const lastActive = localStorage.getItem(LAST_ACTIVE_KEY);
-  if (!lastActive) {
-    updateLastActive();
-    return;
-  }
-  const elapsed = Date.now() - parseInt(lastActive);
-  if (elapsed > INACTIVITY_LIMIT) {
-    localStorage.removeItem(LAST_ACTIVE_KEY);
-    await supabase.auth.signOut();
-    window.location.href = "/auth/login?reason=inactivity";
-  }
+  try {
+    if (typeof window === "undefined") return;
+    const lastActive = localStorage.getItem(LAST_ACTIVE_KEY);
+    if (!lastActive) {
+      updateLastActive();
+      return;
+    }
+    const elapsed = Date.now() - parseInt(lastActive);
+    if (elapsed > INACTIVITY_LIMIT) {
+      localStorage.removeItem(LAST_ACTIVE_KEY);
+      await supabase.auth.signOut();
+      window.location.href = "/auth/login?reason=inactivity";
+    }
+  } catch { /* ignore */ }
 }
 
 

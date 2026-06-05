@@ -29,43 +29,48 @@ export default function Notifications({ userId }: { userId: string }) {
     loadNotifications();
 
     // Realtime: yeni arkadaşlık isteği
-    const channel = supabase
-      .channel("friend-requests-" + userId)
-      .on("postgres_changes", {
-        event: "INSERT",
-        schema: "public",
-        table: "friendships",
-        filter: `receiver_id=eq.${userId}`,
-      }, async (payload) => {
-        const { data: senderStats } = await supabase
-          .from("user_stats_public")
-          .select("display_name")
-          .eq("user_id", payload.new.requester_id)
-          .single();
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    try {
+      channel = supabase
+        .channel("friend-requests-" + userId)
+        .on("postgres_changes" as any, {
+          event: "INSERT",
+          schema: "public",
+          table: "friendships",
+          filter: `receiver_id=eq.${userId}`,
+        }, async (payload: any) => {
+          try {
+            const { data: senderStats } = await supabase
+              .from("user_stats_public")
+              .select("display_name")
+              .eq("user_id", payload.new.requester_id)
+              .single();
 
-        const senderName = senderStats?.display_name || "Bir kullanıcı";
-        const notif: Notification = {
-          id: `friend-req-${payload.new.id}`,
-          type: "friend_request",
-          title: "Arkadaşlık İsteği",
-          desc: `${senderName} seni takip etmek istiyor.`,
-          icon: UserPlus,
-          color: "text-[hsl(var(--foreground))]",
-          read: false,
-          action: "/dashboard/friends",
-        };
-        setNotifications(prev => [notif, ...prev]);
+            const senderName = senderStats?.display_name || "Bir kullanıcı";
+            const notif: Notification = {
+              id: `friend-req-${payload.new.id}`,
+              type: "friend_request",
+              title: "Arkadaşlık İsteği",
+              desc: `${senderName} seni takip etmek istiyor.`,
+              icon: UserPlus,
+              color: "text-[hsl(var(--foreground))]",
+              read: false,
+              action: "/dashboard/friends",
+            };
+            setNotifications(prev => [notif, ...prev]);
 
-        if ("Notification" in window && Notification.permission === "granted") {
-          new Notification("KEDA — Yeni Arkadaşlık İsteği", {
-            body: `${senderName} seni takip etmek istiyor.`,
-            icon: "/favicon.svg",
-          });
-        }
-      })
-      .subscribe();
+            if ("Notification" in window && Notification.permission === "granted") {
+              new Notification("KEDA — Yeni Arkadaşlık İsteği", {
+                body: `${senderName} seni takip etmek istiyor.`,
+                icon: "/favicon.svg",
+              });
+            }
+          } catch { /* ignore */ }
+        })
+        .subscribe();
+    } catch { /* Realtime desteklenmiyorsa sessizce geç */ }
 
-    return () => { supabase.removeChannel(channel); };
+    return () => { if (channel) try { supabase.removeChannel(channel); } catch { /* ignore */ } };
   }, [userId]);
 
   const loadNotifications = async () => {
