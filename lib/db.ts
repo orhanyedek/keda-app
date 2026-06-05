@@ -352,3 +352,101 @@ export async function savePdfDocument(
     .single();
   return { data, error };
 }
+
+// ==================== ARKADAŞLIK SİSTEMİ ====================
+
+export async function updatePublicStats(userId: string, displayName: string) {
+  const { data: flashcards } = await supabase
+    .from("flashcards").select("id, kutu_no, sonraki_gosterim").eq("kullanici_id", userId);
+
+  const now = new Date();
+  const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+  // Weekly cards — son 7 günde eklenen
+  const weeklyCards = (flashcards || []).filter(c => {
+    const d = new Date(c.sonraki_gosterim);
+    return d >= weekAgo;
+  }).length;
+
+  const { error } = await supabase.from("user_stats_public").upsert({
+    user_id: userId,
+    display_name: displayName,
+    total_cards: flashcards?.length || 0,
+    weekly_cards: weeklyCards,
+    last_active: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  }, { onConflict: "user_id" });
+
+  return { error };
+}
+
+export async function searchUsers(query: string, currentUserId: string) {
+  const { data, error } = await supabase
+    .from("user_stats_public")
+    .select("*")
+    .ilike("display_name", `%${query}%`)
+    .neq("user_id", currentUserId)
+    .limit(10);
+  return { data, error };
+}
+
+export async function sendFriendRequest(requesterId: string, receiverId: string) {
+  const { data, error } = await supabase.from("friendships").insert({
+    requester_id: requesterId,
+    receiver_id: receiverId,
+    status: "pending",
+  }).select().single();
+  return { data, error };
+}
+
+export async function acceptFriendRequest(friendshipId: string) {
+  const { data, error } = await supabase
+    .from("friendships").update({ status: "accepted" })
+    .eq("id", friendshipId).select().single();
+  return { data, error };
+}
+
+export async function rejectFriendRequest(friendshipId: string) {
+  const { error } = await supabase.from("friendships").delete().eq("id", friendshipId);
+  return { error };
+}
+
+export async function removeFriend(friendshipId: string) {
+  const { error } = await supabase.from("friendships").delete().eq("id", friendshipId);
+  return { error };
+}
+
+export async function getFriends(userId: string) {
+  const { data, error } = await supabase
+    .from("friendships")
+    .select("*, requester:requester_id(*), receiver:receiver_id(*)")
+    .or(`requester_id.eq.${userId},receiver_id.eq.${userId}`)
+    .eq("status", "accepted");
+  return { data, error };
+}
+
+export async function getPendingRequests(userId: string) {
+  const { data, error } = await supabase
+    .from("friendships")
+    .select("*")
+    .eq("receiver_id", userId)
+    .eq("status", "pending");
+  return { data, error };
+}
+
+export async function getFriendStats(userIds: string[]) {
+  const { data, error } = await supabase
+    .from("user_stats_public")
+    .select("*")
+    .in("user_id", userIds);
+  return { data, error };
+}
+
+export async function getFriendshipStatus(userId: string, otherUserId: string) {
+  const { data, error } = await supabase
+    .from("friendships")
+    .select("*")
+    .or(`and(requester_id.eq.${userId},receiver_id.eq.${otherUserId}),and(requester_id.eq.${otherUserId},receiver_id.eq.${userId})`)
+    .single();
+  return { data, error };
+}

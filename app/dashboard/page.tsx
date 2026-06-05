@@ -10,8 +10,8 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
-import { getDashboardStats } from "@/lib/db";
-import { CalendarDays, Mic, Layers, Clock, BookOpen, ArrowRight } from "lucide-react";
+import { getDashboardStats, getFriends, getFriendStats } from "@/lib/db";
+import { CalendarDays, Mic, Layers, Clock, Users, ArrowRight } from "lucide-react";
 import { DashboardSkeleton } from "@/components/Skeleton";
 import Onboarding from "@/components/Onboarding";
 import Weather from "@/components/Weather";
@@ -67,6 +67,70 @@ interface DashboardStats {
   son_podcastler: { id: string; baslik: string; created_at: string }[];
   toplam_pdf: number;
   leitner_dagilim: { kutu: number; sayi: number }[];
+}
+
+
+function FriendsWidget({ userId }: { userId: string }) {
+  const [friends, setFriends] = useState<any[]>([]);
+  const [stats, setStats] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (!userId) return;
+    getFriends(userId).then(({ data }) => {
+      if (!data || data.length === 0) return;
+      setFriends(data);
+      const ids = data.map((f: any) => f.requester_id === userId ? f.receiver_id : f.requester_id);
+      getFriendStats(ids).then(({ data: s }) => { if (s) setStats(s); });
+    });
+  }, [userId]);
+
+  if (friends.length === 0) return null;
+
+  const getFriendId = (f: any) => f.requester_id === userId ? f.receiver_id : f.requester_id;
+  const colors = [["#3b82f6","#1d4ed8"],["#8b5cf6","#6d28d9"],["#10b981","#047857"],["#f59e0b","#b45309"],["#ef4444","#b91c1c"]];
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="keda-card p-5 mb-6">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-sm font-semibold flex items-center gap-2" style={{ color: "hsl(var(--foreground))" }}>
+          <Users className="w-4 h-4" />
+          Arkadaşlar
+        </h3>
+        <Link href="/dashboard/friends" className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>
+          Tümü
+        </Link>
+      </div>
+      <div className="space-y-3">
+        {friends.slice(0, 3).map((f: any) => {
+          const fid = getFriendId(f);
+          const stat = stats.find(s => s.user_id === fid);
+          const name = stat?.display_name || "Kullanıcı";
+          const [from, to] = colors[name.charCodeAt(0) % colors.length];
+          const diff = stat?.last_active ? Date.now() - new Date(stat.last_active).getTime() : 0;
+          const isOnline = diff < 10 * 60 * 1000;
+          return (
+            <div key={f.id} className="flex items-center gap-3">
+              <div className="relative">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white"
+                  style={{ background: `linear-gradient(135deg, ${from}, ${to})` }}>
+                  {name.charAt(0).toUpperCase()}
+                </div>
+                {isOnline && <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2"
+                  style={{ borderColor: "hsl(var(--card))" }} />}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium truncate" style={{ color: "hsl(var(--foreground))" }}>{name}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs font-bold" style={{ color: "hsl(var(--foreground))" }}>{stat?.weekly_cards || 0}</p>
+                <p className="text-[10px]" style={{ color: "hsl(var(--muted-foreground))" }}>bu hafta</p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </motion.div>
+  );
 }
 
 export default function DashboardPage() {
@@ -316,6 +380,9 @@ export default function DashboardPage() {
           </motion.div>
         </div>
       </div>
+
+      {/* Arkadaşlar widget */}
+      <FriendsWidget userId={user?.id || ""} />
 
       {/* Takım bilgisi */}
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }} className="mt-8 text-center">
