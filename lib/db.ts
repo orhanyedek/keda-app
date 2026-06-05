@@ -355,14 +355,13 @@ export async function savePdfDocument(
 
 // ==================== ARKADAŞLIK SİSTEMİ ====================
 
-export async function updatePublicStats(userId: string, displayName: string) {
+export async function updatePublicStats(userId: string, displayName: string, email?: string) {
   const { data: flashcards } = await supabase
     .from("flashcards").select("id, kutu_no, sonraki_gosterim").eq("kullanici_id", userId);
 
   const now = new Date();
   const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-  // Weekly cards — son 7 günde eklenen
   const weeklyCards = (flashcards || []).filter(c => {
     const d = new Date(c.sonraki_gosterim);
     return d >= weekAgo;
@@ -371,6 +370,7 @@ export async function updatePublicStats(userId: string, displayName: string) {
   const { error } = await supabase.from("user_stats_public").upsert({
     user_id: userId,
     display_name: displayName,
+    email: email || "",
     total_cards: flashcards?.length || 0,
     weekly_cards: weeklyCards,
     last_active: new Date().toISOString(),
@@ -384,7 +384,7 @@ export async function searchUsers(query: string, currentUserId: string) {
   const { data, error } = await supabase
     .from("user_stats_public")
     .select("*")
-    .ilike("display_name", `%${query}%`)
+    .or(`display_name.ilike.%${query}%,email.ilike.%${query}%`)
     .neq("user_id", currentUserId)
     .limit(10);
   return { data, error };

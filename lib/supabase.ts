@@ -51,13 +51,14 @@ export async function checkInactivityAndLogout() {
  * Kullanıcı Kaydı
  * Yeni kullanıcı oluşturur ve profil bilgilerini kaydeder
  */
-export async function signUp(email: string, password: string, fullName: string) {
+export async function signUp(email: string, password: string, fullName: string, username?: string) {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
       data: {
         full_name: fullName,
+        username: username || fullName,
       },
     },
   });

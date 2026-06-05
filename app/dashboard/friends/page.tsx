@@ -66,7 +66,7 @@ export default function FriendsPage() {
 
   useEffect(() => {
     if (!user) return;
-    updatePublicStats(user.id, userName);
+    updatePublicStats(user.id, userName, user.email || "");
     loadFriends();
     loadPendingRequests();
   }, [user]);

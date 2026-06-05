@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Eye, EyeOff, ArrowLeft, Mail } from "lucide-react";
-import { signUp, signInWithOAuth } from "@/lib/supabase";
+import { Eye, EyeOff, ArrowLeft, Mail, Check, X } from "lucide-react";
+import { signUp, signInWithOAuth, supabase } from "@/lib/supabase";
 import toast from "react-hot-toast";
 
 type Step = "form" | "verify";
@@ -14,6 +14,9 @@ export default function RegisterPage() {
   const router = useRouter();
   const [step, setStep] = useState<Step>("form");
   const [fullName, setFullName] = useState("");
+  const [username, setUsername] = useState("");
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  const [checkingUsername, setCheckingUsername] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
@@ -21,6 +24,23 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<"google" | "github" | null>(null);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  // Kullanıcı adı müsaitlik kontrolü (debounce)
+  useEffect(() => {
+    if (!username.trim() || username.length < 3) { setUsernameAvailable(null); return; }
+    const timer = setTimeout(async () => {
+      setCheckingUsername(true);
+      const { data } = await supabase
+        .from("user_stats_public")
+        .select("user_id")
+        .ilike("display_name", username.trim())
+        .limit(1);
+      setUsernameAvailable(!data || data.length === 0);
+      setCheckingUsername(false);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [username]);
+
 
   const getPasswordStrength = () => {
     let s = 0;
@@ -39,6 +59,9 @@ export default function RegisterPage() {
   const validateForm = () => {
     const e: { [key: string]: string } = {};
     if (!fullName.trim() || fullName.trim().length < 2) e.fullName = "Ad Soyad en az 2 karakter olmalı";
+    if (!username.trim() || username.trim().length < 3) e.username = "Kullanıcı adı en az 3 karakter olmalı";
+    else if (!/^[a-zA-Z0-9_]+$/.test(username)) e.username = "Sadece harf, rakam ve _ kullanılabilir";
+    else if (usernameAvailable === false) e.username = "Bu kullanıcı adı alınmış";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.email = "Geçerli bir e-posta girin";
     if (password.length < 8) e.password = "Şifre en az 8 karakter olmalı";
     else if (!/[A-Z]/.test(password)) e.password = "En az bir büyük harf olmalı";
@@ -54,7 +77,8 @@ export default function RegisterPage() {
     if (!validateForm()) return;
     setLoading(true);
     try {
-      const { data, error } = await signUp(email, password, fullName);
+      const displayName = username.trim() || fullName.trim();
+      const { data, error } = await signUp(email, password, fullName, displayName);
       if (error) {
         if (error.message.includes("already registered")) {
           setErrors({ email: "Bu e-posta zaten kayıtlı" });
@@ -135,6 +159,21 @@ export default function RegisterPage() {
                     <input value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Adın Soyadın"
                       className={`keda-input ${errors.fullName ? "border-red-500/50" : ""}`} />
                     {errors.fullName && <p className="text-xs mt-1" style={{ color: "hsl(var(--destructive))" }}>{errors.fullName}</p>}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1.5" style={{ color: "hsl(var(--foreground))" }}>Kullanıcı Adı</label>
+                    <div className="relative">
+                      <input value={username} onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
+                        placeholder="kullanici_adi" className={`keda-input pr-8 ${errors.username ? "border-red-500/50" : usernameAvailable === true ? "border-emerald-500/50" : ""}`} />
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        {checkingUsername && <div className="w-3.5 h-3.5 border border-current border-t-transparent rounded-full animate-spin" style={{ color: "hsl(var(--muted-foreground))" }} />}
+                        {!checkingUsername && usernameAvailable === true && <Check className="w-3.5 h-3.5 text-emerald-400" />}
+                        {!checkingUsername && usernameAvailable === false && <X className="w-3.5 h-3.5 text-red-400" />}
+                      </div>
+                    </div>
+                    {errors.username && <p className="text-xs mt-1" style={{ color: "hsl(var(--destructive))" }}>{errors.username}</p>}
+                    {!errors.username && usernameAvailable === true && <p className="text-xs mt-1 text-emerald-400">Kullanıcı adı uygun</p>}
+                    {!errors.username && usernameAvailable === false && <p className="text-xs mt-1 text-red-400">Bu kullanıcı adı alınmış</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1.5" style={{ color: "hsl(var(--foreground))" }}>E-posta</label>
