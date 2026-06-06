@@ -509,3 +509,85 @@ export async function getFriendActivities(friendIds: string[]) {
     .limit(30);
   return { data, error };
 }
+
+// ==================== GRUP SOHBETİ ====================
+
+export async function createGroupChat(createdBy: string, name: string, memberIds: string[]) {
+  const { data: group, error } = await supabase
+    .from("group_chats").insert({ name, created_by: createdBy }).select().single();
+  if (error || !group) return { data: null, error };
+
+  const members = [createdBy, ...memberIds].map(uid => ({ group_id: group.id, user_id: uid }));
+  await supabase.from("group_members").insert(members);
+  return { data: group, error: null };
+}
+
+export async function getGroupChats(userId: string) {
+  const { data: memberships } = await supabase
+    .from("group_members").select("group_id").eq("user_id", userId);
+  if (!memberships?.length) return { data: [], error: null };
+  const ids = memberships.map(m => m.group_id);
+  const { data, error } = await supabase
+    .from("group_chats").select("*").in("id", ids).order("created_at", { ascending: false });
+  return { data, error };
+}
+
+export async function getGroupMessages(groupId: string) {
+  const { data, error } = await supabase
+    .from("group_messages").select("*")
+    .eq("group_id", groupId).eq("deleted_for_all", false)
+    .order("created_at", { ascending: true });
+  return { data, error };
+}
+
+export async function sendGroupMessage(groupId: string, senderId: string, content: string, type = "text", audioUrl?: string) {
+  const { data, error } = await supabase
+    .from("group_messages")
+    .insert({ group_id: groupId, sender_id: senderId, content, message_type: type, audio_url: audioUrl })
+    .select().single();
+  return { data, error };
+}
+
+export async function deleteGroupMessage(messageId: string) {
+  const { error } = await supabase.from("group_messages").delete().eq("id", messageId);
+  return { error };
+}
+
+export async function getGroupMembers(groupId: string) {
+  const { data, error } = await supabase
+    .from("group_members").select("user_id").eq("group_id", groupId);
+  return { data, error };
+}
+
+// ==================== MESAJ SİLME & DURUM ====================
+
+export async function deleteMessageForAll(messageId: string) {
+  const { error } = await supabase
+    .from("messages").update({ deleted_for_all: true }).eq("id", messageId);
+  return { error };
+}
+
+export async function deleteMessageForSender(messageId: string) {
+  const { error } = await supabase
+    .from("messages").update({ deleted_for_sender: true }).eq("id", messageId);
+  return { error };
+}
+
+export async function getUnreadMessages(userId: string) {
+  const { data, error } = await supabase
+    .from("messages").select("sender_id, id")
+    .eq("receiver_id", userId).eq("read", false).eq("deleted_for_all", false);
+  return { data, error };
+}
+
+// ==================== ÇALIŞMA DAVETİ ====================
+
+export async function sendStudyInvite(fromId: string, toId: string, fromName: string) {
+  const { error } = await supabase.from("friend_activities").insert({
+    user_id: fromId,
+    type: "study_invite",
+    description: `${fromName} seni birlikte çalışmaya davet etti!`,
+    meta: { to_user: toId, from_name: fromName }
+  });
+  return { error };
+}
