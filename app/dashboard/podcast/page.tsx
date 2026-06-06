@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { generatePodcastSummary } from "@/lib/gemini";
 import { savePodcast, getPodcasts, deletePodcast } from "@/lib/db";
 import { useAuth } from "@/hooks/useAuth";
+import { logActivity } from "@/lib/db";
 import PDFUploader from "@/components/PDFUploader";
 import { Mic, Play, Pause, SkipBack, SkipForward, Trash2, Download, Search, ChevronDown } from "lucide-react";
 import KeremAssistant from "@/components/KeremAssistant";
@@ -135,6 +136,7 @@ export default function PodcastPage() {
       // Oluşturulunca scroll
       setTimeout(() => document.getElementById("player-section")?.scrollIntoView({ behavior: "smooth", block: "start" }), 150);
       toast.success("Podcast hazır!");
+      if (user) logActivity(user.id, 'podcast_created', `"${podcastTitle || 'Yeni Podcast'}" podcastini oluşturdu`);
 
       // Kaydet
       if (user) {

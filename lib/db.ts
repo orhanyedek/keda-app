@@ -450,3 +450,62 @@ export async function getFriendshipStatus(userId: string, otherUserId: string) {
     .single();
   return { data, error };
 }
+
+// ==================== MESAJLAŞMA ====================
+
+export async function getMessages(userId: string, friendId: string) {
+  const { data, error } = await supabase
+    .from("messages")
+    .select("*")
+    .or(`and(sender_id.eq.${userId},receiver_id.eq.${friendId}),and(sender_id.eq.${friendId},receiver_id.eq.${userId})`)
+    .order("created_at", { ascending: true });
+  return { data, error };
+}
+
+export async function sendMessage(senderId: string, receiverId: string, content: string) {
+  const { data, error } = await supabase
+    .from("messages")
+    .insert({ sender_id: senderId, receiver_id: receiverId, content })
+    .select()
+    .single();
+  return { data, error };
+}
+
+export async function markMessagesRead(userId: string, senderId: string) {
+  const { error } = await supabase
+    .from("messages")
+    .update({ read: true })
+    .eq("receiver_id", userId)
+    .eq("sender_id", senderId)
+    .eq("read", false);
+  return { error };
+}
+
+export async function getUnreadCount(userId: string) {
+  const { count } = await supabase
+    .from("messages")
+    .select("*", { count: "exact", head: true })
+    .eq("receiver_id", userId)
+    .eq("read", false);
+  return count || 0;
+}
+
+// ==================== AKTİVİTE AKIŞI ====================
+
+export async function logActivity(userId: string, type: string, description: string, meta?: object) {
+  const { error } = await supabase
+    .from("friend_activities")
+    .insert({ user_id: userId, type, description, meta: meta || {} });
+  return { error };
+}
+
+export async function getFriendActivities(friendIds: string[]) {
+  if (!friendIds.length) return { data: [], error: null };
+  const { data, error } = await supabase
+    .from("friend_activities")
+    .select("*")
+    .in("user_id", friendIds)
+    .order("created_at", { ascending: false })
+    .limit(30);
+  return { data, error };
+}

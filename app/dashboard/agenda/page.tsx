@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { generateStudyPlan, analyzeTopics } from "@/lib/gemini";
 import { saveStudyPlan, getStudyPlans, markTopicDone, deleteStudyPlan } from "@/lib/db";
 import { useAuth } from "@/hooks/useAuth";
+import { logActivity } from "@/lib/db";
 import PDFUploader from "@/components/PDFUploader";
 import { CalendarDays, Check, Trash2 } from "lucide-react";
 import SezinAssistant from "@/components/SezinAssistant";

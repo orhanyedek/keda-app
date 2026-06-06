@@ -9,6 +9,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
+import { logActivity } from "@/lib/db";
 import { generateFlashcards } from "@/lib/gemini";
 import { getFlashcardSets, createFlashcardSet, saveFlashcards, getDueFlashcards, getFlashcardsBySet, updateFlashcard, deleteFlashcard, deleteFlashcardSet } from "@/lib/db";
 import PDFUploader from "@/components/PDFUploader";
