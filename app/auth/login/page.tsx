@@ -87,7 +87,7 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-3">
             <div>
               <label className="block text-sm font-medium mb-1.5" style={{ color: "hsl(var(--foreground))" }}>E-posta</label>
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="ornek@email.com" required className="keda-input" />
+              <input data-testid="login-email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="ornek@email.com" required className="keda-input" />
             </div>
             <div>
               <div className="flex items-center justify-between mb-1.5">
@@ -95,7 +95,7 @@ export default function LoginPage() {
                 <Link href="/auth/reset-password" className="text-xs" style={{ color: "hsl(var(--primary))" }}>Unuttum</Link>
               </div>
               <div className="relative">
-                <input type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required className="keda-input pr-10" />
+                <input data-testid="login-password" type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required className="keda-input pr-10" />
                 <button type="button" onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: "hsl(var(--muted-foreground))" }}>
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -107,7 +107,7 @@ export default function LoginPage() {
               <p className="text-xs" style={{ color: "hsl(var(--destructive))" }}>{5 - failCount} deneme hakkınız kaldı</p>
             )}
 
-            <button type="submit" disabled={loading || failCount >= 5} className="btn-primary w-full py-2.5 disabled:opacity-50">
+            <button data-testid="login-submit" type="submit" disabled={loading || failCount >= 5} className="btn-primary w-full py-2.5 disabled:opacity-50">
               {loading ? <div className="loading-dots"><span/><span/><span/></div> : "Giriş Yap"}
             </button>
           </form>

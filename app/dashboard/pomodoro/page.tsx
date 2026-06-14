@@ -133,21 +133,21 @@ export default function PomodoroPage() {
   const dash = circ * (1 - progress);
 
   return (
-    <div className="p-4 lg:p-4 lg:p-8 max-w-2xl mx-auto pb-24 lg:pb-8">
+    <div data-testid="pomodoro-page" className="p-4 lg:p-4 lg:p-8 max-w-2xl mx-auto pb-24 lg:pb-8">
             <button onClick={() => router.back()} className="flex items-center gap-1.5 text-sm mb-6 transition-colors hover:text-[hsl(var(--foreground))]" style={{ color: "hsl(var(--muted-foreground))" }}>
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
         Geri
       </button>
 <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-xl lg:text-2xl font-bold text-white mb-1">Pomodoro</h1>
+          <h1 data-testid="pomodoro-title" className="text-xl lg:text-2xl font-bold text-white mb-1">Pomodoro</h1>
           <p className="text-slate-400 text-sm">Odaklanma zamanlayıcısı · {cycle}. tur</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => setFullscreen(true)} className="w-9 h-9 rounded-xl glass flex items-center justify-center text-slate-500 hover:text-white transition-colors" title="Tam ekran">
+          <button data-testid="pomodoro-fullscreen-btn" onClick={() => setFullscreen(true)} className="w-9 h-9 rounded-xl glass flex items-center justify-center text-slate-500 hover:text-white transition-colors" title="Tam ekran">
             <Maximize2 className="w-4 h-4" />
           </button>
-          <button onClick={() => setShowSettings(!showSettings)} className="w-9 h-9 rounded-xl glass flex items-center justify-center text-slate-500 hover:text-white transition-colors">
+          <button data-testid="pomodoro-settings-btn" onClick={() => setShowSettings(!showSettings)} className="w-9 h-9 rounded-xl glass flex items-center justify-center text-slate-500 hover:text-white transition-colors">
             <Settings className="w-4 h-4" />
           </button>
         </div>
@@ -179,7 +179,7 @@ export default function PomodoroPage() {
                   transition={{ duration: 0.5 }} />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <div className="font-bold font-mono tabular-nums" style={{ fontSize: "clamp(3rem, 12vw, 6rem)", color: "hsl(var(--foreground))", letterSpacing: "-0.02em" }}>
+                <div data-testid="pomodoro-fullscreen-timer-display" className="font-bold font-mono tabular-nums" style={{ fontSize: "clamp(3rem, 12vw, 6rem)", color: "hsl(var(--foreground))", letterSpacing: "-0.02em" }}>
                   {String(minutes).padStart(2, "0")}:{String(seconds).padStart(2, "0")}
                 </div>
                 <div className="text-sm mt-2" style={{ color: "hsl(var(--muted-foreground))" }}>{cycle}. tur</div>
@@ -215,7 +215,7 @@ export default function PomodoroPage() {
             </div>
 
             {/* Kapat butonu */}
-            <button onClick={() => setFullscreen(false)}
+            <button data-testid="pomodoro-fullscreen-close-btn" onClick={() => setFullscreen(false)}
               className="absolute top-6 right-6 w-10 h-10 rounded-xl flex items-center justify-center transition-all"
               style={{ background: "hsl(var(--secondary))", color: "hsl(var(--muted-foreground))" }}>
               <Minimize2 className="w-5 h-5" />
@@ -234,7 +234,7 @@ export default function PomodoroPage() {
                 {(["work", "short", "long"] as Mode[]).map(m => (
                   <div key={m}>
                     <label className="text-xs text-slate-500 mb-1 block">{MODE_LABELS[m]}</label>
-                    <input type="number" min="1" max="60" value={durations[m]}
+                    <input data-testid={`pomodoro-duration-${m}`} type="number" min="1" max="60" value={durations[m]}
                       onChange={e => { const v = parseInt(e.target.value) || 1; setDurations(d => ({ ...d, [m]: v })); if (mode === m && !running) { setMinutes(v); setSeconds(0); } }}
                       className="keda-input text-center text-sm py-2" />
                   </div>
@@ -248,7 +248,7 @@ export default function PomodoroPage() {
       {/* Mod seçici */}
       <div className="flex gap-2 mb-8">
         {(["work", "short", "long"] as Mode[]).map(m => (
-          <button key={m} onClick={() => switchMode(m)}
+          <button key={m} data-testid={`pomodoro-mode-${m}`} onClick={() => switchMode(m)}
             className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 ${mode === m ? "bg-[hsl(var(--foreground))]/20 border border-[hsl(var(--border))]/30 text-[hsl(var(--foreground)/0.8)]" : "glass text-slate-500 hover:text-white"}`}>
             {m === "work" ? <Brain className="w-3.5 h-3.5" /> : <Coffee className="w-3.5 h-3.5" />}
             {MODE_LABELS[m]}
@@ -268,23 +268,23 @@ export default function PomodoroPage() {
               transition={{ duration: 0.5 }} />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <div className="text-5xl font-bold text-white font-mono tabular-nums">
+            <div data-testid="pomodoro-timer-display" className="text-5xl font-bold text-white font-mono tabular-nums">
               {String(minutes).padStart(2, "0")}:{String(seconds).padStart(2, "0")}
             </div>
-            <div className={`text-sm mt-2 font-medium ${MODE_COLORS[mode]}`}>{MODE_LABELS[mode]}</div>
+            <div data-testid="pomodoro-mode-label" className={`text-sm mt-2 font-medium ${MODE_COLORS[mode]}`}>{MODE_LABELS[mode]}</div>
           </div>
         </div>
 
         {/* Kontroller */}
         <div className="flex items-center justify-center gap-4">
-          <button onClick={reset} className="w-11 h-11 rounded-xl glass flex items-center justify-center text-slate-500 hover:text-white transition-all">
+          <button data-testid="pomodoro-reset-btn" onClick={reset} className="w-11 h-11 rounded-xl glass flex items-center justify-center text-slate-500 hover:text-white transition-all">
             <RotateCcw className="w-5 h-5" />
           </button>
-          <button onClick={toggle}
+          <button data-testid="pomodoro-toggle-btn" onClick={toggle}
             className="w-16 h-16 rounded-2xl bg-[hsl(var(--foreground))] hover:bg-[hsl(var(--foreground))] flex items-center justify-center transition-all shadow-lg shadow-indigo-600/30">
-            {running ? <Pause className="w-7 h-7 text-white" /> : <Play className="w-7 h-7 text-white ml-1" />}
+            {running ? <Pause data-testid="pomodoro-pause-icon" className="w-7 h-7 text-white" /> : <Play data-testid="pomodoro-play-icon" className="w-7 h-7 text-white ml-1" />}
           </button>
-          <button onClick={skip} className="w-11 h-11 rounded-xl glass flex items-center justify-center text-slate-500 hover:text-white transition-all">
+          <button data-testid="pomodoro-skip-btn" onClick={skip} className="w-11 h-11 rounded-xl glass flex items-center justify-center text-slate-500 hover:text-white transition-all">
             <SkipForward className="w-5 h-5" />
           </button>
         </div>
@@ -293,11 +293,11 @@ export default function PomodoroPage() {
       {/* Bugünkü istatistik */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
         {[
-          { label: "Bugün", value: `${todayWork} oturum` },
-          { label: "Toplam", value: `${totalMinutes} dk` },
-          { label: "Tur", value: `${cycle}. tur` },
-        ].map(({ label, value }) => (
-          <div key={label} className="keda-card p-4 text-center">
+          { label: "Bugün", value: `${todayWork} oturum`, key: "today" },
+          { label: "Toplam", value: `${totalMinutes} dk`, key: "total" },
+          { label: "Tur", value: `${cycle}. tur`, key: "cycle" },
+        ].map(({ label, value, key }) => (
+          <div key={label} data-testid={`pomodoro-stat-${key}`} className="keda-card p-4 text-center">
             <div className="text-white font-bold">{value}</div>
             <div className="text-slate-500 text-xs mt-1">{label}</div>
           </div>
@@ -306,7 +306,7 @@ export default function PomodoroPage() {
 
       {/* Geçmiş */}
       {sessions.length > 0 && (
-        <div className="keda-card p-5">
+        <div data-testid="pomodoro-history" className="keda-card p-5">
           <h3 className="text-white font-medium text-sm mb-4">Son Oturumlar</h3>
           <div className="space-y-2 max-h-48 overflow-y-auto">
             {sessions.slice(0, 10).map((s, i) => (
