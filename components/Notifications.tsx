@@ -143,7 +143,7 @@ export default function Notifications({ userId }: { userId: string }) {
         {open && (
           <motion.div initial={{ opacity: 0, y: 8, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.97 }} transition={{ duration: 0.15 }}
-            className="absolute right-0 top-11 w-80 rounded-2xl border border-[hsl(var(--border))] overflow-hidden shadow-2xl z-50"
+            className="absolute left-0 top-11 w-80 rounded-2xl border border-[hsl(var(--border))] overflow-hidden shadow-2xl z-50"
             style={{ background: "hsl(var(--card))" }}>
             <div className="flex items-center justify-between px-4 py-3 border-b border-[hsl(var(--border))]">
               <h3 className="text-sm font-semibold" style={{ color: "hsl(var(--foreground))" }}>Bildirimler</h3>
