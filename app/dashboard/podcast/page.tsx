@@ -55,6 +55,10 @@ export default function PodcastPage() {
   const [currentWord, setCurrentWord] = useState(-1); // kelime bazlı highlight için
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const paraRefs = useRef<(HTMLParagraphElement | null)[]>([]);
+  // Her oynatma oturumu icin benzersiz id. cancel() cagrildiginda artirilir,
+  // boylece tarayicinin tetikledigi gecikmeli onend/onerror eventleri
+  // eski oturumu devam ettirmeye calismaz (durdurma sorununun kok nedeni).
+  const sessionRef = useRef(0);
 
   // Geçmiş
   const [history, setHistory] = useState<Podcast[]>([]);
@@ -69,7 +73,7 @@ export default function PodcastPage() {
     if (user && tab === "history") loadHistory();
   }, [user, tab]);
 
-  useEffect(() => () => { window.speechSynthesis?.cancel(); }, []);
+  useEffect(() => () => { sessionRef.current++; window.speechSynthesis?.cancel(); }, []);
 
   // Aktif paragrafa scroll
   useEffect(() => {
@@ -99,8 +103,12 @@ export default function PodcastPage() {
 
   // Paragrafları sırayla seslendir
   const speakParagraphs = useCallback((paras: string[], onPara: (i: number) => void, onEnd: () => void) => {
+    // Yeni bir oynatma oturumu baslat ve onceki oturumlari gecersiz kil
+    const mySession = ++sessionRef.current;
     let i = 0;
     const next = () => {
+      // Bu oturum durdurulmus/gecersiz kilinmissa devam etme
+      if (sessionRef.current !== mySession) return;
       if (i >= paras.length) { onEnd(); return; }
       onPara(i);
       const utter = new SpeechSynthesisUtterance(paras[i]);
@@ -109,14 +117,36 @@ export default function PodcastPage() {
       if (voice) utter.voice = voice;
       utter.rate = 0.95;
       utter.pitch = 1.0;
-      utter.onend = () => { i++; next(); };
-      utter.onerror = () => { i++; next(); };
+      utter.onend = () => {
+        if (sessionRef.current !== mySession) return;
+        i++; next();
+      };
+      utter.onerror = () => {
+        if (sessionRef.current !== mySession) return;
+        i++; next();
+      };
       utteranceRef.current = utter;
       window.speechSynthesis.speak(utter);
     };
     if (window.speechSynthesis.getVoices().length === 0) {
       window.speechSynthesis.onvoiceschanged = next;
     } else { next(); }
+  }, []);
+
+  /**
+   * Tum seslendirmeyi guvenli bicimde durdurur.
+   * Sadece speechSynthesis.cancel() cagirmak yetmez; bazi tarayicilarda
+   * cancel() asenkron olarak suanki utterance'in 'end' eventini tetikler
+   * ve speakParagraphs dongusu bir sonraki paragrafa gecmeye calisir.
+   * sessionRef'i artirarak bu gecikmeli callback'leri gecersiz kiliyoruz.
+   */
+  const stopSpeaking = useCallback(() => {
+    sessionRef.current++;
+    if (utteranceRef.current) {
+      utteranceRef.current.onend = null;
+      utteranceRef.current.onerror = null;
+    }
+    window.speechSynthesis.cancel();
   }, []);
 
   const handleGenerate = async () => {
@@ -131,7 +161,7 @@ export default function PodcastPage() {
       setActiveTitle(title);
       setCurrentPara(-1);
       setPlaying(false);
-      window.speechSynthesis.cancel();
+      stopSpeaking();
 
       // Oluşturulunca scroll
       setTimeout(() => document.getElementById("player-section")?.scrollIntoView({ behavior: "smooth", block: "start" }), 150);
@@ -155,7 +185,7 @@ export default function PodcastPage() {
   const handlePlay = () => {
     if (!paragraphs.length) return;
     if (playing) {
-      window.speechSynthesis.cancel();
+      stopSpeaking();
       setPlaying(false);
       return;
     }
@@ -169,25 +199,25 @@ export default function PodcastPage() {
   };
 
   const handlePrev = () => {
-    window.speechSynthesis.cancel();
+    stopSpeaking();
     setPlaying(false);
     setCurrentPara(p => Math.max(0, p - 1));
   };
 
   const handleNext = () => {
-    window.speechSynthesis.cancel();
+    stopSpeaking();
     setPlaying(false);
     setCurrentPara(p => Math.min(paragraphs.length - 1, p + 1));
   };
 
   const handlePlayHistory = (podcast: Podcast) => {
     if (playingHistoryId === podcast.id) {
-      window.speechSynthesis.cancel();
+      stopSpeaking();
       setPlayingHistoryId(null);
       setHistoryCurrentPara(-1);
       return;
     }
-    window.speechSynthesis.cancel();
+    stopSpeaking();
     const paras = podcast.diyalog_metni.split("\n\n").filter(p => p.trim());
     setPlayingHistoryId(podcast.id);
     setExpandedId(podcast.id);
@@ -333,7 +363,7 @@ export default function PodcastPage() {
                   const rect = e.currentTarget.getBoundingClientRect();
                   const pct = (e.clientX - rect.left) / rect.width;
                   const idx = Math.floor(pct * paragraphs.length);
-                  window.speechSynthesis.cancel();
+                  stopSpeaking();
                   setPlaying(false);
                   setCurrentPara(Math.max(0, Math.min(paragraphs.length - 1, idx)));
                 }}>
@@ -370,7 +400,7 @@ export default function PodcastPage() {
                       key={i}
                       ref={el => { paraRefs.current[i] = el; }}
                       onClick={() => {
-                        window.speechSynthesis.cancel();
+                        stopSpeaking();
                         setPlaying(false);
                         setCurrentPara(i);
                       }}
@@ -396,7 +426,7 @@ export default function PodcastPage() {
               </div>
 
               <button onClick={() => {
-                window.speechSynthesis.cancel();
+                stopSpeaking();
                 setPlaying(false);
                 setParagraphs([]);
                 setCurrentPara(-1);
@@ -466,7 +496,7 @@ export default function PodcastPage() {
                     <button onClick={async () => {
                       await deletePodcast(podcast.id);
                       setHistory(prev => prev.filter(p => p.id !== podcast.id));
-                      if (playingHistoryId === podcast.id) { window.speechSynthesis.cancel(); setPlayingHistoryId(null); }
+                      if (playingHistoryId === podcast.id) { stopSpeaking(); setPlayingHistoryId(null); }
                       toast.success("Silindi");
                     }} className="p-1.5 rounded-lg hover:bg-red-500/10 text-red-400 transition-colors">
                       <Trash2 className="w-3.5 h-3.5" />
