@@ -50,8 +50,16 @@ function timeAgo(date: string) {
   return new Date(date).toLocaleDateString("tr-TR");
 }
 
-function Avatar({ name, size = 40 }: { name: string; size?: number }) {
+function Avatar({ name, avatarUrl, size = 40 }: { name: string; avatarUrl?: string; size?: number }) {
   const [from, to] = COLORS[(name?.charCodeAt(0) || 0) % COLORS.length];
+  if (avatarUrl) {
+    return (
+      <img src={avatarUrl} alt={name}
+        className="rounded-xl object-cover flex-shrink-0"
+        style={{ width: size, height: size }}
+        onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+    );
+  }
   return (
     <div className="rounded-xl flex items-center justify-center font-semibold text-white flex-shrink-0"
       style={{ width: size, height: size, background: `linear-gradient(135deg,${from},${to})`, fontSize: size * 0.38 }}>
@@ -278,7 +286,7 @@ function DMChat({ currentUserId, friend, onClose }: { currentUserId: string; fri
         className="w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl flex flex-col overflow-hidden"
         style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", height: "70vh", maxHeight: 520 }}>
         <div className="flex items-center gap-3 px-4 py-3 border-b border-[hsl(var(--border))]">
-          <Avatar name={friend.display_name} size={36} />
+          <Avatar name={friend.display_name} avatarUrl={friend.avatar_url} size={36} />
           <p className="text-sm font-semibold flex-1" style={{ color: "hsl(var(--foreground))" }}>{friend.display_name}</p>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-[hsl(var(--accent))] transition-colors"
             style={{ color: "hsl(var(--muted-foreground))" }}><X className="w-4 h-4" /></button>
@@ -481,7 +489,7 @@ export default function FriendsPage() {
 
   useEffect(() => {
     if (!user) return;
-    updatePublicStats(user.id, userName, user.email || "");
+    updatePublicStats(user.id, userName, user.email || "", user.user_metadata?.avatar_url || "");
     loadAll();
   }, [user]);
 
@@ -618,7 +626,7 @@ export default function FriendsPage() {
               <motion.div key={f.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
                 className="keda-card p-4 flex items-center gap-3">
                 <div className="relative cursor-pointer" onClick={() => setChatFriend(stat)}>
-                  <Avatar name={stat.display_name} size={44} />
+                  <Avatar name={stat.display_name} avatarUrl={stat.avatar_url} size={44} />
                   {isOnline && <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2"
                     style={{ borderColor: "hsl(var(--card))" }} />}
                   {unread > 0 && <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center"
@@ -700,7 +708,7 @@ export default function FriendsPage() {
             return (
               <motion.div key={act.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
                 className="keda-card p-4 flex items-start gap-3">
-                <Avatar name={name} size={36} />
+                <Avatar name={name} avatarUrl={stat?.avatar_url} size={36} />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm" style={{ color: "hsl(var(--foreground))" }}>
                     <span className="font-semibold">{name}</span>{" "}
@@ -744,7 +752,7 @@ export default function FriendsPage() {
             {searchResults.map(u => (
               <motion.div key={u.user_id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
                 className="keda-card p-4 flex items-center gap-3">
-                <Avatar name={u.display_name} size={44} />
+                <Avatar name={u.display_name} avatarUrl={u.avatar_url} size={44} />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold" style={{ color: "hsl(var(--foreground))" }}>{u.display_name}</p>
                   <p className="text-xs mt-0.5" style={{ color: "hsl(var(--muted-foreground))" }}>
@@ -780,7 +788,7 @@ export default function FriendsPage() {
           ) : pendingRequests.map(req => (
             <motion.div key={req.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
               className="keda-card p-4 flex items-center gap-3">
-              <Avatar name={req.requester_name} size={44} />
+              <Avatar name={req.requester_name} avatarUrl={req.requester_avatar} size={44} />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold" style={{ color: "hsl(var(--foreground))" }}>{req.requester_name}</p>
                 <p className="text-xs mt-0.5" style={{ color: "hsl(var(--muted-foreground))" }}>Arkadaşlık isteği</p>

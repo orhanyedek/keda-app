@@ -90,7 +90,7 @@ function FriendsWidget({ userId }: { userId: string }) {
   const colors = [["#3b82f6","#1d4ed8"],["#8b5cf6","#6d28d9"],["#10b981","#047857"],["#f59e0b","#b45309"],["#ef4444","#b91c1c"]];
 
   return (
-    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="keda-card p-5 mb-6">
+    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="keda-card p-5">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-semibold flex items-center gap-2" style={{ color: "hsl(var(--foreground))" }}>
           <Users className="w-4 h-4" />
@@ -101,7 +101,7 @@ function FriendsWidget({ userId }: { userId: string }) {
         </Link>
       </div>
       <div className="space-y-3">
-        {friends.slice(0, 3).map((f: any) => {
+        {friends.slice(0, 4).map((f: any) => {
           const fid = getFriendId(f);
           const stat = stats.find(s => s.user_id === fid);
           const name = stat?.display_name || "Kullanıcı";
@@ -110,20 +110,23 @@ function FriendsWidget({ userId }: { userId: string }) {
           const isOnline = diff < 10 * 60 * 1000;
           return (
             <div key={f.id} className="flex items-center gap-3">
-              <div className="relative">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white"
-                  style={{ background: `linear-gradient(135deg, ${from}, ${to})` }}>
-                  {name.charAt(0).toUpperCase()}
-                </div>
+              <div className="relative flex-shrink-0">
+                {stat?.avatar_url ? (
+                  <img src={stat.avatar_url} alt={name}
+                    className="w-8 h-8 rounded-lg object-cover"
+                    onError={e => { (e.target as HTMLImageElement).src = ""; }} />
+                ) : (
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white"
+                    style={{ background: `linear-gradient(135deg, ${from}, ${to})` }}>
+                    {name.charAt(0).toUpperCase()}
+                  </div>
+                )}
                 {isOnline && <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2"
                   style={{ borderColor: "hsl(var(--card))" }} />}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-medium truncate" style={{ color: "hsl(var(--foreground))" }}>{name}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-xs font-bold" style={{ color: "hsl(var(--foreground))" }}>{stat?.weekly_cards || 0}</p>
-                <p className="text-[10px]" style={{ color: "hsl(var(--muted-foreground))" }}>bu hafta</p>
+                <p className="text-[10px]" style={{ color: "hsl(var(--muted-foreground))" }}>{stat?.weekly_cards || 0} kart bu hafta</p>
               </div>
             </div>
           );
@@ -209,9 +212,9 @@ export default function DashboardPage() {
         <StatCard icon={Mic} label="Toplam Podcast" value={loadingStats ? "..." : stats?.son_podcastler?.length || 0} sub={stats?.son_podcast?.baslik || "Henüz yok"} />
       </motion.div>
 
-      {/* Son aktiviteler + Leitner */}
+      {/* Son aktiviteler + Leitner + Arkadaşlar */}
       {!loadingStats && (stats?.son_setler?.length || stats?.son_podcastler?.length || stats?.leitner_dagilim?.some(d => d.sayi > 0)) && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 mb-6">
           {/* Son flashcard setleri */}
           {(stats?.son_setler?.length || 0) > 0 && (
             <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.1 }} className="keda-card p-5">
@@ -283,9 +286,12 @@ export default function DashboardPage() {
               </div>
             </motion.div>
           )}
+
+          {/* Arkadaşlar widget */}
+          <FriendsWidget userId={user?.id || ""} />
+
         </div>
       )}
-
 
       {/* Modüller */}
       <div className="mb-8">

@@ -355,7 +355,7 @@ export async function savePdfDocument(
 
 // ==================== ARKADAŞLIK SİSTEMİ ====================
 
-export async function updatePublicStats(userId: string, displayName: string, email?: string) {
+export async function updatePublicStats(userId: string, displayName: string, email?: string, avatarUrl?: string) {
   const { data: flashcards } = await supabase
     .from("flashcards").select("id, kutu_no, sonraki_gosterim").eq("kullanici_id", userId);
 
@@ -371,6 +371,7 @@ export async function updatePublicStats(userId: string, displayName: string, ema
     user_id: userId,
     display_name: displayName,
     email: email || "",
+    avatar_url: avatarUrl || "",
     total_cards: flashcards?.length || 0,
     weekly_cards: weeklyCards,
     last_active: new Date().toISOString(),
