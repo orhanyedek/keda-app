@@ -321,23 +321,40 @@ export default function MessagesPage() {
     setLoadingMsgs(false);
   };
 
-  // Realtime subscription
+  // Realtime için ref'ler — closure sorununu önler
+  const activeDMRef = useRef<UserStat | null>(null);
+  const activeGroupRef = useRef<GroupChat | null>(null);
+  useEffect(() => { activeDMRef.current = activeDM; }, [activeDM]);
+  useEffect(() => { activeGroupRef.current = activeGroup; }, [activeGroup]);
+
+  // Realtime subscription — sadece karşı taraftan gelen mesajları dinler
   useEffect(() => {
     if (!user) return;
-    const ch = supabase.channel("messages-page")
+    const ch = supabase.channel("messages-page-" + user.id)
       .on("postgres_changes" as any, { event: "INSERT", schema: "public", table: "messages" }, (p: any) => {
         const m = p.new as Message;
-        if (activeDM && ((m.sender_id === activeDM.user_id && m.receiver_id === user.id) || (m.sender_id === user.id && m.receiver_id === activeDM.user_id))) {
-          setMessages(prev => [...prev, m]);
-          if (m.sender_id === activeDM.user_id) markMessagesRead(user.id, activeDM.user_id);
-        } else if (m.receiver_id === user.id && m.sender_id !== user.id) {
+        // Sadece karşıdan gelen (benim göndermediğim) mesajları ekle
+        if (m.sender_id === user.id) return;
+        const dm = activeDMRef.current;
+        if (dm && m.sender_id === dm.user_id && m.receiver_id === user.id) {
+          setMessages(prev => {
+            if (prev.find(x => x.id === m.id)) return prev;
+            return [...prev, m];
+          });
+          markMessagesRead(user.id, dm.user_id);
+        } else if (m.receiver_id === user.id) {
           setUnreadMap(prev => ({ ...prev, [m.sender_id]: (prev[m.sender_id] || 0) + 1 }));
         }
       })
       .on("postgres_changes" as any, { event: "INSERT", schema: "public", table: "group_messages" }, (p: any) => {
         const m = p.new as Message;
-        if (activeGroup && m.group_id === activeGroup.id) {
-          setMessages(prev => [...prev, m]);
+        if (m.sender_id === user.id) return; // kendi mesajımızı zaten handleSend'de ekledik
+        const grp = activeGroupRef.current;
+        if (grp && m.group_id === grp.id) {
+          setMessages(prev => {
+            if (prev.find(x => x.id === m.id)) return prev;
+            return [...prev, m];
+          });
         }
       })
       .on("postgres_changes" as any, { event: "UPDATE", schema: "public", table: "messages" }, (p: any) => {
@@ -345,7 +362,7 @@ export default function MessagesPage() {
       })
       .subscribe();
     return () => { supabase.removeChannel(ch); };
-  }, [user, activeDM, activeGroup]);
+  }, [user]); // user dışında bağımlılık yok — ref'ler üzerinden erişiyoruz
 
   const handleSend = async (text: string, type: string, blob?: Blob) => {
     if (!user) return;
@@ -355,8 +372,15 @@ export default function MessagesPage() {
       const { data } = await supabase.storage.from("avatars").upload(`voices/${Date.now()}.webm`, file);
       if (data) { const { data: u } = supabase.storage.from("avatars").getPublicUrl(data.path); audioUrl = u.publicUrl; }
     }
-    if (activeDM) await sendDM(user.id, activeDM.user_id, text || "🎤", type as any, audioUrl || undefined);
-    if (activeGroup) await sendGroupMessage(activeGroup.id, user.id, text || "🎤", type, audioUrl || undefined);
+
+    if (activeDM) {
+      const { data: newMsg } = await sendDM(user.id, activeDM.user_id, text || "🎤", type as any, audioUrl || undefined);
+      if (newMsg) setMessages(prev => [...prev, newMsg as Message]);
+    }
+    if (activeGroup) {
+      const { data: newMsg } = await sendGroupMessage(activeGroup.id, user.id, text || "🎤", type, audioUrl || undefined);
+      if (newMsg) setMessages(prev => [...prev, newMsg as Message]);
+    }
   };
 
   const handleDelete = async (id: string, forAll: boolean) => {

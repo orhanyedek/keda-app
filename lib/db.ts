@@ -463,10 +463,10 @@ export async function getMessages(userId: string, friendId: string) {
   return { data, error };
 }
 
-export async function sendMessage(senderId: string, receiverId: string, content: string) {
+export async function sendMessage(senderId: string, receiverId: string, content: string, type = "text", audioUrl?: string) {
   const { data, error } = await supabase
     .from("messages")
-    .insert({ sender_id: senderId, receiver_id: receiverId, content })
+    .insert({ sender_id: senderId, receiver_id: receiverId, content, message_type: type, audio_url: audioUrl })
     .select()
     .single();
   return { data, error };
