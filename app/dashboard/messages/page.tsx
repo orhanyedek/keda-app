@@ -365,9 +365,9 @@ export default function MessagesPage() {
       .on("postgres_changes" as any, { event: "UPDATE", schema: "public", table: "messages" }, (p: any) => {
         setMessages(prev => prev.map(m => m.id === p.new.id ? { ...m, ...p.new } : m));
       })
-      .on("postgres_changes" as any, { event: "INSERT", schema: "public", table: "friend_activities",
-        filter: `user_id=neq.${user.id}` }, (p: any) => {
+      .on("postgres_changes" as any, { event: "INSERT", schema: "public", table: "friend_activities" }, (p: any) => {
         const act = p.new;
+        // Sadece bize gelen arama davetlerini işle
         if (act.type === "call_invite" && act.meta?.to_user === user.id) {
           setIncomingCall({ from: act.user_id, fromName: act.meta.from_name, roomId: act.meta.room_id, type: act.meta.call_type || "video" });
           setCallState("incoming");
