@@ -594,13 +594,16 @@ export default function FriendsPage() {
         <p className="text-sm" style={{ color: "hsl(var(--muted-foreground))" }}>Arkadaşlarınla çalış, mesajlaş, takip et</p>
       </motion.div>
 
-      {/* Sekmeler */}
-      <div className="flex gap-2 mb-6 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+      {/* Sekmeler — modern pill */}
+      <div className="flex gap-1.5 mb-6 p-1 rounded-2xl overflow-x-auto" style={{ background: "hsl(var(--secondary))", scrollbarWidth: "none" }}>
         {TABS.map(t => (
           <button key={t.key} onClick={() => setTab(t.key as any)}
-            className={`px-3 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${tab === t.key
-              ? "bg-[hsl(var(--foreground)/0.08)] border border-[hsl(var(--foreground)/0.15)] text-[hsl(var(--foreground))]"
-              : "glass text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"}`}>
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap flex-shrink-0"
+            style={{
+              background: tab === t.key ? "hsl(var(--background))" : "transparent",
+              color: tab === t.key ? "hsl(var(--foreground))" : "hsl(var(--muted-foreground))",
+              boxShadow: tab === t.key ? "0 1px 4px rgba(0,0,0,0.15)" : "none",
+            }}>
             {t.label}
           </button>
         ))}
@@ -645,7 +648,7 @@ export default function FriendsPage() {
                     style={{ color: "hsl(var(--muted-foreground))" }} title="Çalışma daveti gönder">
                     📚
                   </button>
-                  <button onClick={() => setChatFriend(stat)}
+                  <button onClick={() => router.push(`/dashboard/messages`)}
                     className="relative w-8 h-8 rounded-lg flex items-center justify-center hover:bg-[hsl(var(--accent))] transition-colors"
                     style={{ color: "hsl(var(--muted-foreground))" }}>
                     <MessageCircle className="w-4 h-4" />
