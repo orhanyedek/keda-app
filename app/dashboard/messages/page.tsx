@@ -270,6 +270,11 @@ export default function MessagesPage() {
   const [loadingMsgs, setLoadingMsgs] = useState(false);
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [showSidebar, setShowSidebar] = useState(true);
+  const [callState, setCallState] = useState<"idle" | "calling" | "in-call" | "incoming">("idle");
+  const [callType, setCallType] = useState<"audio" | "video">("video");
+  const [incomingCall, setIncomingCall] = useState<{ from: string; fromName: string; roomId: string; type: "audio" | "video" } | null>(null);
+  const [callRoomId, setCallRoomId] = useState<string>("");
+  const jitsiRef = useRef<HTMLDivElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
 
   const userName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Kullanıcı";
@@ -360,9 +365,71 @@ export default function MessagesPage() {
       .on("postgres_changes" as any, { event: "UPDATE", schema: "public", table: "messages" }, (p: any) => {
         setMessages(prev => prev.map(m => m.id === p.new.id ? { ...m, ...p.new } : m));
       })
+      .on("postgres_changes" as any, { event: "INSERT", schema: "public", table: "friend_activities",
+        filter: `user_id=neq.${user.id}` }, (p: any) => {
+        const act = p.new;
+        if (act.type === "call_invite" && act.meta?.to_user === user.id) {
+          setIncomingCall({ from: act.user_id, fromName: act.meta.from_name, roomId: act.meta.room_id, type: act.meta.call_type || "video" });
+          setCallState("incoming");
+        }
+        if (act.type === "call_ended" && act.meta?.to_user === user.id) {
+          setCallState("idle");
+          setIncomingCall(null);
+        }
+      })
       .subscribe();
     return () => { supabase.removeChannel(ch); };
   }, [user]); // user dışında bağımlılık yok — ref'ler üzerinden erişiyoruz
+
+  const startCall = async (type: "audio" | "video") => {
+    if (!activeDM || !user) return;
+    const roomId = `keda-${[user.id, activeDM.user_id].sort().join("-")}-${Date.now()}`;
+    setCallRoomId(roomId);
+    setCallType(type);
+    setCallState("in-call");
+
+    // Karşı tarafa bildirim gönder
+    await supabase.from("friend_activities").insert({
+      user_id: user.id,
+      type: "call_invite",
+      description: `${userName} sizi arıyor...`,
+      meta: { to_user: activeDM.user_id, from_name: userName, room_id: roomId, call_type: type }
+    });
+  };
+
+  const endCall = async () => {
+    if (!activeDM || !user) return;
+    // Karşı tarafa arama bitti bildirimi
+    await supabase.from("friend_activities").insert({
+      user_id: user.id,
+      type: "call_ended",
+      description: "Arama sona erdi",
+      meta: { to_user: activeDM.user_id }
+    });
+    setCallState("idle");
+    setCallRoomId("");
+    setIncomingCall(null);
+  };
+
+  const acceptCall = () => {
+    if (!incomingCall) return;
+    setCallRoomId(incomingCall.roomId);
+    setCallType(incomingCall.type);
+    setCallState("in-call");
+    setIncomingCall(null);
+  };
+
+  const rejectCall = async () => {
+    if (!incomingCall || !user) return;
+    await supabase.from("friend_activities").insert({
+      user_id: user.id,
+      type: "call_ended",
+      description: "Arama reddedildi",
+      meta: { to_user: incomingCall.from }
+    });
+    setCallState("idle");
+    setIncomingCall(null);
+  };
 
   const handleSend = async (text: string, type: string, blob?: Blob) => {
     if (!user) return;
@@ -543,6 +610,21 @@ export default function MessagesPage() {
                       {(Date.now() - new Date(activeDM.last_active).getTime()) < 10 * 60 * 1000 ? "Çevrimiçi" : `Son görülme: ${timeAgo(activeDM.last_active)}`}
                     </p>
                   </div>
+                  {/* Arama butonları */}
+                  <button onClick={() => startCall("audio")}
+                    className="w-9 h-9 rounded-xl flex items-center justify-center hover:bg-[hsl(var(--accent))] transition-colors"
+                    style={{ color: "hsl(var(--muted-foreground))" }} title="Sesli Arama">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                  </button>
+                  <button onClick={() => startCall("video")}
+                    className="w-9 h-9 rounded-xl flex items-center justify-center hover:bg-[hsl(var(--accent))] transition-colors"
+                    style={{ color: "hsl(var(--muted-foreground))" }} title="Görüntülü Arama">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 10l4.553-2.069A1 1 0 0121 8.882v6.236a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                  </button>
                 </>
               ) : activeGroup && (
                 <>
@@ -589,6 +671,78 @@ export default function MessagesPage() {
           <CreateGroupModal friends={friends} friendStats={friendStats} currentUserId={user?.id || ""}
             onClose={() => setShowCreateGroup(false)}
             onCreate={g => { setGroupChats(prev => [g, ...prev]); openGroup(g); }} />
+        )}
+      </AnimatePresence>
+
+      {/* Jitsi Arama Penceresi */}
+      <AnimatePresence>
+        {callState === "in-call" && callRoomId && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex flex-col"
+            style={{ background: "#1a1a2e" }}>
+            {/* Jitsi Header */}
+            <div className="flex items-center justify-between px-4 py-3 flex-shrink-0"
+              style={{ background: "rgba(0,0,0,0.4)" }}>
+              <div className="flex items-center gap-3">
+                {activeDM && <Avatar name={activeDM.display_name} avatarUrl={activeDM.avatar_url} size={32} />}
+                <div>
+                  <p className="text-sm font-semibold text-white">{activeDM?.display_name || "Grup Araması"}</p>
+                  <p className="text-xs text-white/60">{callType === "video" ? "Görüntülü arama" : "Sesli arama"}</p>
+                </div>
+              </div>
+              <button onClick={endCall}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all"
+                style={{ background: "#ef4444", color: "white" }}>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 8l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M5 3a2 2 0 00-2 2v1c0 8.284 6.716 15 15 15h1a2 2 0 002-2v-3.28a1 1 0 00-.684-.948l-4.493-1.498a1 1 0 00-1.21.502l-1.13 2.257a11.042 11.042 0 01-5.516-5.517l2.257-1.128a1 1 0 00.502-1.21L9.228 3.683A1 1 0 008.279 3H5z" />
+                </svg>
+                Aramayı Bitir
+              </button>
+            </div>
+            {/* Jitsi iframe */}
+            <iframe
+              src={`https://meet.jit.si/${callRoomId}${callType === "audio" ? "#config.startWithVideoMuted=true" : ""}`}
+              allow="camera; microphone; fullscreen; display-capture; autoplay"
+              className="flex-1 w-full border-0"
+              style={{ minHeight: 0 }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Gelen Arama Bildirimi */}
+      <AnimatePresence>
+        {callState === "incoming" && incomingCall && (
+          <motion.div initial={{ opacity: 0, y: -80 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -80 }}
+            className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 px-5 py-4 rounded-2xl shadow-2xl"
+            style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", minWidth: 300 }}>
+            {/* Zil animasyonu */}
+            <motion.div animate={{ rotate: [0, -15, 15, -15, 15, 0] }} transition={{ repeat: Infinity, duration: 1 }}
+              className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+              style={{ background: "#22c55e20" }}>
+              <svg className="w-5 h-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+              </svg>
+            </motion.div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold truncate" style={{ color: "hsl(var(--foreground))" }}>{incomingCall.fromName}</p>
+              <p className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>
+                {incomingCall.type === "video" ? "Görüntülü arama" : "Sesli arama"} geliyor...
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <button onClick={rejectCall}
+                className="w-9 h-9 rounded-full flex items-center justify-center transition-colors"
+                style={{ background: "#ef444420", color: "#ef4444" }}>
+                <X className="w-4 h-4" />
+              </button>
+              <button onClick={acceptCall}
+                className="w-9 h-9 rounded-full flex items-center justify-center transition-colors"
+                style={{ background: "#22c55e20", color: "#22c55e" }}>
+                <Check className="w-4 h-4" />
+              </button>
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>
