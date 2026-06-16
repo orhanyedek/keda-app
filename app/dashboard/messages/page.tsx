@@ -275,6 +275,7 @@ export default function MessagesPage() {
   const [incomingCall, setIncomingCall] = useState<{ from: string; fromName: string; roomId: string; type: "audio" | "video" } | null>(null);
   const [callRoomId, setCallRoomId] = useState<string>("");
   const jitsiRef = useRef<HTMLDivElement>(null);
+  const seenCallsRef = useRef<Set<string>>(new Set());
   const endRef = useRef<HTMLDivElement>(null);
 
   const userName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Kullanıcı";
@@ -378,7 +379,48 @@ export default function MessagesPage() {
         }
       })
       .subscribe();
-    return () => { supabase.removeChannel(ch); };
+
+    // friend_activities polling - arama davetleri için (Realtime yerine)
+    const pollInterval = setInterval(async () => {
+      const since = new Date(Date.now() - 5000).toISOString(); // son 5 saniye
+      const { data } = await supabase
+        .from("friend_activities")
+        .select("*")
+        .eq("type", "call_invite")
+        .eq("meta->>to_user", user.id)
+        .gt("created_at", since)
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+      if (data && data.length > 0) {
+        const act = data[0];
+        if (!seenCallsRef.current.has(act.id)) {
+          seenCallsRef.current.add(act.id);
+          setIncomingCall({ from: act.user_id, fromName: act.meta.from_name, roomId: act.meta.room_id, type: act.meta.call_type || "video" });
+          setCallState(prev => prev === "in-call" ? prev : "incoming");
+        }
+      }
+
+      // Arama bitti mi kontrol et
+      const { data: ended } = await supabase
+        .from("friend_activities")
+        .select("*")
+        .eq("type", "call_ended")
+        .eq("meta->>to_user", user.id)
+        .gt("created_at", since)
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+      if (ended && ended.length > 0) {
+        setCallState(prev => prev === "incoming" ? "idle" : prev);
+        setIncomingCall(null);
+      }
+    }, 3000);
+
+    return () => {
+      supabase.removeChannel(ch);
+      clearInterval(pollInterval);
+    };
   }, [user]); // user dışında bağımlılık yok — ref'ler üzerinden erişiyoruz
 
   const startCall = async (type: "audio" | "video") => {
