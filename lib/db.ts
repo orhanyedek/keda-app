@@ -592,3 +592,30 @@ export async function sendStudyInvite(fromId: string, toId: string, fromName: st
   });
   return { error };
 }
+
+// ==================== MESAJ REAKSİYONLARI ====================
+
+export async function addReaction(messageId: string, userId: string, emoji: string) {
+  const { data, error } = await supabase
+    .from("message_reactions")
+    .upsert({ message_id: messageId, user_id: userId, emoji }, { onConflict: "message_id,user_id,emoji" })
+    .select().single();
+  return { data, error };
+}
+
+export async function removeReaction(messageId: string, userId: string, emoji: string) {
+  const { error } = await supabase
+    .from("message_reactions")
+    .delete()
+    .eq("message_id", messageId).eq("user_id", userId).eq("emoji", emoji);
+  return { error };
+}
+
+export async function getReactions(messageIds: string[]) {
+  if (!messageIds.length) return { data: [], error: null };
+  const { data, error } = await supabase
+    .from("message_reactions")
+    .select("*")
+    .in("message_id", messageIds);
+  return { data, error };
+}
