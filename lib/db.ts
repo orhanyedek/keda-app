@@ -619,3 +619,23 @@ export async function getReactions(messageIds: string[]) {
     .in("message_id", messageIds);
   return { data, error };
 }
+
+// ==================== KULLANICI DURUMU ====================
+
+export async function setUserStatus(userId: string, status: string, emoji: string) {
+  const { error } = await supabase
+    .from("user_stats_public")
+    .update({ status, status_emoji: emoji })
+    .eq("user_id", userId);
+  return { error };
+}
+
+// ==================== MESAJ İLETME ====================
+
+export async function forwardMessage(senderId: string, receiverId: string, content: string) {
+  const { data, error } = await supabase
+    .from("messages")
+    .insert({ sender_id: senderId, receiver_id: receiverId, content, message_type: "text" })
+    .select().single();
+  return { data, error };
+}
